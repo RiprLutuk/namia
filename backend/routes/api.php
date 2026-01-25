@@ -15,3 +15,5 @@ Route::middleware([ApiKeyMiddleware::class, 'throttle:60,1'])->group(function ()
     Route::post('/report', [ReportController::class, 'store']);
     Route::post('/contacts/backup', [App\Http\Controllers\ContactController::class, 'backup']);
 });
+
+Route::get('/public/feed', [App\Http\Controllers\PublicFeedController::class, 'api']);

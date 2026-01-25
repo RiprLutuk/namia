@@ -1,0 +1,326 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="com.spam.caller"
+4    android:versionCode="1"
+5    android:versionName="1.0" >
+6
+7    <uses-sdk
+8        android:minSdkVersion="29"
+9        android:targetSdkVersion="34" />
+10
+11    <uses-permission android:name="android.permission.READ_CONTACTS" />
+11-->/Users/lutuk/Project/spam-caller/android/app/src/main/AndroidManifest.xml:4:5-72
+11-->/Users/lutuk/Project/spam-caller/android/app/src/main/AndroidManifest.xml:4:22-69
+12    <uses-permission android:name="android.permission.READ_CALL_LOG" />
+12-->/Users/lutuk/Project/spam-caller/android/app/src/main/AndroidManifest.xml:5:5-72
+12-->/Users/lutuk/Project/spam-caller/android/app/src/main/AndroidManifest.xml:5:22-69
+13    <uses-permission android:name="android.permission.INTERNET" />
+13-->/Users/lutuk/Project/spam-caller/android/app/src/main/AndroidManifest.xml:6:5-67
+13-->/Users/lutuk/Project/spam-caller/android/app/src/main/AndroidManifest.xml:6:22-64
+14    <!-- Required for CallScreeningService -->
+15    <uses-permission android:name="android.permission.BIND_SCREENING_SERVICE" />
+15-->/Users/lutuk/Project/spam-caller/android/app/src/main/AndroidManifest.xml:8:5-81
+15-->/Users/lutuk/Project/spam-caller/android/app/src/main/AndroidManifest.xml:8:22-78
+16    <uses-permission android:name="android.permission.WAKE_LOCK" />
+16-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:23:5-68
+16-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:23:22-65
+17    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+17-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:24:5-79
+17-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:24:22-76
+18    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+18-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:25:5-81
+18-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:25:22-78
+19    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+19-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:26:5-77
+19-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:26:22-74
+20
+21    <permission
+21-->[androidx.core:core:1.9.0] /Users/lutuk/.gradle/caches/8.9/transforms/cddf55454b0466f7457ed22b2824534d/transformed/core-1.9.0/AndroidManifest.xml:22:5-24:47
+22        android:name="com.spam.caller.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+22-->[androidx.core:core:1.9.0] /Users/lutuk/.gradle/caches/8.9/transforms/cddf55454b0466f7457ed22b2824534d/transformed/core-1.9.0/AndroidManifest.xml:23:9-81
+23        android:protectionLevel="signature" />
+23-->[androidx.core:core:1.9.0] /Users/lutuk/.gradle/caches/8.9/transforms/cddf55454b0466f7457ed22b2824534d/transformed/core-1.9.0/AndroidManifest.xml:24:9-44
+24
+25    <uses-permission android:name="com.spam.caller.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+25-->[androidx.core:core:1.9.0] /Users/lutuk/.gradle/caches/8.9/transforms/cddf55454b0466f7457ed22b2824534d/transformed/core-1.9.0/AndroidManifest.xml:26:5-97
+25-->[androidx.core:core:1.9.0] /Users/lutuk/.gradle/caches/8.9/transforms/cddf55454b0466f7457ed22b2824534d/transformed/core-1.9.0/AndroidManifest.xml:26:22-94
+26
+27    <application
+27-->/Users/lutuk/Project/spam-caller/android/app/src/main/AndroidManifest.xml:10:5-36:19
+28        android:name="com.spam.caller.SpamApplication"
+28-->/Users/lutuk/Project/spam-caller/android/app/src/main/AndroidManifest.xml:11:9-40
+29        android:allowBackup="true"
+29-->/Users/lutuk/Project/spam-caller/android/app/src/main/AndroidManifest.xml:12:9-35
+30        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+30-->[androidx.core:core:1.9.0] /Users/lutuk/.gradle/caches/8.9/transforms/cddf55454b0466f7457ed22b2824534d/transformed/core-1.9.0/AndroidManifest.xml:28:18-86
+31        android:debuggable="true"
+32        android:extractNativeLibs="false"
+33        android:icon="@android:drawable/sym_def_app_icon"
+33-->/Users/lutuk/Project/spam-caller/android/app/src/main/AndroidManifest.xml:14:9-58
+34        android:label="SpamCaller"
+34-->/Users/lutuk/Project/spam-caller/android/app/src/main/AndroidManifest.xml:15:9-35
+35        android:supportsRtl="true"
+35-->/Users/lutuk/Project/spam-caller/android/app/src/main/AndroidManifest.xml:16:9-35
+36        android:theme="@style/Theme.SpamCaller"
+36-->/Users/lutuk/Project/spam-caller/android/app/src/main/AndroidManifest.xml:17:9-48
+37        android:usesCleartextTraffic="true" >
+37-->/Users/lutuk/Project/spam-caller/android/app/src/main/AndroidManifest.xml:13:9-44
+38        <service
+38-->/Users/lutuk/Project/spam-caller/android/app/src/main/AndroidManifest.xml:19:9-26:19
+39            android:name="com.spam.caller.service.SpamCallScreeningService"
+39-->/Users/lutuk/Project/spam-caller/android/app/src/main/AndroidManifest.xml:20:13-61
+40            android:exported="true"
+40-->/Users/lutuk/Project/spam-caller/android/app/src/main/AndroidManifest.xml:22:13-36
+41            android:permission="android.permission.BIND_SCREENING_SERVICE" >
+41-->/Users/lutuk/Project/spam-caller/android/app/src/main/AndroidManifest.xml:21:13-75
+42            <intent-filter>
+42-->/Users/lutuk/Project/spam-caller/android/app/src/main/AndroidManifest.xml:23:13-25:29
+43                <action android:name="android.telecom.CallScreeningService" />
+43-->/Users/lutuk/Project/spam-caller/android/app/src/main/AndroidManifest.xml:24:17-79
+43-->/Users/lutuk/Project/spam-caller/android/app/src/main/AndroidManifest.xml:24:25-76
+44            </intent-filter>
+45        </service>
+46
+47        <activity
+47-->/Users/lutuk/Project/spam-caller/android/app/src/main/AndroidManifest.xml:28:9-33:20
+48            android:name="com.spam.caller.MainActivity"
+48-->/Users/lutuk/Project/spam-caller/android/app/src/main/AndroidManifest.xml:28:19-47
+49            android:exported="true" >
+49-->/Users/lutuk/Project/spam-caller/android/app/src/main/AndroidManifest.xml:28:48-71
+50            <intent-filter>
+50-->/Users/lutuk/Project/spam-caller/android/app/src/main/AndroidManifest.xml:29:13-32:29
+51                <action android:name="android.intent.action.MAIN" />
+51-->/Users/lutuk/Project/spam-caller/android/app/src/main/AndroidManifest.xml:30:17-69
+51-->/Users/lutuk/Project/spam-caller/android/app/src/main/AndroidManifest.xml:30:25-66
+52
+53                <category android:name="android.intent.category.LAUNCHER" />
+53-->/Users/lutuk/Project/spam-caller/android/app/src/main/AndroidManifest.xml:31:17-77
+53-->/Users/lutuk/Project/spam-caller/android/app/src/main/AndroidManifest.xml:31:27-74
+54            </intent-filter>
+55        </activity>
+56        <activity
+56-->/Users/lutuk/Project/spam-caller/android/app/src/main/AndroidManifest.xml:35:9-82
+57            android:name="com.spam.caller.BlockedListActivity"
+57-->/Users/lutuk/Project/spam-caller/android/app/src/main/AndroidManifest.xml:35:19-54
+58            android:exported="false" />
+58-->/Users/lutuk/Project/spam-caller/android/app/src/main/AndroidManifest.xml:35:55-79
+59
+60        <provider
+60-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:29:9-37:20
+61            android:name="androidx.startup.InitializationProvider"
+61-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:30:13-67
+62            android:authorities="com.spam.caller.androidx-startup"
+62-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:31:13-68
+63            android:exported="false" >
+63-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:32:13-37
+64            <meta-data
+64-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:34:13-36:52
+65                android:name="androidx.work.WorkManagerInitializer"
+65-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:35:17-68
+66                android:value="androidx.startup" />
+66-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:36:17-49
+67            <meta-data
+67-->[androidx.emoji2:emoji2:1.2.0] /Users/lutuk/.gradle/caches/8.9/transforms/94f3b6f394c93eb025d331a23cfeb32f/transformed/jetified-emoji2-1.2.0/AndroidManifest.xml:29:13-31:52
+68                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+68-->[androidx.emoji2:emoji2:1.2.0] /Users/lutuk/.gradle/caches/8.9/transforms/94f3b6f394c93eb025d331a23cfeb32f/transformed/jetified-emoji2-1.2.0/AndroidManifest.xml:30:17-75
+69                android:value="androidx.startup" />
+69-->[androidx.emoji2:emoji2:1.2.0] /Users/lutuk/.gradle/caches/8.9/transforms/94f3b6f394c93eb025d331a23cfeb32f/transformed/jetified-emoji2-1.2.0/AndroidManifest.xml:31:17-49
+70            <meta-data
+70-->[androidx.lifecycle:lifecycle-process:2.4.1] /Users/lutuk/.gradle/caches/8.9/transforms/4df849304e87ba44ed0268a6c933ce4b/transformed/jetified-lifecycle-process-2.4.1/AndroidManifest.xml:31:13-33:52
+71                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+71-->[androidx.lifecycle:lifecycle-process:2.4.1] /Users/lutuk/.gradle/caches/8.9/transforms/4df849304e87ba44ed0268a6c933ce4b/transformed/jetified-lifecycle-process-2.4.1/AndroidManifest.xml:32:17-78
+72                android:value="androidx.startup" />
+72-->[androidx.lifecycle:lifecycle-process:2.4.1] /Users/lutuk/.gradle/caches/8.9/transforms/4df849304e87ba44ed0268a6c933ce4b/transformed/jetified-lifecycle-process-2.4.1/AndroidManifest.xml:33:17-49
+73        </provider>
+74
+75        <service
+75-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:39:9-45:35
+76            android:name="androidx.work.impl.background.systemalarm.SystemAlarmService"
+76-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:40:13-88
+77            android:directBootAware="false"
+77-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:41:13-44
+78            android:enabled="@bool/enable_system_alarm_service_default"
+78-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:42:13-72
+79            android:exported="false" />
+79-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:43:13-37
+80        <service
+80-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:46:9-52:35
+81            android:name="androidx.work.impl.background.systemjob.SystemJobService"
+81-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:47:13-84
+82            android:directBootAware="false"
+82-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:48:13-44
+83            android:enabled="@bool/enable_system_job_service_default"
+83-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:49:13-70
+84            android:exported="true"
+84-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:50:13-36
+85            android:permission="android.permission.BIND_JOB_SERVICE" />
+85-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:51:13-69
+86        <service
+86-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:53:9-59:35
+87            android:name="androidx.work.impl.foreground.SystemForegroundService"
+87-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:54:13-81
+88            android:directBootAware="false"
+88-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:55:13-44
+89            android:enabled="@bool/enable_system_foreground_service_default"
+89-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:56:13-77
+90            android:exported="false" />
+90-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:57:13-37
+91
+92        <receiver
+92-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:61:9-66:35
+93            android:name="androidx.work.impl.utils.ForceStopRunnable$BroadcastReceiver"
+93-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:62:13-88
+94            android:directBootAware="false"
+94-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:63:13-44
+95            android:enabled="true"
+95-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:64:13-35
+96            android:exported="false" />
+96-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:65:13-37
+97        <receiver
+97-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:67:9-77:20
+98            android:name="androidx.work.impl.background.systemalarm.ConstraintProxy$BatteryChargingProxy"
+98-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:68:13-106
+99            android:directBootAware="false"
+99-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:69:13-44
+100            android:enabled="false"
+100-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:70:13-36
+101            android:exported="false" >
+101-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:71:13-37
+102            <intent-filter>
+102-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:73:13-76:29
+103                <action android:name="android.intent.action.ACTION_POWER_CONNECTED" />
+103-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:74:17-87
+103-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:74:25-84
+104                <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED" />
+104-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:75:17-90
+104-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:75:25-87
+105            </intent-filter>
+106        </receiver>
+107        <receiver
+107-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:78:9-88:20
+108            android:name="androidx.work.impl.background.systemalarm.ConstraintProxy$BatteryNotLowProxy"
+108-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:79:13-104
+109            android:directBootAware="false"
+109-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:80:13-44
+110            android:enabled="false"
+110-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:81:13-36
+111            android:exported="false" >
+111-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:82:13-37
+112            <intent-filter>
+112-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:84:13-87:29
+113                <action android:name="android.intent.action.BATTERY_OKAY" />
+113-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:85:17-77
+113-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:85:25-74
+114                <action android:name="android.intent.action.BATTERY_LOW" />
+114-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:86:17-76
+114-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:86:25-73
+115            </intent-filter>
+116        </receiver>
+117        <receiver
+117-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:89:9-99:20
+118            android:name="androidx.work.impl.background.systemalarm.ConstraintProxy$StorageNotLowProxy"
+118-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:90:13-104
+119            android:directBootAware="false"
+119-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:91:13-44
+120            android:enabled="false"
+120-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:92:13-36
+121            android:exported="false" >
+121-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:93:13-37
+122            <intent-filter>
+122-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:95:13-98:29
+123                <action android:name="android.intent.action.DEVICE_STORAGE_LOW" />
+123-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:96:17-83
+123-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:96:25-80
+124                <action android:name="android.intent.action.DEVICE_STORAGE_OK" />
+124-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:97:17-82
+124-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:97:25-79
+125            </intent-filter>
+126        </receiver>
+127        <receiver
+127-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:100:9-109:20
+128            android:name="androidx.work.impl.background.systemalarm.ConstraintProxy$NetworkStateProxy"
+128-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:101:13-103
+129            android:directBootAware="false"
+129-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:102:13-44
+130            android:enabled="false"
+130-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:103:13-36
+131            android:exported="false" >
+131-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:104:13-37
+132            <intent-filter>
+132-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:106:13-108:29
+133                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+133-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:107:17-79
+133-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:107:25-76
+134            </intent-filter>
+135        </receiver>
+136        <receiver
+136-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:110:9-121:20
+137            android:name="androidx.work.impl.background.systemalarm.RescheduleReceiver"
+137-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:111:13-88
+138            android:directBootAware="false"
+138-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:112:13-44
+139            android:enabled="false"
+139-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:113:13-36
+140            android:exported="false" >
+140-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:114:13-37
+141            <intent-filter>
+141-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:116:13-120:29
+142                <action android:name="android.intent.action.BOOT_COMPLETED" />
+142-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:117:17-79
+142-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:117:25-76
+143                <action android:name="android.intent.action.TIME_SET" />
+143-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:118:17-73
+143-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:118:25-70
+144                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+144-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:119:17-81
+144-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:119:25-78
+145            </intent-filter>
+146        </receiver>
+147        <receiver
+147-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:122:9-131:20
+148            android:name="androidx.work.impl.background.systemalarm.ConstraintProxyUpdateReceiver"
+148-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:123:13-99
+149            android:directBootAware="false"
+149-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:124:13-44
+150            android:enabled="@bool/enable_system_alarm_service_default"
+150-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:125:13-72
+151            android:exported="false" >
+151-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:126:13-37
+152            <intent-filter>
+152-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:128:13-130:29
+153                <action android:name="androidx.work.impl.background.systemalarm.UpdateProxies" />
+153-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:129:17-98
+153-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:129:25-95
+154            </intent-filter>
+155        </receiver>
+156        <receiver
+156-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:132:9-142:20
+157            android:name="androidx.work.impl.diagnostics.DiagnosticsReceiver"
+157-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:133:13-78
+158            android:directBootAware="false"
+158-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:134:13-44
+159            android:enabled="true"
+159-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:135:13-35
+160            android:exported="true"
+160-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:136:13-36
+161            android:permission="android.permission.DUMP" >
+161-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:137:13-57
+162            <intent-filter>
+162-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:139:13-141:29
+163                <action android:name="androidx.work.diagnostics.REQUEST_DIAGNOSTICS" />
+163-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:140:17-88
+163-->[androidx.work:work-runtime:2.8.1] /Users/lutuk/.gradle/caches/8.9/transforms/48e5e91ccc3db7a63d90a7ae4801b96c/transformed/work-runtime-2.8.1/AndroidManifest.xml:140:25-85
+164            </intent-filter>
+165        </receiver>
+166
+167        <service
+167-->[androidx.room:room-runtime:2.6.1] /Users/lutuk/.gradle/caches/8.9/transforms/27e37f0234497481de333550ae683636/transformed/room-runtime-2.6.1/AndroidManifest.xml:24:9-28:63
+168            android:name="androidx.room.MultiInstanceInvalidationService"
+168-->[androidx.room:room-runtime:2.6.1] /Users/lutuk/.gradle/caches/8.9/transforms/27e37f0234497481de333550ae683636/transformed/room-runtime-2.6.1/AndroidManifest.xml:25:13-74
+169            android:directBootAware="true"
+169-->[androidx.room:room-runtime:2.6.1] /Users/lutuk/.gradle/caches/8.9/transforms/27e37f0234497481de333550ae683636/transformed/room-runtime-2.6.1/AndroidManifest.xml:26:13-43
+170            android:exported="false" />
+170-->[androidx.room:room-runtime:2.6.1] /Users/lutuk/.gradle/caches/8.9/transforms/27e37f0234497481de333550ae683636/transformed/room-runtime-2.6.1/AndroidManifest.xml:27:13-37
+171    </application>
+172
+173</manifest>

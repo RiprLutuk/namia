@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="16dp"
+    android:gravity="center_vertical"
+    android:background="?android:attr/selectableItemBackground">
+
+    <!-- Icon Container -->
+    <FrameLayout
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@drawable/bg_circle_icon"
+        android:layout_marginEnd="16dp">
+        
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center"
+            android:src="@android:drawable/stat_sys_phone_call"
+            android:tint="#FF5252"/>
+    </FrameLayout>
+
+    <!-- Text Info -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tvNumber"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="08123456789"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="#E0E0E0" />
+
+        <TextView
+            android:id="@+id/tvReason"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Manually Reported"
+            android:textSize="12sp"
+            android:textColor="#9E9E9E" />
+    </LinearLayout>
+
+    <!-- Unblock Button (Optional, just visual for now or functional) -->
+    <Button
+        android:id="@+id/btnUnblock"
+        android:layout_width="wrap_content"
+        android:layout_height="36dp"
+        android:text="Unblock"
+        android:textSize="12sp"
+        android:backgroundTint="#424242"
+        android:textColor="#E0E0E0"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:minHeight="0dp"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"/>
+
+</LinearLayout>

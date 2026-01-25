@@ -1,0 +1,20 @@
+R_DEF: Internal format may change without notice
+local
+drawable bg_circle_icon
+id btnBackup
+id btnManage
+id btnReport
+id btnUnblock
+id ivType
+id rvBlockedList
+id rvCallLog
+id tvBlocked
+id tvDate
+id tvName
+id tvNumber
+id tvReason
+layout activity_blocked_list
+layout activity_main
+layout item_blocked_number
+layout item_call_log
+style Theme.SpamCaller

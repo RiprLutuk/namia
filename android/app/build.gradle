@@ -1,0 +1,29 @@
+apply plugin: 'com.android.application'
+
+android {
+    namespace 'com.spam.caller'
+    compileSdkVersion 34
+    defaultConfig {
+        applicationId "com.spam.caller"
+        minSdkVersion 29 // Android 10+ required for CallScreeningService role
+        targetSdkVersion 34
+        versionCode 1
+        versionName "1.0"
+    }
+}
+
+dependencies {
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.9.0'
+    
+    // Room components
+    implementation "androidx.room:room-runtime:2.6.1"
+    annotationProcessor "androidx.room:room-compiler:2.6.1"
+
+    // Retrofit
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+
+    // WorkManager
+    implementation "androidx.work:work-runtime:2.8.1"
+}

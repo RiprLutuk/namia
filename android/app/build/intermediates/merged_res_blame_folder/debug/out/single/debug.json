@@ -1,0 +1,26 @@
+[
+    {
+        "merged": "/Users/lutuk/.gradle/daemon/8.9/com.spam.caller.app-merged_res-33:/layout_activity_blocked_list.xml.flat",
+        "source": "/Users/lutuk/.gradle/daemon/8.9/com.spam.caller.app-main-35:/layout/activity_blocked_list.xml"
+    },
+    {
+        "merged": "/Users/lutuk/.gradle/daemon/8.9/com.spam.caller.app-merged_res-33:/layout_item_call_log.xml.flat",
+        "source": "/Users/lutuk/.gradle/daemon/8.9/com.spam.caller.app-main-35:/layout/item_call_log.xml"
+    },
+    {
+        "merged": "/Users/lutuk/.gradle/daemon/8.9/com.spam.caller.app-merged_res-33:/layout_item_blocked_number.xml.flat",
+        "source": "/Users/lutuk/.gradle/daemon/8.9/com.spam.caller.app-main-35:/layout/item_blocked_number.xml"
+    },
+    {
+        "merged": "com.spam.caller.app-merged_res-33:/layout_activity_main.xml.flat",
+        "source": "com.spam.caller.app-main-35:/layout/activity_main.xml"
+    },
+    {
+        "merged": "/Users/lutuk/.gradle/daemon/8.9/com.spam.caller.app-merged_res-33:/layout_activity_main.xml.flat",
+        "source": "/Users/lutuk/.gradle/daemon/8.9/com.spam.caller.app-main-35:/layout/activity_main.xml"
+    },
+    {
+        "merged": "/Users/lutuk/.gradle/daemon/8.9/com.spam.caller.app-merged_res-33:/drawable_bg_circle_icon.xml.flat",
+        "source": "/Users/lutuk/.gradle/daemon/8.9/com.spam.caller.app-main-35:/drawable/bg_circle_icon.xml"
+    }
+]

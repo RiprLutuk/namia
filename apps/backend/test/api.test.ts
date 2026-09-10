@@ -5,14 +5,14 @@ describe("Syarfi Global Fintech Elysia API", () => {
   it("GET / returns status online", async () => {
     const res = await app.handle(new Request("http://localhost:3000/"));
     expect(res.status).toBe(200);
-    const json = await res.json();
+    const json = (await res.json()) as any;
     expect(json.status).toBe("online");
   });
 
   it("GET /health returns healthy status", async () => {
     const res = await app.handle(new Request("http://localhost:3000/health"));
     expect(res.status).toBe(200);
-    const json = await res.json();
+    const json = (await res.json()) as any;
     expect(json.status).toBe("healthy");
   });
 
@@ -20,7 +20,7 @@ describe("Syarfi Global Fintech Elysia API", () => {
     it("GET /api/aggregator/categories returns categories", async () => {
       const res = await app.handle(new Request("http://localhost:3000/api/aggregator/categories"));
       expect(res.status).toBe(200);
-      const json = await res.json();
+      const json = (await res.json()) as any;
       expect(json.success).toBe(true);
       expect(json.data.length).toBeGreaterThanOrEqual(4);
     });
@@ -28,7 +28,7 @@ describe("Syarfi Global Fintech Elysia API", () => {
     it("GET /api/aggregator/products filters by search and category", async () => {
       const res = await app.handle(new Request("http://localhost:3000/api/aggregator/products?category=p2p-lending&search=syarfi"));
       expect(res.status).toBe(200);
-      const json = await res.json();
+      const json = (await res.json()) as any;
       expect(json.success).toBe(true);
       expect(json.data.length).toBeGreaterThan(0);
       expect(json.data[0].categorySlug).toBe("p2p-lending");
@@ -41,7 +41,7 @@ describe("Syarfi Global Fintech Elysia API", () => {
         body: JSON.stringify({ ids: [1, 2] })
       }));
       expect(res.status).toBe(200);
-      const json = await res.json();
+      const json = (await res.json()) as any;
       expect(json.success).toBe(true);
       expect(json.comparedCount).toBe(2);
     });
@@ -60,7 +60,7 @@ describe("Syarfi Global Fintech Elysia API", () => {
         })
       }));
       expect(res.status).toBe(200);
-      const json = await res.json();
+      const json = (await res.json()) as any;
       expect(json.success).toBe(true);
       expect(json.data.principal).toBe(12000000);
       expect(json.data.totalMargin).toBe(1200000);
@@ -81,7 +81,7 @@ describe("Syarfi Global Fintech Elysia API", () => {
         })
       }));
       expect(res.status).toBe(200);
-      const json = await res.json();
+      const json = (await res.json()) as any;
       expect(json.success).toBe(true);
       expect(json.data.finalPortfolioValue).toBeGreaterThan(json.data.totalInvested);
     });
@@ -100,7 +100,7 @@ describe("Syarfi Global Fintech Elysia API", () => {
         })
       }));
       expect(res.status).toBe(200);
-      const json = await res.json();
+      const json = (await res.json()) as any;
       expect(json.success).toBe(true);
       expect(json.data.score).toBeGreaterThanOrEqual(650);
       expect(json.data.tier).toBeDefined();
@@ -122,7 +122,7 @@ describe("Syarfi Global Fintech Elysia API", () => {
         })
       }));
       expect(res.status).toBe(200);
-      const json = await res.json();
+      const json = (await res.json()) as any;
       expect(json.success).toBe(true);
       expect(json.data.id).toBeDefined();
       expect(json.data.kycStep).toBe(1);
@@ -140,7 +140,7 @@ describe("Syarfi Global Fintech Elysia API", () => {
         })
       }));
       expect(patchRes.status).toBe(200);
-      const patchJson = await patchRes.json();
+      const patchJson = (await patchRes.json()) as any;
       expect(patchJson.data.kycStep).toBe(2);
       expect(patchJson.data.nik).toBe("3201234567890001");
     });
@@ -150,7 +150,7 @@ describe("Syarfi Global Fintech Elysia API", () => {
     it("GET /api/content/stats returns company statistics", async () => {
       const res = await app.handle(new Request("http://localhost:3000/api/content/stats"));
       expect(res.status).toBe(200);
-      const json = await res.json();
+      const json = (await res.json()) as any;
       expect(json.success).toBe(true);
       expect(json.data.length).toBeGreaterThan(0);
     });
@@ -158,7 +158,7 @@ describe("Syarfi Global Fintech Elysia API", () => {
     it("GET /api/content/team returns structured personnel", async () => {
       const res = await app.handle(new Request("http://localhost:3000/api/content/team"));
       expect(res.status).toBe(200);
-      const json = await res.json();
+      const json = (await res.json()) as any;
       expect(json.success).toBe(true);
       expect(json.data.shariaBoard.length).toBeGreaterThan(0);
       expect(json.data.directors.length).toBeGreaterThan(0);
@@ -167,7 +167,7 @@ describe("Syarfi Global Fintech Elysia API", () => {
     it("GET /api/content/faqs returns borrower and investor FAQs", async () => {
       const res = await app.handle(new Request("http://localhost:3000/api/content/faqs?isInvestor=0"));
       expect(res.status).toBe(200);
-      const json = await res.json();
+      const json = (await res.json()) as any;
       expect(json.success).toBe(true);
       expect(json.data.length).toBeGreaterThan(0);
     });
@@ -175,7 +175,7 @@ describe("Syarfi Global Fintech Elysia API", () => {
     it("GET /api/content/blogs returns articles", async () => {
       const res = await app.handle(new Request("http://localhost:3000/api/content/blogs"));
       expect(res.status).toBe(200);
-      const json = await res.json();
+      const json = (await res.json()) as any;
       expect(json.success).toBe(true);
       expect(json.data.length).toBeGreaterThan(0);
     });

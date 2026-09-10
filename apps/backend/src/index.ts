@@ -44,7 +44,7 @@ export const app = new Elysia()
   .use(leadController)
   .use(calculatorController)
   .use(contentController)
-  .listen(3000);
+  .listen(process.env.PORT ? parseInt(process.env.PORT) : 3000);
 
 console.log(`🦊 Elysia API is running at http://${app.server?.hostname}:${app.server?.port}`);
 console.log(`📚 Swagger documentation available at http://${app.server?.hostname}:${app.server?.port}/swagger`);

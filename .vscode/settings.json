@@ -1,0 +1,5 @@
+{
+  "chat.utilityModel": "9router-github-copilot/dew-i",
+  "chat.utilitySmallModel": "9router-github-copilot/dew-i",
+  "chat.byokUtilityModelDefault": "mainAgent"
+}

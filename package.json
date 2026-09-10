@@ -1,0 +1,19 @@
+{
+  "name": "financial-template-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "bun --filter \"*\" dev",
+    "dev:backend": "bun --filter backend dev",
+    "dev:frontend": "bun --filter frontend dev",
+    "build": "bun --filter \"*\" build",
+    "check": "bun --filter \"*\" check",
+    "test": "bun --filter \"*\" test"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3"
+  }
+}

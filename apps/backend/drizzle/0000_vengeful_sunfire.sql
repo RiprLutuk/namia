@@ -5,10 +5,11 @@ CREATE TABLE IF NOT EXISTS "blog_posts" (
 	"content" text NOT NULL,
 	"excerpt" text,
 	"photo" varchar(256),
-	"author" varchar(128) DEFAULT 'Syarfi Editorial Team',
+	"author" varchar(128) DEFAULT 'Namia Editorial Team',
 	"category" varchar(64) DEFAULT 'Edu-Fintech',
 	"published_at" timestamp DEFAULT now()
 );
+
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "faq_categories" (
 	"id" serial PRIMARY KEY NOT NULL,
@@ -16,6 +17,7 @@ CREATE TABLE IF NOT EXISTS "faq_categories" (
 	"description" text,
 	"is_investor" integer DEFAULT 0
 );
+
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "faqs" (
 	"id" serial PRIMARY KEY NOT NULL,
@@ -23,6 +25,7 @@ CREATE TABLE IF NOT EXISTS "faqs" (
 	"question" varchar(512) NOT NULL,
 	"answer" text NOT NULL
 );
+
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "personil" (
 	"id" serial PRIMARY KEY NOT NULL,
@@ -33,6 +36,7 @@ CREATE TABLE IF NOT EXISTS "personil" (
 	"photo" varchar(256),
 	"department" varchar(64)
 );
+
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "stats" (
 	"id" serial PRIMARY KEY NOT NULL,
@@ -41,6 +45,7 @@ CREATE TABLE IF NOT EXISTS "stats" (
 	"unit" varchar(16),
 	"icon" varchar(64)
 );
+
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "leads" (
 	"id" serial PRIMARY KEY NOT NULL,
@@ -61,6 +66,7 @@ CREATE TABLE IF NOT EXISTS "leads" (
 	"created_at" timestamp DEFAULT now(),
 	"updated_at" timestamp DEFAULT now()
 );
+
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "categories" (
 	"id" serial PRIMARY KEY NOT NULL,
@@ -71,6 +77,7 @@ CREATE TABLE IF NOT EXISTS "categories" (
 	"created_at" timestamp DEFAULT now(),
 	CONSTRAINT "categories_slug_unique" UNIQUE("slug")
 );
+
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "products" (
 	"id" serial PRIMARY KEY NOT NULL,
@@ -93,15 +100,27 @@ CREATE TABLE IF NOT EXISTS "products" (
 	"is_featured" boolean DEFAULT false,
 	"created_at" timestamp DEFAULT now()
 );
+
 --> statement-breakpoint
-DO $$ BEGIN
-  ALTER TABLE "faqs" ADD CONSTRAINT "faqs_category_id_faq_categories_id_fk" FOREIGN KEY ("category_id") REFERENCES "public"."faq_categories"("id") ON DELETE no action ON UPDATE no action;
+DO $ $ BEGIN
+ALTER TABLE
+	"faqs"
+ADD
+	CONSTRAINT "faqs_category_id_faq_categories_id_fk" FOREIGN KEY ("category_id") REFERENCES "public"."faq_categories"("id") ON DELETE no action ON UPDATE no action;
+
 EXCEPTION
-  WHEN duplicate_object THEN null;
-END $$;
+WHEN duplicate_object THEN null;
+
+END $ $;
+
 --> statement-breakpoint
-DO $$ BEGIN
-  ALTER TABLE "products" ADD CONSTRAINT "products_category_id_categories_id_fk" FOREIGN KEY ("category_id") REFERENCES "public"."categories"("id") ON DELETE no action ON UPDATE no action;
+DO $ $ BEGIN
+ALTER TABLE
+	"products"
+ADD
+	CONSTRAINT "products_category_id_categories_id_fk" FOREIGN KEY ("category_id") REFERENCES "public"."categories"("id") ON DELETE no action ON UPDATE no action;
+
 EXCEPTION
-  WHEN duplicate_object THEN null;
-END $$;
+WHEN duplicate_object THEN null;
+
+END $ $;

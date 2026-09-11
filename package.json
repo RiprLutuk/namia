@@ -6,12 +6,16 @@
     "apps/*"
   ],
   "scripts": {
-    "dev": "bun --filter \"*\" dev",
+    "dev": "bun --filter \"*\" --parallel dev",
     "dev:backend": "bun --filter backend dev",
     "dev:frontend": "bun --filter frontend dev",
     "build": "bun --filter \"*\" build",
+    "test": "bun --filter \"*\" test",
     "check": "bun --filter \"*\" check",
-    "test": "bun --filter \"*\" test"
+    "db:generate": "bun --filter backend db:generate",
+    "db:migrate": "bun --filter backend db:migrate",
+    "db:push": "bun --filter backend db:push",
+    "db:seed": "bun --filter backend db:seed"
   },
   "devDependencies": {
     "typescript": "^5.7.3"

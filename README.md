@@ -1,4 +1,4 @@
-# Syarfi — Modern Sharia Fintech Crowdfunding & Aggregator
+# Namia Syariah — Smart Growth, Halal Impact (Modern Sharia Fintech Crowdfunding & Aggregator)
 
 Platform crowdfunding syariah dan fintech aggregator berkinerja tinggi yang menghubungkan pelaku usaha UMKM dengan komunitas pendana dan produk-produk keuangan halal di Indonesia tanpa riba, gharar, dan maisir.
 
@@ -9,7 +9,7 @@ Proyek ini telah direfaktor secara penuh dari arsitektur monolitik PHP lawas men
 ## 🚀 Tech Stack
 
 | Komponen | Teknologi | Keterangan |
-|---|---|---|
+| --- | --- | --- |
 | **Monorepo Engine** | Bun Workspaces v1.3+ | Kecepatan instalasi & eksekusi instan |
 | **Backend Framework** | ElysiaJS v1.2+ | Framework TypeScript tercepat (<15ms p95 latency) |
 | **Data & ORM** | PostgreSQL + Drizzle ORM | Schema-first, type-safe query & migrasi |
@@ -22,7 +22,7 @@ Proyek ini telah direfaktor secara penuh dari arsitektur monolitik PHP lawas men
 
 ## 📁 Struktur Monorepo
 
-```
+```text
 .
 ├── apps/
 │   ├── backend/                     # ElysiaJS Backend API Service
@@ -49,7 +49,9 @@ Proyek ini telah direfaktor secara penuh dari arsitektur monolitik PHP lawas men
 │       │       ├── borrower/        # Panduan peminjam/penerima dana UMKM
 │       │       ├── investor/        # Panduan pendana/investor sukuk
 │       │       ├── blog/            # Pusat edukasi & literasi muamalah
-│       │       └── contacts/        # Kontak kantor Menara MTH & formulir
+│       │       ├── contacts/        # Kontak kantor Menara MTH & formulir
+│       │       ├── auth/            # Portal terisolasi Borrower & Lender (anti-crawler)
+│       │       └── backoffice/      # Portal Admin & Master CMS Console (anti-crawler)
 │       └── static/                  # Static assets & gambar produk
 ├── structure_and_prd.md             # Dokumen spesifikasi arsitektur & PRD
 └── package.json                     # Root orchestrator
@@ -60,33 +62,41 @@ Proyek ini telah direfaktor secara penuh dari arsitektur monolitik PHP lawas men
 ## ⚡ Cara Menjalankan Aplikasi
 
 ### 1. Menjalankan Server Development (Backend & Frontend Sekaligus)
+
 Dari root direktori proyek, jalankan:
+
 ```bash
 bun run dev
 ```
+
 - **Backend API**: `http://localhost:3000`
 - **Swagger Documentation**: `http://localhost:3000/swagger`
 - **Frontend SvelteKit**: `http://localhost:5173`
 
 ### 2. Menjalankan Backend Secara Terpisah
+
 ```bash
 cd apps/backend
 bun run dev
 ```
 
 ### 3. Menjalankan Frontend Secara Terpisah
+
 ```bash
 cd apps/frontend
 bun run dev
 ```
 
 ### 4. Menjalankan Unit & Integration Test Suite
+
 ```bash
 bun run test
 ```
+
 *Hasil pengujian: 14 test lulus dengan respon latensi 0.36ms - 1.12ms (jauh di bawah target <15ms).*
 
 ### 5. Memeriksa Tipe & Build Production
+
 ```bash
 bun run check
 bun run build

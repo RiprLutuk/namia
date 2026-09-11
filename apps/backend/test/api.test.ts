@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
-import { app } from "../src/index";
+import { app, NAMIA_API_KEY } from "../src/index";
 
-describe("Syarfi Global Fintech Elysia API", () => {
+describe("Namia Syariah Global Fintech Elysia API", () => {
   it("GET / returns status online", async () => {
     const res = await app.handle(new Request("http://localhost:3000/"));
     expect(res.status).toBe(200);
@@ -26,7 +26,7 @@ describe("Syarfi Global Fintech Elysia API", () => {
     });
 
     it("GET /api/aggregator/products filters by search and category", async () => {
-      const res = await app.handle(new Request("http://localhost:3000/api/aggregator/products?category=p2p-lending&search=syarfi"));
+      const res = await app.handle(new Request("http://localhost:3000/api/aggregator/products?category=p2p-lending&search=namia"));
       expect(res.status).toBe(200);
       const json = (await res.json()) as any;
       expect(json.success).toBe(true);
@@ -188,6 +188,55 @@ describe("Syarfi Global Fintech Elysia API", () => {
       const duration = performance.now() - start;
       expect(res.status).toBe(200);
       expect(duration).toBeLessThan(15);
+    });
+  });
+
+  describe("API Security, Rate Limiting & Error Protection", () => {
+    it("includes rate limiting headers on responses", async () => {
+      const res = await app.handle(new Request("http://localhost:3000/api/aggregator/categories", {
+        headers: { "x-api-key": NAMIA_API_KEY }
+      }));
+      expect(res.status).toBe(200);
+      expect(res.headers.get("x-ratelimit-limit")).toBeDefined();
+      expect(res.headers.get("x-ratelimit-remaining")).toBeDefined();
+    });
+
+    it("rejects unauthorized external requests missing api-key and origin", async () => {
+      const res = await app.handle(new Request("http://localhost:3000/api/leads", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "origin": "https://malicious-scraper-bot.com",
+          "user-agent": "Mozilla/5.0 Scraper"
+        },
+        body: JSON.stringify({ fullName: "Bot" })
+      }));
+      expect(res.status).toBe(401);
+      const json = (await res.json()) as any;
+      expect(json.success).toBe(false);
+      expect(json.error).toBe("UNAUTHORIZED");
+    });
+
+    it("accepts requests with valid x-api-key header", async () => {
+      const res = await app.handle(new Request("http://localhost:3000/api/aggregator/categories", {
+        headers: {
+          "x-api-key": NAMIA_API_KEY,
+          "origin": "https://malicious-scraper-bot.com"
+        }
+      }));
+      expect(res.status).toBe(200);
+      const json = (await res.json()) as any;
+      expect(json.success).toBe(true);
+    });
+
+    it("returns friendly JSON error on invalid routes (404)", async () => {
+      const res = await app.handle(new Request("http://localhost:3000/api/non-existent-route", {
+        headers: { "x-api-key": NAMIA_API_KEY }
+      }));
+      expect(res.status).toBe(404);
+      const json = (await res.json()) as any;
+      expect(json.success).toBe(false);
+      expect(json.error).toBe("NOT_FOUND");
     });
   });
 });

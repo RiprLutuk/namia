@@ -9,7 +9,7 @@ export const blogPosts = pgTable("blog_posts", {
   content: text("content").notNull(),
   excerpt: text("excerpt"),
   photo: varchar("photo", { length: 256 }),
-  author: varchar("author", { length: 128 }).default("Syarfi Editorial Team"),
+  author: varchar("author", { length: 128 }).default("Namia Editorial Team"),
   category: varchar("category", { length: 64 }).default("Edu-Fintech"),
   publishedAt: timestamp("published_at").defaultNow()
 });

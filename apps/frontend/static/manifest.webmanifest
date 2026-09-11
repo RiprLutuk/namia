@@ -1,0 +1,33 @@
+{
+  "name": "Namia Syariah — Smart Growth, Halal Impact",
+  "short_name": "Namia",
+  "description": "Namia Syariah: Smart Growth, Halal Impact. Platform P2P Financing & Investasi Produktif Syariah Berizin OJK berlandaskan prinsip An-Namaa' tanpa riba.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#047857",
+  "orientation": "portrait-primary",
+  "lang": "id-ID",
+  "categories": ["finance", "business"],
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

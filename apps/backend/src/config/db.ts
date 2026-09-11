@@ -4,7 +4,11 @@ import * as dotenv from "dotenv";
 
 dotenv.config();
 
-const connectionString = process.env.DATABASE_URL || "postgres://postgres:postgres@localhost:5432/syarfi";
+if (!process.env.DATABASE_URL) {
+  throw new Error("DATABASE_URL must be provided in .env");
+}
+
+const connectionString = process.env.DATABASE_URL;
 
 let clientInstance: postgres.Sql | null = null;
 let dbInstance: ReturnType<typeof drizzle> | null = null;

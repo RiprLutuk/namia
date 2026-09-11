@@ -59,7 +59,7 @@ export async function runSeed() {
       }).onConflictDoNothing();
     }
 
-    console.log("Database seeded successfully with Syarfi Fintech products & content!");
+    console.log("Database seeded successfully with Namia Syariah Fintech products & content!");
   } catch (err) {
     console.warn("Could not seed PostgreSQL (database offline or credentials not set). Defaulting to in-memory store:", err);
   }

@@ -1,3 +1,21 @@
-# allow crawling everything by default
+# Robots.txt for PT Namia Finansial Teknologi (Namia Syariah)
+# Non-public routes and authentication portals must NOT be indexed by search engines
+
 User-agent: *
-Disallow:
+Disallow: /auth/
+Disallow: /backoffice/
+Disallow: /cms/
+Disallow: /api/
+Allow: /
+
+User-agent: Googlebot
+Disallow: /auth/
+Disallow: /backoffice/
+Disallow: /cms/
+Disallow: /api/
+
+User-agent: Bingbot
+Disallow: /auth/
+Disallow: /backoffice/
+Disallow: /cms/
+Disallow: /api/

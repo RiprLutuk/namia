@@ -49,7 +49,7 @@
           "type": "varchar(128)",
           "primaryKey": false,
           "notNull": false,
-          "default": "'Syarfi Editorial Team'"
+          "default": "'Namia Editorial Team'"
         },
         "category": {
           "name": "category",
@@ -147,12 +147,8 @@
           "name": "faqs_category_id_faq_categories_id_fk",
           "tableFrom": "faqs",
           "tableTo": "faq_categories",
-          "columnsFrom": [
-            "category_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["category_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -429,9 +425,7 @@
         "categories_slug_unique": {
           "name": "categories_slug_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "slug"
-          ]
+          "columns": ["slug"]
         }
       },
       "policies": {},
@@ -568,12 +562,8 @@
           "name": "products_category_id_categories_id_fk",
           "tableFrom": "products",
           "tableTo": "categories",
-          "columnsFrom": [
-            "category_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["category_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }

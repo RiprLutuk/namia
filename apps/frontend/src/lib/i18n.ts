@@ -188,9 +188,13 @@ export const translations: Record<SupportedLang, TranslationDict> = {
 
 function getInitialLang(): SupportedLang {
   if (typeof window !== "undefined") {
-    const saved = localStorage.getItem("namia_lang") as SupportedLang;
-    if (saved && (saved === "ID" || saved === "EN" || saved === "AR")) {
-      return saved;
+    try {
+      const saved = localStorage.getItem("namia_lang") as SupportedLang;
+      if (saved && (saved === "ID" || saved === "EN" || saved === "AR")) {
+        return saved;
+      }
+    } catch {
+      // ignore storage access errors
     }
   }
   return "ID";
@@ -201,9 +205,15 @@ export const currentLanguage = writable<SupportedLang>(getInitialLang());
 export function setLanguage(lang: SupportedLang) {
   currentLanguage.set(lang);
   if (typeof window !== "undefined") {
-    localStorage.setItem("namia_lang", lang);
-    document.documentElement.lang = lang === "ID" ? "id" : lang === "EN" ? "en" : "ar";
-    document.documentElement.dir = lang === "AR" ? "rtl" : "ltr";
+    try {
+      localStorage.setItem("namia_lang", lang);
+    } catch {
+      // ignore storage access errors
+    }
+    if (document.documentElement) {
+      document.documentElement.lang = lang === "ID" ? "id" : lang === "EN" ? "en" : "ar";
+      document.documentElement.dir = lang === "AR" ? "rtl" : "ltr";
+    }
   }
 }
 

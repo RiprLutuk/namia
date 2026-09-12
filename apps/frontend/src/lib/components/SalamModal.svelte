@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { Volume2, VolumeX, X } from "lucide-svelte";
+  import { Volume2, VolumeX } from "lucide-svelte";
 
   let showModal = $state(false);
   let audioEl: HTMLAudioElement | null = null;
@@ -32,6 +32,14 @@
       audioEl.currentTime = 0;
     }
     isPlaying = false;
+  }
+
+  function toggleAudio() {
+    if (isPlaying) {
+      stopAudio();
+    } else {
+      playAudio();
+    }
   }
 
   function closeModal() {
@@ -103,98 +111,89 @@
 ></audio>
 
 {#if showModal}
-  <!-- Backdrop without blur -->
+  <!-- Backdrop -->
   <div
-    class="fixed inset-0 z-50 overflow-y-auto bg-black/60 flex items-center justify-center p-4 font-sans"
+    class="modal-backdrop-web20"
     role="dialog"
     aria-modal="true"
     aria-label="Ucapan Salam Selamat Datang Namia Syariah"
   >
-    <!-- Modal Card -->
-    <div
-      class="relative bg-white rounded-[3px] max-w-md w-full p-6 sm:p-8 shadow-lg border border-slate-300 flex flex-col items-center text-center space-y-4"
-    >
-      <!-- Close button -->
-      <button
-        type="button"
-        onclick={closeModal}
-        class="absolute top-4 right-4 p-1 text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
-        aria-label="Tutup"
-      >
-        <X class="w-5 h-5" />
-      </button>
-
-      <!-- Bismillah Graphic -->
-      <div class="pt-2">
-        <img
-          src="/images/home/bismillah.png"
-          alt="Bismillahir Rahmanir Rahim"
-          class="max-h-14 sm:max-h-16 w-auto object-contain mx-auto"
-        />
-      </div>
-
-      <!-- Assalamu'alaikum Graphic -->
-      <div>
-        <img
-          src="/images/home/assalamualaikum-green.png"
-          alt="Assalamu'alaikum Warahmatullahi Wabarakatuh"
-          class="max-h-14 sm:max-h-16 w-auto object-contain mx-auto"
-        />
-      </div>
-
-      <p class="text-xs sm:text-sm text-slate-600 max-w-sm leading-relaxed">
-        Selamat datang di <strong>Namia Syariah</strong> —
-        <em>Smart Growth, Halal Impact</em>. Platform P2P financing & investasi
-        produktif berlandaskan filosofi An-Namaa' tanpa riba.
-      </p>
-
-      <!-- Audio Playback Status Badge -->
-      {#if isPlaying}
-        <div
-          class="inline-flex items-center gap-2 px-3 py-1 rounded-[2px] bg-emerald-50 border border-emerald-300 text-xs font-semibold text-emerald-800"
-        >
-          <Volume2 class="w-3.5 h-3.5 text-emerald-700" />
-          <span>Memutar Audio Salam...</span>
+    <!-- Modal Window (Early Bootstrap Dialog) -->
+    <div class="modal-content-web20 max-w-md animate-in fade-in zoom-in-95 duration-150">
+      <!-- 1. MODAL HEADER -->
+      <div class="modal-header-web20">
+        <div class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-600 inline-block shadow-xs"></span>
+          <h3 class="!text-xs font-bold uppercase tracking-wider text-slate-800">
+            Selamat Datang di Namia Syariah
+          </h3>
         </div>
-      {:else if autoplayBlocked}
         <button
           type="button"
-          onclick={playAudio}
-          class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-[2px] bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer"
+          class="close-btn"
+          onclick={closeModal}
+          aria-label="Tutup"
         >
-          <Volume2 class="w-3.5 h-3.5" />
-          <span>Klik untuk Putar Audio Salam</span>
+          &times;
         </button>
-      {/if}
+      </div>
 
-      <!-- Action buttons -->
-      <div class="flex items-center gap-3 pt-2 w-full justify-center">
-        {#if isPlaying}
+      <!-- 2. MODAL BODY -->
+      <div class="modal-body-web20 text-center py-6 px-6 space-y-4">
+        <!-- Single Pristine Green Calligraphy -->
+        <div class="py-1">
+          <img
+            src="/images/home/assalamualaikum-green.png"
+            alt="Assalamu'alaikum Warahmatullahi Wabarakatuh"
+            class="max-h-14 sm:max-h-16 w-auto object-contain mx-auto"
+          />
+        </div>
+
+        <div class="space-y-1.5">
+          <h4 class="text-sm font-bold text-slate-800 tracking-tight">
+            Assalamu'alaikum Warahmatullahi Wabarakatuh
+          </h4>
+          <p class="text-xs text-slate-600 max-w-xs mx-auto leading-relaxed">
+            Platform pendanaan produktif dan investasi syariah terpercaya berlandaskan filosofi <em>An-Namaa'</em> tanpa riba.
+          </p>
+        </div>
+
+        <!-- Single Clean Audio Pill Button -->
+        <div class="pt-1">
           <button
             type="button"
-            onclick={stopAudio}
-            class="button-4 text-xs py-2 px-4 rounded-[3px] flex items-center gap-1.5 cursor-pointer font-bold uppercase tracking-wider"
+            onclick={toggleAudio}
+            class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold border transition-all shadow-2xs cursor-pointer {isPlaying ? 'bg-emerald-50 border-emerald-400 text-emerald-800' : 'bg-white hover:bg-slate-50 border-slate-300 text-slate-700'}"
           >
-            <VolumeX class="w-3.5 h-3.5 text-slate-500" />
-            <span>Matikan Suara</span>
+            {#if isPlaying}
+              <span class="w-2 h-2 rounded-full bg-emerald-600 animate-pulse"></span>
+              <Volume2 class="w-3.5 h-3.5 text-emerald-600" />
+              <span>Memutar Audio Salam...</span>
+            {:else}
+              <Volume2 class="w-3.5 h-3.5 text-emerald-700" />
+              <span>Putar Audio Salam</span>
+            {/if}
           </button>
-        {:else}
-          <button
-            type="button"
-            onclick={playAudio}
-            class="button-4 text-xs py-2 px-4 rounded-[3px] flex items-center gap-1.5 cursor-pointer font-bold uppercase tracking-wider"
-          >
-            <Volume2 class="w-3.5 h-3.5 text-emerald-700" />
-            <span>Putar Ulang</span>
-          </button>
-        {/if}
+        </div>
+      </div>
+
+      <!-- 3. MODAL FOOTER -->
+      <div class="modal-footer-web20 flex items-center justify-between !py-2.5 !px-4 bg-slate-50 border-t border-slate-200">
+        <button
+          type="button"
+          onclick={closeModal}
+          class="btn btn-small btn-default text-xs"
+        >
+          Tutup
+        </button>
 
         <button
           type="button"
           onclick={closeModal}
-          class="button-4-primary text-xs py-2 px-6 rounded-[3px] font-bold uppercase tracking-wider cursor-pointer"
+          class="btn btn-small btn-success font-bold text-xs inline-flex items-center gap-1.5 px-4 shadow-xs"
         >
-          <span>Lanjutkan</span>
+          <span>Lanjutkan ke Beranda</span>
+          <span class="text-sm font-normal">&rarr;</span>
         </button>
       </div>
     </div>

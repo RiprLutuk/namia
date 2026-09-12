@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Scale, X, ArrowRight } from "lucide-svelte";
+  import { Scale, X, ArrowRight, Check } from "lucide-svelte";
   import type { Product } from "./ProductCard.svelte";
 
   let {
@@ -24,46 +24,37 @@
 </script>
 
 {#if comparedProducts.length > 0}
-  <!-- Floating Bottom Dock -->
-  <div
-    class="fixed bottom-6 inset-x-0 z-40 px-4 sm:px-6 pointer-events-none font-sans"
-  >
-    <div
-      class="max-w-4xl mx-auto bg-[#0f172a] text-white border border-slate-700 shadow-xl rounded-[3px] p-4 flex flex-col sm:flex-row items-center justify-between gap-4 pointer-events-auto"
-    >
+  <!-- Floating Bottom Dock in Early Bootstrap 2 Style -->
+  <div class="fixed bottom-6 inset-x-0 z-40 px-4 sm:px-6 pointer-events-none font-sans">
+    <div class="max-w-4xl mx-auto bg-gradient-to-b from-[#243342] to-[#18222c] text-white border border-[#0f172a] shadow-2xl rounded-[5px] p-3 sm:p-4 flex flex-col sm:flex-row items-center justify-between gap-3 pointer-events-auto">
       <div class="flex items-center gap-3 overflow-x-auto w-full sm:w-auto">
-        <div
-          class="flex items-center gap-2 text-xs font-bold text-emerald-400 uppercase tracking-wider shrink-0"
-        >
+        <div class="flex items-center gap-1.5 text-xs font-bold text-emerald-400 uppercase tracking-wider shrink-0">
           <Scale class="w-4 h-4" />
-          <span>Bandingkan ({comparedProducts.length}/3):</span>
+          <span>Komparasi ({comparedProducts.length}/3):</span>
         </div>
 
         <div class="flex items-center gap-2">
           {#each comparedProducts as p}
-            <div
-              class="flex items-center gap-1.5 bg-slate-800 border border-slate-600 rounded-[2px] px-2.5 py-1 text-xs text-slate-200 shrink-0"
-            >
-              <span class="max-w-[140px] truncate">{p.name}</span>
+            <div class="flex items-center gap-1.5 bg-[#0f172a] border border-slate-700 rounded-[3px] px-2.5 py-1 text-xs text-slate-200 shrink-0">
+              <span class="max-w-[130px] truncate font-semibold">{p.name}</span>
               <button
                 type="button"
                 onclick={() => onRemoveProduct(p.id)}
-                class="text-slate-400 hover:text-white cursor-pointer"
+                class="text-slate-400 hover:text-white cursor-pointer ml-1"
+                title="Hapus"
               >
-                <X class="w-3 h-3" />
+                <X class="w-3.5 h-3.5" />
               </button>
             </div>
           {/each}
         </div>
       </div>
 
-      <div
-        class="flex items-center gap-3 shrink-0 w-full sm:w-auto justify-end"
-      >
+      <div class="flex items-center gap-2.5 shrink-0 w-full sm:w-auto justify-end">
         <button
           type="button"
           onclick={onClearAll}
-          class="text-xs text-slate-400 hover:text-white underline cursor-pointer"
+          class="btn btn-mini btn-inverse text-xs"
         >
           Reset
         </button>
@@ -72,7 +63,7 @@
           type="button"
           disabled={comparedProducts.length < 2}
           onclick={() => (isModalOpen = true)}
-          class="button-4-primary text-xs py-2 px-4 rounded-[3px] font-bold uppercase tracking-wider disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 cursor-pointer"
+          class="btn btn-small btn-success flex items-center gap-1.5 text-xs font-bold"
         >
           <span>Bandingkan Sekarang</span>
           <ArrowRight class="w-3.5 h-3.5" />
@@ -82,162 +73,118 @@
   </div>
 {/if}
 
-<!-- Side-by-Side Comparison Modal -->
+<!-- Side-by-Side Comparison Modal in Early Bootstrap 2 Style -->
 {#if isModalOpen}
-  <div
-    class="fixed inset-0 z-50 overflow-y-auto bg-black/60 flex items-center justify-center p-4 font-sans"
-  >
-    <div
-      class="bg-white rounded-[3px] max-w-5xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-300"
-    >
-      <!-- Modal Header -->
-      <div
-        class="sticky top-0 bg-[#0f172a] text-white border-b border-slate-700 px-6 py-4 flex items-center justify-between z-10"
-      >
+  <div class="fixed inset-0 z-50 overflow-y-auto bg-black/60 flex items-center justify-center p-4 font-sans backdrop-blur-xs">
+    <div class="panel max-w-5xl w-full max-h-[90vh] overflow-y-auto shadow-2xl !mb-0 border-slate-400">
+      <!-- Modal Header (Early Bootstrap Style) -->
+      <div class="panel-heading panel-emerald flex items-center justify-between !py-3 !px-5 sticky top-0 z-10">
         <div class="flex items-center gap-2">
-          <Scale class="w-5 h-5 text-emerald-400" />
-          <h2 class="text-base font-bold text-white uppercase">
-            Perbandingan Produk Finansial Syariah
+          <Scale class="w-4 h-4 text-white" />
+          <h2 class="text-sm font-bold text-white uppercase tracking-wider">
+            Matriks Perbandingan Produk Syariah
           </h2>
         </div>
         <button
           type="button"
           onclick={() => (isModalOpen = false)}
-          class="p-1 rounded-[2px] text-slate-400 hover:text-white cursor-pointer"
+          class="text-white hover:text-emerald-200 cursor-pointer font-bold text-lg"
+          aria-label="Tutup"
         >
-          <X class="w-5 h-5" />
+          &times;
         </button>
       </div>
 
       <!-- Comparison Table -->
-      <div class="p-6">
+      <div class="p-5 bg-white">
         <div class="overflow-x-auto">
-          <table
-            class="w-full text-left text-sm border-collapse border border-slate-300"
-          >
+          <table class="table table-bordered table-striped !mb-0 text-xs">
             <thead>
-              <tr class="border-b border-slate-300">
-                <th
-                  class="p-3 text-xs font-bold text-slate-700 uppercase tracking-wider bg-slate-100 w-1/4 border-r border-slate-300"
-                  >Fitur / Kriteria</th
-                >
+              <tr>
+                <th class="w-1/4">Kriteria Evaluasi</th>
                 {#each comparedProducts as p}
-                  <th
-                    class="p-3 text-sm font-bold text-slate-900 uppercase w-1/3 border-r border-slate-300"
-                  >
-                    <span
-                      class="text-xs text-slate-500 block font-normal capitalize"
-                      >{p.institution}</span
-                    >
-                    {p.name}
+                  <th class="w-1/3">
+                    <span class="text-[10px] text-slate-500 font-semibold block uppercase tracking-wider">{p.institution}</span>
+                    <span class="text-sm font-bold text-slate-900">{p.name}</span>
                   </th>
                 {/each}
               </tr>
             </thead>
-            <tbody class="divide-y divide-slate-300 text-xs">
+            <tbody>
               <tr>
-                <td
-                  class="p-3 font-semibold text-slate-700 bg-slate-50 border-r border-slate-300"
-                  >Akad Syariah</td
-                >
+                <td class="font-bold text-slate-700">Akad Syariah</td>
                 {#each comparedProducts as p}
-                  <td
-                    class="p-3 font-medium text-emerald-800 border-r border-slate-300"
-                    >Akad {p.islamicContract}</td
-                  >
+                  <td>
+                    <span class="label label-success">Akad {p.islamicContract}</span>
+                  </td>
                 {/each}
               </tr>
               <tr>
-                <td
-                  class="p-3 font-semibold text-slate-700 bg-slate-50 border-r border-slate-300"
-                  >Plafon Pembiayaan</td
-                >
+                <td class="font-bold text-slate-700">Plafon Pembiayaan</td>
                 {#each comparedProducts as p}
-                  <td
-                    class="p-3 font-mono font-medium text-slate-900 border-r border-slate-300"
-                  >
+                  <td class="font-mono font-bold text-slate-900">
                     {formatRupiah(p.minAmount)} s/d {formatRupiah(p.maxAmount)}
                   </td>
                 {/each}
               </tr>
               <tr>
-                <td
-                  class="p-3 font-semibold text-slate-700 bg-slate-50 border-r border-slate-300"
-                  >Margin / Bagi Hasil</td
-                >
+                <td class="font-bold text-slate-700">Margin / Bagi Hasil</td>
                 {#each comparedProducts as p}
-                  <td
-                    class="p-3 font-mono font-bold text-emerald-800 border-r border-slate-300"
-                    >{p.interestRateOrMargin}</td
-                  >
+                  <td class="font-mono font-bold text-emerald-700">
+                    {p.interestRateOrMargin}
+                  </td>
                 {/each}
               </tr>
               <tr>
-                <td
-                  class="p-3 font-semibold text-slate-700 bg-slate-50 border-r border-slate-300"
-                  >Jangka Waktu Tenor</td
-                >
+                <td class="font-bold text-slate-700">Jangka Waktu Tenor</td>
                 {#each comparedProducts as p}
-                  <td class="p-3 text-slate-800 border-r border-slate-300"
-                    >{p.tenorMinMonths} - {p.tenorMaxMonths} Bulan</td
-                  >
+                  <td class="font-semibold text-slate-800">
+                    {p.tenorMinMonths} - {p.tenorMaxMonths} Bulan
+                  </td>
                 {/each}
               </tr>
               <tr>
-                <td
-                  class="p-3 font-semibold text-slate-700 bg-slate-50 border-r border-slate-300"
-                  >Kecepatan Approval</td
-                >
+                <td class="font-bold text-slate-700">Kecepatan Verifikasi</td>
                 {#each comparedProducts as p}
-                  <td class="p-3 text-slate-800 border-r border-slate-300"
-                    >{p.approvalSpeed}</td
-                  >
+                  <td class="text-slate-800 font-medium">
+                    {p.approvalSpeed}
+                  </td>
                 {/each}
               </tr>
               <tr>
-                <td
-                  class="p-3 font-semibold text-slate-700 bg-slate-50 border-r border-slate-300"
-                  >Kepatuhan Regulasi</td
-                >
+                <td class="font-bold text-slate-700">Regulasi & Legalitas</td>
                 {#each comparedProducts as p}
-                  <td class="p-3 text-slate-800 border-r border-slate-300">
-                    <span
-                      class="inline-block px-2 py-0.5 rounded-[2px] bg-slate-100 text-slate-700 font-medium text-[11px] border border-slate-300"
-                    >
+                  <td>
+                    <span class="label label-inverse">
                       {p.ojkRegulated ? "Berizin OJK" : "Koperasi Kemenkop"} & DPS
                     </span>
                   </td>
                 {/each}
               </tr>
               <tr>
-                <td
-                  class="p-3 font-semibold text-slate-700 bg-slate-50 border-r border-slate-300"
-                  >Keunggulan Utama</td
-                >
+                <td class="font-bold text-slate-700">Fitur & Manfaat</td>
                 {#each comparedProducts as p}
-                  <td class="p-3 text-slate-700 border-r border-slate-300">
-                    <ul class="list-disc list-inside space-y-1">
+                  <td>
+                    <ul class="space-y-1">
                       {#each p.features as f}
-                        <li>{f}</li>
+                        <li class="flex items-start gap-1">
+                          <Check class="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                          <span>{f}</span>
+                        </li>
                       {/each}
                     </ul>
                   </td>
                 {/each}
               </tr>
               <tr>
-                <td
-                  class="p-3 font-semibold text-slate-700 bg-slate-50 border-r border-slate-300"
-                  >Aksi Pengajuan</td
-                >
+                <td class="font-bold text-slate-700">Aksi Pengajuan</td>
                 {#each comparedProducts as p}
-                  <td class="p-3 border-r border-slate-300">
+                  <td>
                     <a
-                      href="/onboarding?productId={p.id}&name={encodeURIComponent(
-                        p.name,
-                      )}"
-                      class="button-4-primary w-full text-xs py-2 px-4 rounded-[3px] flex items-center justify-center font-bold uppercase tracking-wider"
+                      href="/onboarding?productId={p.id}&name={encodeURIComponent(p.name)}"
+                      class="btn btn-small btn-success w-full font-bold uppercase"
                     >
-                      <span>Ajukan Sekarang</span>
+                      Ajukan Sekarang
                     </a>
                   </td>
                 {/each}
@@ -245,6 +192,17 @@
             </tbody>
           </table>
         </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="panel-footer flex items-center justify-end gap-2 bg-slate-50">
+        <button
+          type="button"
+          onclick={() => (isModalOpen = false)}
+          class="btn btn-small"
+        >
+          Tutup
+        </button>
       </div>
     </div>
   </div>

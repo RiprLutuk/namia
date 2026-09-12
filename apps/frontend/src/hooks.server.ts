@@ -18,3 +18,10 @@ export const handle: Handle = async ({ event, resolve }) => {
 
   return response;
 };
+
+export const handleError = ({ error, event }: { error: unknown; event: any }) => {
+  console.error(`[SvelteKit SSR Error at ${event.url.pathname}]:`, error);
+  return {
+    message: error instanceof Error ? error.message : "Terjadi kendala pada sistem server"
+  };
+};

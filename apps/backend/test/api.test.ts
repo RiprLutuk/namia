@@ -179,6 +179,24 @@ describe("Namia Syariah Global Fintech Elysia API", () => {
       expect(json.success).toBe(true);
       expect(json.data.length).toBeGreaterThan(0);
     });
+
+    it("GET /api/content/rss returns valid RSS 2.0 XML", async () => {
+      const res = await app.handle(new Request("http://localhost:3000/api/content/rss"));
+      expect(res.status).toBe(200);
+      expect(res.headers.get("content-type")).toContain("xml");
+      const xml = await res.text();
+      expect(xml).toContain("<rss version=\"2.0\"");
+      expect(xml).toContain("<title>Namia Syariah — RSS Feed</title>");
+    });
+
+    it("GET /api/content/live-stats returns real-time metrics", async () => {
+      const res = await app.handle(new Request("http://localhost:3000/api/content/live-stats"));
+      expect(res.status).toBe(200);
+      const json = (await res.json()) as any;
+      expect(json.success).toBe(true);
+      expect(json.data.totalDisbursed).toBeGreaterThan(100000000000);
+      expect(json.data.status).toBe("OPERATIONAL");
+    });
   });
 
   describe("Performance Target (<15ms latency)", () => {

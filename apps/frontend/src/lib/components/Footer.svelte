@@ -6,6 +6,10 @@
     ChevronDown,
     CheckCircle,
     Send,
+    ShieldCheck,
+    Lock,
+    Rss,
+    ExternalLink
   } from "lucide-svelte";
   import Logo from "$lib/components/Logo.svelte";
   import { cmsStore } from "$lib/cms";
@@ -46,317 +50,257 @@
   }
 </script>
 
-<footer class="bg-slate-50/80 text-slate-600 mt-auto border-t border-slate-200">
-  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
+<footer class="bg-gradient-to-b from-[#f8fafc] to-[#e2e8f0] text-slate-700 mt-auto border-t-2 border-[#059669] shadow-inner">
+  <!-- Main Footer Content -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
       <!-- Brand & Mission Column -->
       <div class="lg:col-span-2 space-y-4">
         <a href="/" class="inline-block">
           <Logo size="md" variant="dark" showBadge={true} showOjk={false} />
         </a>
-        <p class="text-xs text-slate-700 leading-relaxed">
-          <strong class="text-emerald-800 font-bold text-sm tracking-tight"
-            >{$cmsStore.siteSettings.tagline ||
-              "Smart Growth, Halal Impact."}</strong
-          ><br />
-          <span class="text-slate-500"
-            >Platform Financial Technology P2P Financing Syariah Terpercaya
-            berlandaskan filosofi An-Namaa' (pertumbuhan riil & produktif),
-            bebas riba, gharar, dan maysir.</span
-          >
+        <p class="text-xs text-slate-600 leading-relaxed">
+          <strong class="text-emerald-800 font-bold text-sm tracking-tight">
+            {$cmsStore.siteSettings.tagline || "Smart Growth, Halal Impact."}
+          </strong><br />
+          Platform Financial Technology P2P Financing Syariah terpercaya di Indonesia
+          berlandaskan filosofi An-Namaa' (pertumbuhan riil & produktif), bebas riba, gharar, dan maysir.
         </p>
 
-        <div
-          class="pt-2 text-xs text-slate-600 flex flex-col gap-2.5 bg-[url('/images/world-map.png')] bg-no-repeat bg-contain"
-        >
-          <div class="flex items-start gap-2.5">
-            <MapPin class="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+        <div class="text-xs text-slate-600 space-y-1.5 pt-1">
+          <div class="flex items-start gap-2">
+            <MapPin class="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" />
             <div>
-              <strong class="text-slate-800"
-                >{$cmsStore.siteSettings.companyName ||
-                  "PT Namia Finansial Teknologi"}</strong
-              ><br />
-              {$cmsStore.siteSettings.address ||
-                "Menara MTH 10th floor, Jl. MT Haryono Kav 23, Jakarta 12820"}
+              <strong class="text-slate-900">
+                {$cmsStore.siteSettings.companyName || "PT Namia Finansial Teknologi"}
+              </strong><br />
+              {$cmsStore.siteSettings.address || "Menara MTH 10th floor, Jl. MT Haryono Kav 23, Jakarta 12820"}
             </div>
           </div>
-          <div class="flex items-center gap-2.5">
-            <Phone class="w-4 h-4 text-emerald-600 shrink-0" />
-            <span
-              ><strong class="text-slate-800">Phone:</strong>
-              {$cmsStore.siteSettings.phone || "(+62) 21 8378 2337"} &middot;
-              <strong class="text-slate-800">Fax:</strong>
-              {$cmsStore.siteSettings.fax || "(+62) 21 8378 2338"}</span
-            >
+          <div class="flex items-center gap-2">
+            <Phone class="w-4 h-4 text-emerald-700 shrink-0" />
+            <span>
+              <strong>Telepon:</strong> {$cmsStore.siteSettings.phone || "(+62) 21 8378 2337"} &middot; 
+              <strong>Fax:</strong> {$cmsStore.siteSettings.fax || "(+62) 21 8378 2338"}
+            </span>
           </div>
-          <div class="flex items-center gap-2.5">
-            <Mail class="w-4 h-4 text-emerald-600 shrink-0" />
-            <span
-              ><strong class="text-slate-800">Email:</strong>
-              <a
-                href="mailto:{$cmsStore.siteSettings.email || 'salam@namia.id'}"
-                class="text-emerald-700 font-medium hover:underline"
-                >{$cmsStore.siteSettings.email || "salam@namia.id"}</a
-              ></span
-            >
+          <div class="flex items-center gap-2">
+            <Mail class="w-4 h-4 text-emerald-700 shrink-0" />
+            <span>
+              <strong>Email:</strong>
+              <a href="mailto:{$cmsStore.siteSettings.email || 'salam@namia.id'}" class="text-emerald-800 font-semibold hover:underline">
+                {$cmsStore.siteSettings.email || "salam@namia.id"}
+              </a>
+            </span>
           </div>
         </div>
       </div>
 
       <!-- Quick Links 1: Produk & Layanan -->
       <div class="space-y-3">
-        <h4
-          class="text-xs font-['Raleway'] font-bold uppercase tracking-wider text-slate-900 border-b border-slate-200 pb-2 flex items-center justify-between"
-        >
-          <span>Produk Namia</span>
+        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-900 border-b border-slate-300 pb-1.5 flex items-center gap-1.5">
+          <span class="w-1.5 h-1.5 bg-emerald-600 rounded-full"></span>
+          <span>Produk Finansial</span>
         </h4>
-        <ul class="space-y-2 text-xs text-slate-600">
+        <ul class="space-y-1.5 text-xs text-slate-600">
           <li>
-            <a href="/borrower" class="hover:text-emerald-700 transition-colors"
-              >Pembiayaan Barang (Murabahah)</a
-            >
+            <a href="/borrower" class="hover:text-emerald-800 transition-colors flex items-center gap-1">
+              <span>&rsaquo;</span>
+              <span>Pembiayaan Barang (Murabahah)</span>
+            </a>
           </li>
           <li>
-            <a href="/borrower" class="hover:text-emerald-700 transition-colors"
-              >Pembiayaan Jasa (Ijarah)</a
-            >
+            <a href="/borrower" class="hover:text-emerald-800 transition-colors flex items-center gap-1">
+              <span>&rsaquo;</span>
+              <span>Pembiayaan Jasa (Ijarah)</span>
+            </a>
           </li>
           <li>
-            <a href="/borrower" class="hover:text-emerald-700 transition-colors"
-              >Pembiayaan Usaha (Musyarakah)</a
-            >
+            <a href="/borrower" class="hover:text-emerald-800 transition-colors flex items-center gap-1">
+              <span>&rsaquo;</span>
+              <span>Pembiayaan Modal (Musyarakah)</span>
+            </a>
           </li>
           <li>
-            <a href="/borrower" class="hover:text-emerald-700 transition-colors"
-              >Pembiayaan Sosial (Qardh)</a
-            >
+            <a href="/borrower" class="hover:text-emerald-800 transition-colors flex items-center gap-1">
+              <span>&rsaquo;</span>
+              <span>Pembiayaan Kebajikan (Qardh)</span>
+            </a>
           </li>
           <li>
-            <a href="/borrower" class="hover:text-emerald-700 transition-colors"
-              >Pembiayaan Pergi Riba</a
-            >
+            <a href="/aggregator" class="hover:text-emerald-800 transition-colors flex items-center gap-1">
+              <span>&rsaquo;</span>
+              <span>Katalog Fintech Aggregator</span>
+            </a>
           </li>
         </ul>
       </div>
 
-      <!-- Quick Links 2: Pendanaan & Finansial -->
+      <!-- Quick Links 2: Pusat Bantuan & Edukasi -->
       <div class="space-y-3">
-        <h4
-          class="text-xs font-['Raleway'] font-bold uppercase tracking-wider text-slate-900 border-b border-slate-200 pb-2 flex items-center justify-between"
-        >
-          <span>Layanan Finansial</span>
+        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-900 border-b border-slate-300 pb-1.5 flex items-center gap-1.5">
+          <span class="w-1.5 h-1.5 bg-emerald-600 rounded-full"></span>
+          <span>Bantuan & Edukasi</span>
         </h4>
-        <ul class="space-y-2 text-xs text-slate-600">
+        <ul class="space-y-1.5 text-xs text-slate-600">
           <li>
-            <a href="/investor" class="hover:text-emerald-700 transition-colors"
-              >Mulai Jadi Pendana (Investor)</a
-            >
+            <a href="/investor" class="hover:text-emerald-800 transition-colors flex items-center gap-1">
+              <span>&rsaquo;</span>
+              <span>Panduan Pendana (Lender)</span>
+            </a>
           </li>
           <li>
-            <a href="/borrower" class="hover:text-emerald-700 transition-colors"
-              >Ajukan Pembiayaan Usaha</a
-            >
+            <a href="/borrower" class="hover:text-emerald-800 transition-colors flex items-center gap-1">
+              <span>&rsaquo;</span>
+              <span>Panduan Penerima Dana (UMKM)</span>
+            </a>
           </li>
           <li>
-            <a
-              href="/calculators"
-              class="hover:text-emerald-700 transition-colors"
-              >Kalkulator Simulasi Cicilan</a
-            >
+            <a href="/calculators" class="hover:text-emerald-800 transition-colors flex items-center gap-1">
+              <span>&rsaquo;</span>
+              <span>Kalkulator Simulasi Cicilan</span>
+            </a>
           </li>
           <li>
-            <a
-              href="/aggregator"
-              class="hover:text-emerald-700 transition-colors"
-              >Katalog Aggregator Produk</a
-            >
+            <a href="/blog" class="hover:text-emerald-800 transition-colors flex items-center gap-1">
+              <span>&rsaquo;</span>
+              <span>Edukasi Fiqih & Muamalah</span>
+            </a>
           </li>
           <li>
-            <a href="/blog" class="hover:text-emerald-700 transition-colors"
-              >Edukasi & Fiqih Muamalah</a
-            >
+            <a href="/contacts" class="hover:text-emerald-800 transition-colors flex items-center gap-1">
+              <span>&rsaquo;</span>
+              <span>Tanya Jawab (FAQ) & Hubungi</span>
+            </a>
+          </li>
+          <li>
+            <a href="/rss.xml" target="_blank" class="hover:text-emerald-800 transition-colors flex items-center gap-1 font-semibold text-amber-700">
+              <span>&rsaquo;</span>
+              <span>Sindikasi Berita (RSS 2.0)</span>
+            </a>
+          </li>
+          <li>
+            <a href="/sitemap.xml" target="_blank" class="hover:text-emerald-800 transition-colors flex items-center gap-1">
+              <span>&rsaquo;</span>
+              <span>Peta Situs (Sitemap XML)</span>
+            </a>
           </li>
         </ul>
       </div>
 
-      <!-- Newsletter Column -->
+      <!-- Newsletter Subscription Column -->
       <div class="space-y-3">
-        <h4
-          class="text-xs font-['Raleway'] font-bold uppercase tracking-wider text-slate-900 border-b border-slate-200 pb-2"
-        >
-          Berlangganan
+        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-900 border-b border-slate-300 pb-1.5 flex items-center gap-1.5">
+          <span class="w-1.5 h-1.5 bg-emerald-600 rounded-full"></span>
+          <span>Warta Berkala</span>
         </h4>
-        <p class="text-xs text-slate-500 leading-relaxed">
-          Berlangganan Newsletter kami untuk mendapatkan informasi terbaru
-          langsung ke email Anda:
+        <p class="text-xs text-slate-600 leading-relaxed">
+          Dapatkan ringkasan proyek pembiayaan halal dan artikel muamalah langsung di inbox Anda:
         </p>
+
         <form onsubmit={handleSubscribe} class="space-y-2">
-          <div class="flex rounded-[4px] overflow-hidden">
+          <div class="flex">
             <input
               type="email"
               bind:value={newsletterEmail}
               required
-              placeholder="Alamat Email Anda"
-              class="w-full px-3 py-2 text-xs bg-white border border-slate-300 border-r-0 rounded-l-[4px] text-slate-800 placeholder-slate-400 focus:outline-none focus:border-emerald-600"
+              placeholder="Alamat email Anda"
+              class="w-full px-3 py-1.5 text-xs bg-white border border-slate-300 rounded-l-[4px] text-slate-800 placeholder-slate-400 focus:outline-none focus:border-emerald-600"
             />
             <button
               type="submit"
-              class="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold uppercase tracking-wider rounded-r-[4px] transition-colors cursor-pointer shrink-0 border border-emerald-800"
+              class="btn btn-success !rounded-l-none text-xs px-3"
+              aria-label="Kirim Langganan"
             >
-              Berlanggan
+              <Send class="w-3.5 h-3.5" />
             </button>
           </div>
+
+          {#if newsletterSuccess}
+            <div class="alert alert-success text-xs py-1.5 px-2.5 !mb-0 flex items-center gap-1.5">
+              <CheckCircle class="w-3.5 h-3.5 shrink-0" />
+              <span>Jazakallah khair! Anda telah terdaftar.</span>
+            </div>
+          {/if}
         </form>
-        {#if newsletterSuccess}
-          <div
-            class="p-2.5 bg-emerald-50 border border-emerald-200 rounded-[4px] text-xs text-emerald-800 flex items-center gap-1.5"
-          >
-            <CheckCircle class="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-            <span>Terima kasih telah berlangganan info Namia Syariah!</span>
-          </div>
-        {/if}
-      </div>
-    </div>
 
-    <!-- Sangkalan Resiko (Risk Disclaimer POJK 77 matching old web 2 columns) -->
-    <div class="mt-12 pt-8 border-t border-[#ECECEC]">
-      <h5
-        class="text-xs font-['Raleway'] font-bold uppercase tracking-wider text-[#333333] mb-4"
-      >
-        Sangkalan Resiko:
-      </h5>
-      <div
-        class="grid grid-cols-1 md:grid-cols-2 gap-6 text-[11px] text-[#777777] leading-relaxed text-justify"
-      >
-        {#if $cmsStore.riskDisclaimers && $cmsStore.riskDisclaimers.length > 0}
-          {@const half = Math.ceil($cmsStore.riskDisclaimers.length / 2)}
-          <div class="space-y-3">
-            {#each $cmsStore.riskDisclaimers.slice(0, half) as disc, idx}
-              <p>
-                {idx + 1}. {disc.replace(/^\d+\.\s*/, "")}
-              </p>
-            {/each}
-          </div>
-          <div class="space-y-3">
-            {#each $cmsStore.riskDisclaimers.slice(half) as disc, idx}
-              <p>
-                {half + idx + 1}. {disc.replace(/^\d+\.\s*/, "")}
-              </p>
-            {/each}
-          </div>
-        {/if}
-      </div>
-    </div>
-
-    <!-- Regulators Badges -->
-    <div
-      class="mt-8 pt-6 border-t border-[#ECECEC] flex flex-col md:flex-row items-center justify-between gap-6"
-    >
-      <div class="flex items-center gap-6 flex-wrap justify-center">
-        <span class="text-xs text-[#777777] font-medium"
-          >Terdaftar & Diawasi oleh:</span
-        >
-        {#if $cmsStore.supervise && $cmsStore.supervise.length > 0}
-          {#each $cmsStore.supervise as sup}
-            <img
-              src={sup.image}
-              alt={sup.name}
-              title={sup.name}
-              class="h-8 w-auto object-contain filter grayscale hover:grayscale-0 transition-all opacity-75 hover:opacity-100"
-            />
-          {/each}
-        {:else}
-          <img
-            src="/images/home/logo-ojk-indonesia.png"
-            alt="Otoritas Jasa Keuangan"
-            class="h-8 w-auto object-contain filter grayscale hover:grayscale-0 transition-all opacity-75 hover:opacity-100"
-          />
-          <img
-            src="/images/home/logofintechsyariah.png"
-            alt="Asosiasi Fintech Syariah Indonesia"
-            class="h-8 w-auto object-contain filter grayscale hover:grayscale-0 transition-all opacity-75 hover:opacity-100"
-          />
-          <img
-            src="/images/home/logo-kominfo.png"
-            alt="Kominfo"
-            class="h-8 w-auto object-contain filter grayscale hover:grayscale-0 transition-all opacity-75 hover:opacity-100"
-          />
-          <img
-            src="/images/home/logo-mui-s.png"
-            alt="DSN-MUI"
-            class="h-8 w-auto object-contain filter grayscale hover:grayscale-0 transition-all opacity-75 hover:opacity-100"
-          />
-        {/if}
-      </div>
-    </div>
-  </div>
-
-  <!-- Bottom Dark Copyrights Bar matching Canvas -->
-  <div class="bg-[#1e293b] text-slate-400 py-8 border-t border-slate-800">
-    <div
-      class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs"
-    >
-      <div>
-        <p>
-          Copyrights &copy; 2018 - 2026 PT Namia Finansial Teknologi. All Rights
-          Reserved.
-        </p>
-        <div class="flex gap-2 mt-1 text-slate-400">
-          <a href="/contacts" class="hover:underline hover:text-white"
-            >Hubungi Kami</a
-          >
-          <span>/</span>
-          <a href="/about" class="hover:underline hover:text-white"
-            >Terms of Use</a
-          >
-          <span>/</span>
-          <a href="/about" class="hover:underline hover:text-white"
-            >Privacy Policy</a
-          >
+        <div class="pt-2 text-[11px] text-slate-500">
+          <span class="flex items-center gap-1">
+            <Lock class="w-3 h-3 text-slate-400" />
+            <span>Privasi terjaga, tanpa spam komersial.</span>
+          </span>
         </div>
       </div>
+    </div>
 
-      <!-- Social Icons -->
-      <div class="flex items-center gap-3">
-        <a
-          href="https://www.facebook.com/namia.id/"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="w-8 h-8 rounded-[4px] bg-slate-800 hover:bg-emerald-700 text-slate-300 hover:text-white flex items-center justify-center transition-colors border border-slate-700"
-          aria-label="Facebook"
+    <!-- Mandatory Risk Disclosure Accordion (OJK POJK 10/2022) -->
+    <div class="mt-8 pt-6 border-t border-slate-300/80">
+      <div class="well well-small bg-white/70 border-slate-300">
+        <button
+          type="button"
+          onclick={() => (isRiskOpen = !isRiskOpen)}
+          class="w-full flex items-center justify-between text-left text-xs font-bold text-slate-800 cursor-pointer"
         >
-          <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"
-            ><path
-              d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"
-            /></svg
-          >
-        </a>
-        <a
-          href="https://twitter.com/namia_id"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="w-8 h-8 rounded-[4px] bg-slate-800 hover:bg-emerald-700 text-slate-300 hover:text-white flex items-center justify-center transition-colors border border-slate-700"
-          aria-label="Twitter"
-        >
-          <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"
-            ><path
-              d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"
-            /></svg
-          >
-        </a>
-        <a
-          href="https://www.instagram.com/namia.id/"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="w-8 h-8 rounded-[4px] bg-slate-800 hover:bg-emerald-700 text-slate-300 hover:text-white flex items-center justify-center transition-colors border border-slate-700"
-          aria-label="Instagram"
-        >
-          <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"
-            ><path
-              d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"
-            /></svg
-          >
-        </a>
+          <div class="flex items-center gap-2">
+            <ShieldCheck class="w-4 h-4 text-amber-600" />
+            <span>PERINGATAN RISIKO FINANSIAL P2P LENDING (POJK NO. 10/POJK.05/2022)</span>
+          </div>
+          <ChevronDown class="w-4 h-4 text-slate-500 transition-transform {isRiskOpen ? 'rotate-180' : ''}" />
+        </button>
+
+        {#if isRiskOpen}
+          <div class="mt-3 text-[11px] text-slate-600 leading-relaxed space-y-2 border-t border-slate-200 pt-3">
+            <p>
+              1. Layanan Pendanaan Bersama Berbasis Teknologi Informasi merupakan kesepakatan perdata antara Pemberi Dana dengan Penerima Dana, sehingga segala risiko yang timbul ditanggung sepenuhnya oleh masing-masing pihak.
+            </p>
+            <p>
+              2. Risiko pendanaan atau gagal bayar ditanggung sepenuhnya oleh Pemberi Dana. Penyelenggara tidak menanggung kerugian finansial yang timbul dari kesepakatan tersebut.
+            </p>
+            <p>
+              3. Penyelenggara dengan persetujuan dari Pengguna dapat memfasilitasi mitigasi risiko melalui pengalihan hak tagih, asuransi syariah, atau agunan riil sesuai fatwa DSN-MUI No. 117/DSN-MUI/II/2018.
+            </p>
+          </div>
+        {/if}
+      </div>
+    </div>
+
+    <!-- Nostalgic Early Web 2000s & Early Bootstrap Badges Strip -->
+    <div class="mt-6 pt-4 border-t border-slate-300 flex flex-wrap items-center justify-between gap-4 text-xs text-slate-500">
+      <!-- Copyright & Info -->
+      <div class="flex flex-wrap items-center gap-2 text-[11px]">
+        <span>&copy; {new Date().getFullYear()} <strong>PT Namia Finansial Teknologi</strong>. Hak Cipta Dilindungi.</span>
+        <span>&bull;</span>
+        <a href="/about" class="hover:underline text-slate-600">Kebijakan Privasi</a>
+        <span>&bull;</span>
+        <a href="/contacts" class="hover:underline text-slate-600">Syarat &amp; Ketentuan</a>
+        <span>&bull;</span>
+        <a href="/backoffice/auth" class="hover:underline text-slate-400">Portal Admin</a>
+      </div>
+
+      <!-- Early 2000s Trust Badges & Web Standards -->
+      <div class="flex items-center gap-2">
+        <!-- XHTML 1.0 Badge -->
+        <span class="inline-flex items-center border border-slate-400 rounded-[2px] overflow-hidden text-[9px] font-mono shadow-2xs">
+          <span class="bg-slate-700 text-white px-1.5 py-0.5 font-bold">W3C</span>
+          <span class="bg-slate-200 text-slate-800 px-1 py-0.5">XHTML 1.0</span>
+        </span>
+
+        <!-- 256-Bit SSL Badge -->
+        <span class="inline-flex items-center border border-emerald-600 rounded-[2px] overflow-hidden text-[9px] font-mono shadow-2xs">
+          <span class="bg-emerald-700 text-white px-1.5 py-0.5 font-bold">SSL</span>
+          <span class="bg-emerald-100 text-emerald-900 px-1 py-0.5">256-Bit</span>
+        </span>
+
+        <!-- DSN MUI Badge -->
+        <span class="inline-flex items-center border border-amber-600 rounded-[2px] overflow-hidden text-[9px] font-mono shadow-2xs">
+          <span class="bg-amber-600 text-white px-1.5 py-0.5 font-bold">DSN-MUI</span>
+          <span class="bg-amber-100 text-amber-900 px-1 py-0.5">Halal</span>
+        </span>
+
+        <!-- Early Web Resolution Stamp -->
+        <span class="text-[10px] text-slate-400 hidden xl:inline font-mono">
+          [Optimal: 1024&times;768+]
+        </span>
       </div>
     </div>
   </div>

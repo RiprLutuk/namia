@@ -53,7 +53,7 @@ export const app = new Elysia()
     // 1. IP-based Sliding Window Rate Limiter
     const clientIp = getClientIp(request.headers);
     const isMutation = request.method !== "GET" && request.method !== "HEAD";
-    const requestLimit = isMutation ? 40 : 120; // 40 req/min for mutations, 120 req/min for reads
+    const requestLimit = isMutation ? 300 : 1000; // Generous window to prevent false-positive rate limiting in dev/demo
     const rateStatus = checkRateLimit(clientIp, requestLimit, 60000);
 
     set.headers["x-ratelimit-limit"] = String(rateStatus.limit);

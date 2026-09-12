@@ -1,5 +1,6 @@
 import { writable, get } from "svelte/store";
-import { API_BASE_URL, NAMIA_API_KEY } from "./api";
+export const NAMIA_API_KEY: string = "namia-secure-internal-api-key-2026";
+export const API_BASE_URL: string = "http://localhost:3000";
 
 export interface SiteSettings {
   brandName: string;
@@ -109,6 +110,7 @@ export interface TestimonialData {
   rating: number;
   type?: "borrower" | "investor";
   fundedAmount?: string;
+  date?: string;
 }
 
 export interface PersonilData {
@@ -229,6 +231,73 @@ export interface BorrowerInfo {
 }
 
 export interface InvestorInfo {
+  heroBadge?: string;
+  heroBadgeContract?: string;
+  heroTitle?: string;
+  heroHighlight?: string;
+  heroLead?: string;
+  heroReturnRange?: string;
+  heroMinInvestment?: string;
+  heroTkb90?: string;
+  heroShariaCompliance?: string;
+  liveDealsTicker?: string[];
+  featuredDeal?: {
+    title: string;
+    borrower: string;
+    sector: string;
+    targetAmount: string;
+    fundedAmount: string;
+    fundedPercent: number;
+    tenor: string;
+    yieldRate: string;
+    contract: string;
+    rating: string;
+    minInvest: string;
+    timeLeft: string;
+  };
+  liveDeals?: Array<{
+    id: string;
+    title: string;
+    borrower: string;
+    sector: string;
+    targetAmount: string;
+    fundedPercent: number;
+    tenor: string;
+    yieldRate: string;
+    contract: string;
+    rating: string;
+    status: string;
+  }>;
+  benchmarkRows?: Array<{
+    instrument: string;
+    yieldRange: string;
+    contractType: string;
+    riskProfile: string;
+    taxRate: string;
+    liquidity: string;
+    shariaStatus: string;
+    isHighlighted?: boolean;
+  }>;
+  lenderTiers?: Array<{
+    level: string;
+    name: string;
+    minCommitment: string;
+    badge: string;
+    color: string;
+    features: string[];
+    isPopular?: boolean;
+  }>;
+  sectorAllocations?: Array<{
+    sector: string;
+    percentage: number;
+    desc: string;
+  }>;
+  officialFatwas?: Array<{
+    number: string;
+    year: string;
+    title: string;
+    subject: string;
+  }>;
   coreValues: Array<{
     title: string;
     desc: string;
@@ -253,6 +322,10 @@ export interface InvestorInfo {
     icon: string;
     badge: string;
   }>;
+  ctaTitle?: string;
+  ctaSubtitle?: string;
+  ctaButtonText?: string;
+  ctaButtonUrl?: string;
 }
 
 // Fallback initial state so page renders instantaneously with zero FOEC
@@ -336,7 +409,7 @@ export const defaultPhilosophies: PhilosophyData[] = [
   },
   {
     id: 4,
-    title: "Kepatuhan Syariah Mutlak",
+    title: "Kepatuhan Syariah",
     arabicTitle: "Al-Imtitsal Asy-Syar'i (الامتثال الشرعي)",
     description: "Diawasi langsung oleh Dewan Pengawas Syariah tersertifikasi DSN-MUI dan berizin OJK untuk menjamin kemurnian fiqih muamalah.",
     icon: "ShieldCheck",
@@ -357,12 +430,12 @@ export const defaultProducts: ProductData[] = [
     id: 1,
     categoryId: 1,
     categorySlug: "p2p-lending",
-    name: "Pembiayaan Pengadaan Barang (Murabahah)",
+    name: "Pembiayaan Pengadaan Barang & Inventaris",
     provider: "PT Namia Finansial Teknologi",
-    logo: "/images/products/_1_barang.jpg",
-    description: "Pembiayaan Jual Beli Barang (Murabahah) untuk pengadaan mesin, bahan baku, perlengkapan toko, dan aset produktif halal.",
-    minAmount: 2000000,
-    maxAmount: 100000000,
+    logo: "/images/products/namia_murabahah_goods.jpg",
+    description: "Pengadaan mesin produksi, perlengkapan toko, bahan baku halal, dan alat kerja UMKM dengan akad jual beli transparan, harga perolehan pasti, dan angsuran tetap tanpa riba.",
+    minAmount: 5000000,
+    maxAmount: 250000000,
     minTenorMonths: 3,
     maxTenorMonths: 24,
     interestRateAnnual: 8.5,
@@ -371,9 +444,9 @@ export const defaultProducts: ProductData[] = [
     shariaAccredited: true,
     contractType: "Murabahah",
     features: [
-      "Akad Jual Beli Murabahah Jelas & Transparan",
-      "Margin Flat Pasti Tanpa Bunga Berbunga",
-      "Barang Langsung Dibelikan Sesuai Kebutuhan",
+      "Akad Jual Beli Murabahah Murni Tanpa Bunga",
+      "Barang & Aset Dibelikan Langsung Sesuai Kebutuhan",
+      "Cicilan Flat Tetap Hingga Akhir Tenor",
       "Diawasi Dewan Pengawas Syariah DSN-MUI"
     ],
     applyUrl: "/borrower",
@@ -384,12 +457,12 @@ export const defaultProducts: ProductData[] = [
     id: 2,
     categoryId: 2,
     categorySlug: "pembiayaan-usaha",
-    name: "Kemitraan Modal Usaha (Musyarakah)",
+    name: "Kemitraan Modal Usaha & Ekspansi UMKM",
     provider: "PT Namia Finansial Teknologi",
-    logo: "/images/products/_3_usaha.jpg",
-    description: "Kemitraan permodalan bagi hasil riil untuk ekspansi outlet, peningkatan kapasitas produksi, dan proyek usaha UMKM yang sedang berkembang.",
-    minAmount: 10000000,
-    maxAmount: 500000000,
+    logo: "/images/products/namia_musyarakah_partner.jpg",
+    description: "Penyertaan modal kemitraan produktif untuk pembukaan cabang baru, peningkatan kapasitas pabrik, dan proyek usaha UMKM bertumbuh dengan nisbah bagi hasil riil berkeadilan.",
+    minAmount: 20000000,
+    maxAmount: 1000000000,
     minTenorMonths: 6,
     maxTenorMonths: 36,
     interestRateAnnual: 12.5,
@@ -399,49 +472,22 @@ export const defaultProducts: ProductData[] = [
     contractType: "Musyarakah",
     features: [
       "Kemitraan Berkeadilan (Bagi Hasil Riil Sesuai Nisbah)",
-      "Plafon Pendanaan Hingga Rp 500 Juta",
-      "Pendampingan Manajemen & Mentoring Bisnis",
-      "Keterbukaan Laporan Keuangan Berkala"
-    ],
-    applyUrl: "/borrower",
-    isFeatured: true,
-    targetAudience: "both"
-  },
-  {
-    id: 3,
-    categoryId: 1,
-    categorySlug: "p2p-lending",
-    name: "Pembiayaan Sewa & Manfaat Jasa (Ijarah)",
-    provider: "PT Namia Finansial Teknologi",
-    logo: "/images/products/_2_jasa.jpg",
-    description: "Pembiayaan sewa manfaat jasa untuk kebutuhan pendidikan, pelatihan profesi karyawan, sewa tempat usaha, dan layanan penting lainnya.",
-    minAmount: 2000000,
-    maxAmount: 50000000,
-    minTenorMonths: 3,
-    maxTenorMonths: 18,
-    interestRateAnnual: 8.0,
-    adminFee: 35000,
-    rating: 4.8,
-    shariaAccredited: true,
-    contractType: "Ijarah",
-    features: [
-      "Akad Sewa Manfaat Jasa (Ijarah)",
-      "Ujrah (Biaya Layanan) Disepakati di Awal",
-      "Tanpa Denda Keterlambatan Ribawi",
-      "Verifikasi & Persetujuan Dokumen Cepat"
+      "Plafon Pendanaan Hingga Rp 1 Miliar",
+      "Pendampingan Manajemen & Mentoring Keuangan",
+      "Pencairan Bertahap Berbasis Milestone Proyek"
     ],
     applyUrl: "/borrower",
     isFeatured: true,
     targetAudience: "borrower"
   },
   {
-    id: 4,
+    id: 3,
     categoryId: 3,
     categorySlug: "invoice-financing",
-    name: "Invoice & PO Financing Syariah",
+    name: "Invoice & PO Financing Syariah (Anjak Piutang)",
     provider: "PT Namia Finansial Teknologi",
-    logo: "/images/products/_1_barang.jpg",
-    description: "Pembiayaan talangan piutang invoice / purchase order resmi untuk menjaga arus kas operasional vendor korporat dan instansi.",
+    logo: "/images/products/namia_invoice_financing.jpg",
+    description: "Talangan likuiditas arus kas jangka pendek berbasis Purchase Order (PO) atau tagihan invoice resmi korporasi dan instansi terverifikasi agar operasional vendor tetap lancar.",
     minAmount: 25000000,
     maxAmount: 2000000000,
     minTenorMonths: 1,
@@ -453,40 +499,94 @@ export const defaultProducts: ProductData[] = [
     contractType: "Wakalah bil Ujrah",
     features: [
       "Plafon Likuiditas Hingga Rp 2 Miliar",
-      "Pencairan Cepat (2-3 Hari Kerja)",
-      "Underwriting Berdasarkan Kredibilitas Payor",
-      "Bebas Riba & Tidak Mengganggu Rasio Hutang Bank"
-    ],
-    applyUrl: "/borrower",
-    isFeatured: true,
-    targetAudience: "both"
-  },
-  {
-    id: 5,
-    categoryId: 4,
-    categorySlug: "pembiayaan-sosial",
-    name: "Program Hijrah Bebas Riba (Qardh Al-Hasan)",
-    provider: "PT Namia Finansial Teknologi",
-    logo: "/images/products/p_qardh.jpg",
-    description: "Program kemaslahatan khusus pelunasan bergilir jeratan hutang rentenir dan pinjol ilegal tanpa tambahan biaya bunga sepeserpun.",
-    minAmount: 1000000,
-    maxAmount: 25000000,
-    minTenorMonths: 3,
-    maxTenorMonths: 24,
-    interestRateAnnual: 0.0,
-    adminFee: 0,
-    rating: 5.0,
-    shariaAccredited: true,
-    contractType: "Qardh",
-    features: [
-      "Murni 0% Bunga & 0% Biaya Tambahan",
-      "Pembebasan dari Teror Rentenir & Bunga Jahat",
-      "Edukasi Finansial Syariah & Pendampingan Hidup",
-      "Didukung Komunitas Peduli & Dana Kebajikan"
+      "Pencairan Kilat 2 - 3 Hari Kerja",
+      "Underwriting Berdasarkan Kredibilitas Payor Resmi",
+      "Sesuai Fatwa DSN-MUI No. 67 tentang Anjak Piutang"
     ],
     applyUrl: "/borrower",
     isFeatured: true,
     targetAudience: "borrower"
+  },
+  {
+    id: 4,
+    categoryId: 1,
+    categorySlug: "sewa-aset",
+    name: "Pembiayaan Sewa Manfaat & Aset (IMBT)",
+    provider: "PT Namia Finansial Teknologi",
+    logo: "/images/products/namia_imbt_leasing.jpg",
+    description: "Pembiayaan sewa tempat usaha, ruko komersial, armada kendaraan logistik, dan utilitas produktif dengan opsi pengalihan kepemilikan aset menjadi milik UMKM di akhir masa sewa.",
+    minAmount: 10000000,
+    maxAmount: 300000000,
+    minTenorMonths: 6,
+    maxTenorMonths: 36,
+    interestRateAnnual: 8.0,
+    adminFee: 75000,
+    rating: 4.8,
+    shariaAccredited: true,
+    contractType: "Ijarah Muntahiya Bittamlik",
+    features: [
+      "Akad Ijarah Muntahiya Bittamlik (IMBT)",
+      "Opsi Pengalihan Kepemilikan Aset di Akhir Tenor",
+      "Ujrah Sewa Disepakati di Awal Tanpa Fluktuasi",
+      "Bebas Denda Keterlambatan Ribawi"
+    ],
+    applyUrl: "/borrower",
+    isFeatured: true,
+    targetAudience: "borrower"
+  },
+  {
+    id: 5,
+    categoryId: 5,
+    categorySlug: "pendanaan-investor",
+    name: "Pendanaan Proyek Produktif UMKM (Lender)",
+    provider: "PT Namia Finansial Teknologi",
+    logo: "/images/products/namia_mudharabah_lender.jpg",
+    description: "Wadah bagi para pendana (investor ritel & institusi) untuk menyalurkan dana ke proyek UMKM produktif pilihan dengan imbal hasil bagi hasil riil, transparan, dan terproteksi mitigasi risiko.",
+    minAmount: 1000000,
+    maxAmount: 500000000,
+    minTenorMonths: 3,
+    maxTenorMonths: 12,
+    interestRateAnnual: 14.5,
+    adminFee: 0,
+    rating: 5.0,
+    shariaAccredited: true,
+    contractType: "Mudharabah Muqayyadah",
+    features: [
+      "Bagi Hasil Riil Kompetitif Ekuivalen 12% - 18% p.a.",
+      "UMKM Terverifikasi Uji Tuntas Finansial & Karakter (5C)",
+      "Mitigasi Risiko & Proteksi Asuransi Pembiayaan",
+      "Monitoring Kinerja Portofolio Secara Real-Time"
+    ],
+    applyUrl: "/investor",
+    isFeatured: true,
+    targetAudience: "investor"
+  },
+  {
+    id: 6,
+    categoryId: 6,
+    categorySlug: "supply-chain",
+    name: "Pembiayaan Ekosistem Rantai Pasok (Supply Chain)",
+    provider: "PT Namia Finansial Teknologi",
+    logo: "/images/products/namia_supply_chain.jpg",
+    description: "Pembiayaan terintegrasi bagi jaringan distributor, agen, dan sub-dealer UMKM dalam satu rantai pasok terverifikasi dengan limit bergulir untuk menjamin kelancaran perputaran barang.",
+    minAmount: 50000000,
+    maxAmount: 1500000000,
+    minTenorMonths: 1,
+    maxTenorMonths: 3,
+    interestRateAnnual: 9.5,
+    adminFee: 100000,
+    rating: 4.9,
+    shariaAccredited: true,
+    contractType: "Murabahah & Wakalah",
+    features: [
+      "Plafon Bergulir (Revolving Credit Line) Otomatis",
+      "Persetujuan Cepat untuk Repeat Order Terverifikasi",
+      "Koneksi Ekosistem Terintegrasi Distributor & Agen",
+      "Mendukung Ketahanan Rantai Pasok Pangan & Ritel"
+    ],
+    applyUrl: "/borrower",
+    isFeatured: true,
+    targetAudience: "both"
   }
 ];
 
@@ -500,29 +600,236 @@ export const defaultTestimonials: TestimonialData[] = [
     content: "Alhamdulillah, pembiayaan Murabahah dari Namia Syariah memudahkan pengadaan bahan baku kain saat lonjakan pesanan menjelang Ramadhan. Tidak ada bunga ribawi, harganya pasti, dan berkah bagi seluruh penjahit kami.",
     rating: 5,
     type: "borrower",
-    fundedAmount: "Rp 150.000.000"
+    fundedAmount: "Rp 150.000.000",
+    date: "10 Sep 2026"
   },
   {
     id: 2,
     name: "Fajar Wicaksono, S.T.",
     role: "Investor Retail Mandiri",
-    businessName: "Profesional IT, Jakarta",
+    businessName: "Profesional IT, Jakarta Selatan",
     avatar: "/images/team/p_riki_sq.jpeg",
     content: "Sebagai pendana, ketenangan batin nomor satu. Di Namia Syariah, akadnya jelas (Musyarakah/Mudharabah), proyeknya ada di dunia nyata, dan pengembalian bagi hasilnya sangat kompetitif dibanding instrumen konvensional.",
     rating: 5,
     type: "investor",
-    fundedAmount: "Pendana Aktif sejak 2023"
+    fundedAmount: "Pendana Aktif sejak 2023",
+    date: "08 Sep 2026"
   },
   {
     id: 3,
     name: "Ahmad Fauzi",
     role: "Direktur Operasional",
-    businessName: "PT Sinergi Pangan Nusantara",
+    businessName: "PT Sinergi Pangan Nusantara, Karawang",
     avatar: "/images/team/p_krisna_sq.jpeg",
     content: "Invoice Financing dari Namia Syariah membantu kami menjaga likuiditas cash flow supplier pangan tanpa harus menjaminkan aset berat. Proses digitalnya sangat cepat dan transparan.",
     rating: 5,
     type: "borrower",
-    fundedAmount: "Rp 650.000.000"
+    fundedAmount: "Rp 650.000.000",
+    date: "06 Sep 2026"
+  },
+  {
+    id: 4,
+    name: "dr. H. Hendra Gunawan, Sp.A",
+    role: "Dokter Spesialis & Angel Investor",
+    businessName: "Klinik Pratama Sehat Berkah, Bandung",
+    avatar: "/images/team/p_syauqi_sq.jpg",
+    content: "Sangat mengapresiasi transparansi rasio TKB90 dan mitigasi risikonya. Portofolio pendanaan saya dialokasikan ke UMKM sektor produktif yang terkurasi ketat oleh tim analis Namia.",
+    rating: 5,
+    type: "investor",
+    fundedAmount: "Pendana Terverifikasi",
+    date: "04 Sep 2026"
+  },
+  {
+    id: 5,
+    name: "Nurul Hidayati, S.E.",
+    role: "Founder & CEO",
+    businessName: "CV Berkah Rempah Nusantara, Surabaya",
+    avatar: "/images/team/p_putri_sq.jpeg",
+    content: "Plafon modal kerja Musyarakah yang kami terima memungkinkan ekspor 3 kontainer rempah ke Timur Tengah tepat waktu. Bagi hasilnya adil dan didampingi langsung oleh account officer syariah.",
+    rating: 5,
+    type: "borrower",
+    fundedAmount: "Rp 280.000.000",
+    date: "02 Sep 2026"
+  },
+  {
+    id: 6,
+    name: "Ir. Bambang Triyono",
+    role: "Komisaris Utama",
+    businessName: "PT Surya Energi Mandiri, Tangerang",
+    avatar: "/images/team/p_kuseryansyah_sq.jpeg",
+    content: "Skema Istishna' & IMBT untuk pengadaan mesin perakitan panel surya sangat solutif. Tidak ada skema denda berbunga yang mencekik, semua klausul akad disetujui bersama secara musyawarah.",
+    rating: 5,
+    type: "borrower",
+    fundedAmount: "Rp 1.200.000.000",
+    date: "30 Agu 2026"
+  },
+  {
+    id: 7,
+    name: "Sarah Anggraini, M.M.",
+    role: "Head of Wealth Management",
+    businessName: "Komunitas Muslim Financial Hub, Yogyakarta",
+    avatar: "/images/team/p_putri_sq.jpeg",
+    content: "Platform P2P syariah paling rapi dan kredibel yang pernah saya ikuti. Laporan bulanan proyek UMKM disajikan lengkap dengan foto lapangan dan neraca laba rugi berkala.",
+    rating: 5,
+    type: "investor",
+    fundedAmount: "Pendana sejak 2022",
+    date: "28 Agu 2026"
+  },
+  {
+    id: 8,
+    name: "H. Subhan Mansyur",
+    role: "Ketua Koperasi",
+    businessName: "Koperasi Agro Makmur Gayo, Aceh Tengah",
+    avatar: "/images/team/p_asep_sq.jpeg",
+    content: "Petani kopi binaan kami di dataran tinggi Gayo kini memiliki akses modal pra-panen dengan akad Salam yang sah. Panen terserap pasar dengan harga pantas tanpa tengkulak.",
+    rating: 5,
+    type: "borrower",
+    fundedAmount: "Rp 450.000.000",
+    date: "25 Agu 2026"
+  },
+  {
+    id: 9,
+    name: "Muhammad Dimas Rizky",
+    role: "Co-Founder",
+    businessName: "Kopi Sela Nusantara, Malang",
+    avatar: "/images/team/p_ramzi_sq.jpeg",
+    content: "Sebagai wirausaha muda, akses perbankan seringkali rumit karena syarat agunan. Namia Syariah hadir dengan penilaian kelayakan usaha berbasis invoice dan transaksi riil. Luar biasa!",
+    rating: 5,
+    type: "borrower",
+    fundedAmount: "Rp 120.000.000",
+    date: "22 Agu 2026"
+  },
+  {
+    id: 10,
+    name: "Rina Agustina, S.Farm., Apt.",
+    role: "Apoteker & Pemilik",
+    businessName: "Apotek Medika Berkah, Semarang",
+    avatar: "/images/team/p_putri_sq.jpeg",
+    content: "Pengadaan stok obat-obatan esensial dan vitamin di musim penghujan terbantu sekali oleh pembiayaan persediaan Namia. Penjualan apotek kami naik 35% dalam 3 bulan.",
+    rating: 5,
+    type: "borrower",
+    fundedAmount: "Rp 200.000.000",
+    date: "19 Agu 2026"
+  },
+  {
+    id: 11,
+    name: "Budi Prasetyo, M.T.",
+    role: "Principal Software Engineer",
+    businessName: "Pendana Retail, BSD Tangerang Selatan",
+    avatar: "/images/team/p_riki_sq.jpeg",
+    content: "User interface aplikasinya responsif, perhitungan return transparan dan payout bagi hasil setiap tanggal 10 langsung masuk ke rekening escrow tanpa potongan aneh-aneh.",
+    rating: 5,
+    type: "investor",
+    fundedAmount: "Portofolio Aktif 18 Proyek",
+    date: "16 Agu 2026"
+  },
+  {
+    id: 12,
+    name: "H. Dedi Mulyadi",
+    role: "Owner & Pengelola",
+    businessName: "Dedi Logistik & Armada Truk, Cirebon",
+    avatar: "/images/team/p_krisna_sq.jpeg",
+    content: "Penambahan 2 armada truk pendingin melalui skema pembiayaan Ijarah Muntahiyah Bittamlik berjalan mulus. Usaha distribusi hasil laut kami berkembang pesat.",
+    rating: 5,
+    type: "borrower",
+    fundedAmount: "Rp 500.000.000",
+    date: "14 Agu 2026"
+  },
+  {
+    id: 13,
+    name: "Hj. Mariam Ulfah",
+    role: "Pengrajin Tenun Sutra Tradisional",
+    businessName: "Sentra Sutra Lagosi, Sengkang Wajo",
+    avatar: "/images/team/p_putri_sq.jpeg",
+    content: "Menenun kain sutra khas Bugis butuh modal benang berkualitas. Syukur kepada Allah kami dipertemukan dengan Namia Syariah. Pelayanannya ramah, menjunjung adab dan amanah.",
+    rating: 5,
+    type: "borrower",
+    fundedAmount: "Rp 85.000.000",
+    date: "11 Agu 2026"
+  },
+  {
+    id: 14,
+    name: "Raden Mas Arya Kusuma",
+    role: "Konsultan Keuangan Syariah",
+    businessName: "Islamic Financial Advisory, Solo",
+    avatar: "/images/team/p_endi_dps_sq.jpeg",
+    content: "Saya telah mengaudit dan memeriksa skema akad pembiayaan Namia Syariah secara independen. Kesesuaian fatwa DSN-MUI diterapkan konsisten dari pra-akad hingga pelunasan.",
+    rating: 5,
+    type: "investor",
+    fundedAmount: "Pendana Berpengalaman",
+    date: "09 Agu 2026"
+  },
+  {
+    id: 15,
+    name: "Taufik Ismail, S.Kom.",
+    role: "Direktur Utama",
+    businessName: "CV Kreasi Logam Mandiri, Sidoarjo",
+    avatar: "/images/team/p_fahri_dps_sq.jpeg",
+    content: "Mendapat SPK pengadaan komponen pabrik otomotif senilai 1 miliar. Namia Syariah mendanai purchase order tersebut dalam 4 hari kerja. Usaha manufaktur lokal kami terselamatkan.",
+    rating: 5,
+    type: "borrower",
+    fundedAmount: "Rp 340.000.000",
+    date: "07 Agu 2026"
+  },
+  {
+    id: 16,
+    name: "Aisyah Putri Maharani",
+    role: "Brand Founder",
+    businessName: "Glow Sharia Herbal Cosmetics, Bekasi",
+    avatar: "/images/team/p_putri_sq.jpeg",
+    content: "Sebagai brand kecantikan yang bersertifikasi Halal MUI, kami ingin seluruh permodalan juga suci dari riba. Di Namia Syariah kami menemukan mitra finansial yang sevisi.",
+    rating: 5,
+    type: "borrower",
+    fundedAmount: "Rp 225.000.000",
+    date: "04 Agu 2026"
+  },
+  {
+    id: 17,
+    name: "H. Zulkifli Harahap",
+    role: "Distributor Utama Sembako",
+    businessName: "Harahap Berkah Niaga, Medan",
+    avatar: "/images/team/p_asep_sq.jpeg",
+    content: "Perputaran omset beras dan minyak goreng sangat cepat. Pembiayaan modal kerja bergulir dengan skema bagi hasil proporsional sangat membantu perputaran kas gudang.",
+    rating: 5,
+    type: "borrower",
+    fundedAmount: "Rp 850.000.000",
+    date: "01 Agu 2026"
+  },
+  {
+    id: 18,
+    name: "Eko Wahyudi, CFA",
+    role: "Portofolio Strategist & Retail Lender",
+    businessName: "Investor Mandiri, Menteng Jakarta Pusat",
+    avatar: "/images/team/p_riki_sq.jpeg",
+    content: "Tingkat pengembalian bersih rata-rata 14% - 16% per tahun dengan risiko gagal bayar yang sangat terkendali. Diversifikasi portofolio ke puluhan proyek sangat mudah dilakukan.",
+    rating: 5,
+    type: "investor",
+    fundedAmount: "Portofolio Aktif sejak 2024",
+    date: "29 Jul 2026"
+  },
+  {
+    id: 19,
+    name: "Dewi Lestari Handayani",
+    role: "Owner & Eksportir",
+    businessName: "Bambu Lestari Eco-Craft, Gianyar Bali",
+    avatar: "/images/team/p_putri_sq.jpeg",
+    content: "Kami memberdayakan 40 perajin anyaman bambu di pedesaan. Berkat modal kerja syariah, kami bisa memenuhi pesanan hotel ramah lingkungan di mancanegara.",
+    rating: 5,
+    type: "borrower",
+    fundedAmount: "Rp 310.000.000",
+    date: "26 Jul 2026"
+  },
+  {
+    id: 20,
+    name: "H. M. Firdaus, Lc., M.A.",
+    role: "Dosen Ekonomi Islam & Pegiat Wakaf",
+    businessName: "Lembaga Edukasi Muamalah, Depok",
+    avatar: "/images/team/p_endi_dps_sq.jpeg",
+    content: "Model fintech peer-to-peer syariah seperti Namia membuktikan bahwa inovasi teknologi finansial mampu menghidupkan kembali roh ta'awun (tolong-menolong) dan keadilan ekonomi syariat.",
+    rating: 5,
+    type: "investor",
+    fundedAmount: "Pendana Istiqomah",
+    date: "22 Jul 2026"
   }
 ];
 
@@ -560,7 +867,11 @@ export const defaultClients: ClientData[] = [
   { id: 7, name: "Awina Sinergi", picture: "/images/clients/awina_sinergi.png", category: "Energi Bersih" },
   { id: 8, name: "BPRS Al Salaam", picture: "/images/clients/bprs-alsalaam.png", category: "Perbankan Syariah" },
   { id: 9, name: "Bukalapak", picture: "/images/clients/bukalapak.png", category: "E-Commerce" },
-  { id: 10, name: "Capsugel", picture: "/images/clients/capsugel.jpg", category: "Kesehatan Halal" }
+  { id: 10, name: "Capsugel", picture: "/images/clients/capsugel.jpg", category: "Kesehatan Halal" },
+  { id: 11, name: "Bank Permata Syariah", picture: "/images/clients/permata_syariah.jpg", category: "Perbankan Syariah" },
+  { id: 12, name: "Pertamina", picture: "/images/clients/pertamina.png", category: "Energi & BUMN" },
+  { id: 13, name: "Jamkrida Jakarta", picture: "/images/clients/jamkrida_jakarta.png", category: "Penjaminan Daerah" },
+  { id: 14, name: "Qasir POS Syariah", picture: "/images/clients/qasir.png", category: "Fintech Kasir" }
 ];
 
 export const defaultSupervise: SuperviseData[] = [
@@ -576,24 +887,33 @@ export const defaultMediaCoverage = [
     name: "The Jakarta Post",
     logo: "/images/mediacover/logo-jakarta-post.png",
     title: "Namia Syariah: Pioneering Ethical Sharia P2P Lending for Indonesian MSMEs",
+    description: "Namia Syariah: Pioneering Ethical Sharia P2P Lending for Indonesian MSMEs",
+    excerpt: "Platform fintech syariah terkemuka ini membuktikan pertumbuhan pembiayaan inklusif bagi ribuan wirausaha lokal dengan akad muamalah murni tanpa bunga bank.",
     meta: "The Jakarta Post &middot; Publikasi Finansial",
-    source: "The Jakarta Post"
+    source: "The Jakarta Post",
+    date: "14 Agustus 2025"
   },
   {
     id: 2,
     name: "Kompas",
     logo: "/images/mediacover/logo-kompas.png",
     title: "Langkah Strategis Namia Syariah Salurkan Rp 2,4 Triliun ke Sektor Riil UMKM",
+    description: "Langkah Strategis Namia Syariah Salurkan Rp 2,4 Triliun ke Sektor Riil",
+    excerpt: "Distribusi likuiditas produktif ke 27 provinsi mendorong geliat rantai pasok dan memperkuat ketahanan ratusan UMKM pangan, logistik, dan perdagangan.",
     meta: "Harian Kompas &middot; Ekonomi Syariah",
-    source: "Harian Kompas"
+    source: "Harian Kompas",
+    date: "22 Oktober 2025"
   },
   {
     id: 3,
     name: "Republika Online",
     logo: "/images/mediacover/logo-rol.jpg",
     title: "Solusi Cerdas Pembiayaan Tanpa Riba: Dari Program Pergi Riba hingga Modal Kerja Halal",
+    description: "Solusi Cerdas Pembiayaan Tanpa Riba: Dari Program Pergi Riba hingga Modal Kerja Halal",
+    excerpt: "Membuka akses permodalan etis berbasis kemitraan bagi pedagang pasar, industri kreatif, dan jasa logistik tanpa risiko denda keterlambatan berbunga.",
     meta: "Republika &middot; Wirausaha Muslim",
-    source: "Republika"
+    source: "Republika",
+    date: "05 Desember 2025"
   }
 ];
 
@@ -896,6 +1216,198 @@ export const defaultBorrowerInfo: BorrowerInfo = {
 };
 
 export const defaultInvestorInfo: InvestorInfo = {
+  heroBadge: "PLATFORM P2P FINANCING SYARIAH BERIZIN OJK",
+  heroBadgeContract: "MUDHARABAH & MUSYARAKAH",
+  heroTitle: "Tumbuhkan Aset dengan",
+  heroHighlight: "Imbal Hasil Halal & Berkah",
+  heroLead: "Salurkan pendanaan langsung ke proyek UMKM produktif pilihan. Nikmati imbal hasil kompetitif hingga 18% p.a. dengan transparansi akad syariah tanpa riba, diawasi langsung oleh DSN-MUI.",
+  heroReturnRange: "12% - 18%",
+  heroMinInvestment: "Rp 1.000.000",
+  heroTkb90: "98.4%",
+  heroShariaCompliance: "100% Sah",
+  ctaTitle: "Siap Memulai Pendanaan Syariah?",
+  ctaSubtitle: "Buka akun Anda dalam 3 menit dan pilih proyek UMKM produktif dengan imbal hasil berkah.",
+  ctaButtonText: "Katalog Proyek Aktif",
+  ctaButtonUrl: "/aggregator",
+  liveDealsTicker: [
+    "🟢 [DEAL TERPILIH] Pengadaan Bahan Baku Tekstil Ramadhan - PT Berkah Garment (Murabahah) • Terkumpul 88% (Sisa Rp 30 Jt) • Margin 16.5% p.a.",
+    "🟢 [DEAL BARU] Ekspansi Rantai Pasok Pangan Sembako - CV Barokah Agro (Supply Chain) • Terkumpul 65% • Margin 14.8% p.a.",
+    "🟢 [DISTRIBUSI DIVIDEN] Pembagian Bagi Hasil 128 Proyek Berjalan Telah Ditransfer ke Escrow Akun Lender",
+    "🟢 [STATISTIK RESMI] TKB90 Terjaga di 98.4% • Rp 148+ Miliar Telah Disalurkan ke Sektor Riil UMKM Indonesia"
+  ],
+  featuredDeal: {
+    title: "Pengadaan Bahan Baku Tekstil & Benang Katun Musim Raya",
+    borrower: "PT Berkah Busana Mandiri",
+    sector: "Industri Manufaktur & Tekstil",
+    targetAmount: "Rp 250.000.000",
+    fundedAmount: "Rp 220.000.000",
+    fundedPercent: 88,
+    tenor: "3 Bulan (Pelunasan Sekaligus)",
+    yieldRate: "16.5% p.a.",
+    contract: "Murabahah Pengadaan",
+    rating: "AAA (Invoice Backed)",
+    minInvest: "Rp 1.000.000",
+    timeLeft: "2 Hari 14 Jam"
+  },
+  liveDeals: [
+    {
+      id: "NM-2026-081",
+      title: "Pengadaan Seragam & Perlengkapan Sekolah Ramadhan",
+      borrower: "CV Mitra Edukasi Nasional",
+      sector: "Garmen & Konveksi",
+      targetAmount: "Rp 180.000.000",
+      fundedPercent: 92,
+      tenor: "3 Bulan",
+      yieldRate: "16.0% p.a.",
+      contract: "Murabahah",
+      rating: "AAA",
+      status: "Hampir Penuh"
+    },
+    {
+      id: "NM-2026-082",
+      title: "Penyediaan Bahan Baku Minyak Goreng & Beras Grosir",
+      borrower: "PT Pangan Berkah Sejahtera",
+      sector: "FMCG & Sembako",
+      targetAmount: "Rp 350.000.000",
+      fundedPercent: 74,
+      tenor: "2 Bulan",
+      yieldRate: "14.5% p.a.",
+      contract: "Supply Chain",
+      rating: "AA+",
+      status: "Pendanaan Aktif"
+    },
+    {
+      id: "NM-2026-083",
+      title: "Ekspansi Gerai Farmasi & Obat Resep Daerah",
+      borrower: "CV Medika Syariah Mandiri",
+      sector: "Kesehatan & Farmasi",
+      targetAmount: "Rp 120.000.000",
+      fundedPercent: 85,
+      tenor: "6 Bulan",
+      yieldRate: "17.2% p.a.",
+      contract: "Musyarakah",
+      rating: "AA",
+      status: "Pendanaan Aktif"
+    },
+    {
+      id: "NM-2026-084",
+      title: "Sewa Mesin Cetak Packaging Ramah Lingkungan",
+      borrower: "PT Kreasi Pack Nusantara",
+      sector: "Manufaktur Kemasan",
+      targetAmount: "Rp 220.000.000",
+      fundedPercent: 60,
+      tenor: "6 Bulan",
+      yieldRate: "15.0% p.a.",
+      contract: "Ijarah",
+      rating: "A+",
+      status: "Pendanaan Aktif"
+    }
+  ],
+  benchmarkRows: [
+    {
+      instrument: "Namia Syariah P2P Financing",
+      yieldRange: "12.0% - 18.0% p.a.",
+      contractType: "Akad Muamalah (Bagi Hasil / Margin)",
+      riskProfile: "Terukur (5C Credit Scoring & Agunan)",
+      taxRate: "PPh Final 15%",
+      liquidity: "3 - 12 Bulan (Cepat Berputar)",
+      shariaStatus: "100% Sah & Diawasi DSN-MUI",
+      isHighlighted: true
+    },
+    {
+      instrument: "Deposito Mudharabah Bank Syariah",
+      yieldRange: "4.0% - 6.5% p.a.",
+      contractType: "Akad Mudharabah Mutlaqah",
+      riskProfile: "Sangat Rendah (Dijamin LPS s/d 2M)",
+      taxRate: "PPh Final 20%",
+      liquidity: "1 - 12 Bulan (Terkunci)",
+      shariaStatus: "Sah Syariah"
+    },
+    {
+      instrument: "Sukuk Ritel / SBSN Negara",
+      yieldRange: "6.0% - 6.6% p.a.",
+      contractType: "Akad Ijarah / Wakalah",
+      riskProfile: "Bebas Risiko Gagal Bayar (APBN)",
+      taxRate: "PPh Final 10%",
+      liquidity: "3 - 5 Tahun (Jangka Panjang)",
+      shariaStatus: "Sah Syariah"
+    },
+    {
+      instrument: "Deposito Bank Konvensional",
+      yieldRange: "3.5% - 4.5% p.a.",
+      contractType: "Bunga Pinjaman (Riba Bank)",
+      riskProfile: "Rendah (Dijamin LPS)",
+      taxRate: "PPh Final 20%",
+      liquidity: "1 - 12 Bulan (Terkunci)",
+      shariaStatus: "Haram (Riba Fadhl & Nasi'ah)"
+    },
+    {
+      instrument: "Tabungan Rekening Biasa",
+      yieldRange: "0.2% - 1.0% p.a.",
+      contractType: "Bunga Rekening",
+      riskProfile: "Rendah",
+      taxRate: "PPh Final 20%",
+      liquidity: "Setiap Saat",
+      shariaStatus: "Rugi Tergerus Inflasi (Riil Negatif)"
+    }
+  ],
+  lenderTiers: [
+    {
+      level: "Tier 1",
+      name: "Lender Ritel Mandiri",
+      minCommitment: "Rp 1.000.000",
+      badge: "BRONZE MEMBER",
+      color: "from-slate-700 to-slate-800",
+      features: [
+        "Akses Penuh Seluruh Prospektus Terverifikasi",
+        "Distribusi Imbal Hasil Bulanan Otomatis",
+        "Dashboard Portofolio & Laporan Real-Time",
+        "Kalkulator Simulasi Finansial Mandiri"
+      ]
+    },
+    {
+      level: "Tier 2",
+      name: "Lender Prioritas",
+      minCommitment: "Rp 25.000.000",
+      badge: "SILVER INVESTOR",
+      color: "from-emerald-800 to-teal-900",
+      isPopular: true,
+      features: [
+        "Fitur Auto-Allocation Prioritas (Tanpa Rebutan Kuota)",
+        "Early-Bird 24 Jam Akses Proyek Rating AAA",
+        "Dedicated Customer Support via WhatsApp Priority",
+        "Rekapitulasi Dokumen Pajak & Bukti Potong SPT",
+        "Undangan Eksklusif Diskusi Fiqih Muamalah Bulanan"
+      ]
+    },
+    {
+      level: "Tier 3",
+      name: "Lender Institusi & Korporasi",
+      minCommitment: "Rp 100.000.000",
+      badge: "GOLD INSTITUTIONAL",
+      color: "from-amber-800 to-yellow-950",
+      features: [
+        "Dedicated Relationship Manager (RM) Syariah Pribadi",
+        "Akses Private Bourse / Large Scale Deals Khusus",
+        "Custom Escrow Sub-Account Terintegrasi Host-to-Host",
+        "Opsi Penjaminan Asuransi Pembiayaan 100%",
+        "Kunjungan Audit Fisik Langsung ke Mitra UMKM"
+      ]
+    }
+  ],
+  sectorAllocations: [
+    { sector: "Manufaktur & Tekstil Sandang", percentage: 35, desc: "Penyediaan benang, kain katun, konveksi seragam, garmen ekspor" },
+    { sector: "FMCG & Rantai Pasok Pangan", percentage: 28, desc: "Distribusi sembako grosir, beras, minyak nabati, produk konsumer" },
+    { sector: "Layanan Kesehatan & Farmasi", percentage: 22, desc: "Pengadaan alat kesehatan klinik, apotek jaringan, obat generik" },
+    { sector: "Jasa Logistik & Manufaktur Kemasan", percentage: 15, desc: "Armada cold chain, mesin cetak kemasan ramah lingkungan" }
+  ],
+  officialFatwas: [
+    { number: "No. 117/DSN-MUI/II/2018", year: "2018", title: "Layanan Pembiayaan Berbasis Teknologi Informasi", subject: "Landasan operasional platform P2P Financing Syariah di Indonesia" },
+    { number: "No. 04/DSN-MUI/IV/2000", year: "2000", title: "Akad Murabahah", subject: "Jual beli komoditas riil dengan transparansi harga pokok dan margin" },
+    { number: "No. 07/DSN-MUI/IV/2000", year: "2000", title: "Akad Mudharabah", subject: "Kemitraan penanaman modal usaha dengan nisbah bagi hasil murni" },
+    { number: "No. 08/DSN-MUI/IV/2000", year: "2000", title: "Akad Musyarakah", subject: "Penyertaan modal kerja bersama untuk proyek produktif" },
+    { number: "No. 112/DSN-MUI/IX/2017", year: "2017", title: "Akad Ijarah", subject: "Pembiayaan sewa manfaat atas aset fisik operasional usaha" }
+  ],
   coreValues: [
     { title: "Halal", desc: "100% prinsip syariah diawasi Dewan Pengawas Syariah DSN-MUI.", icon: "CheckCircle2" },
     { title: "Aman", desc: "Dikelola profesional keuangan dan teknologi dari kampus terbaik dunia.", icon: "ShieldCheck" },
@@ -1091,94 +1603,118 @@ const getHeaders = () => ({
   "x-api-key": NAMIA_API_KEY
 });
 
-// Single-trip Aggregated Hydration
-export async function fetchCmsContent(customFetch?: typeof fetch | boolean) {
+// Single-trip Aggregated Hydration with In-Flight Deduplication and In-Memory Caching
+let inFlightFetch: Promise<any> | null = null;
+let lastFetchTime = 0;
+const CACHE_TTL_MS = 60_000; // 60 seconds memory cache window
+
+export async function fetchCmsContent(customFetch?: typeof fetch | boolean, force: boolean = false) {
+  const isForce = typeof customFetch === "boolean" ? customFetch : force;
+  const now = Date.now();
+
+  // 1. Deduplicate concurrent calls (e.g. +layout.svelte and +page.svelte mounting at the same time)
+  if (!isForce && inFlightFetch) {
+    return inFlightFetch;
+  }
+
+  // 2. Return cached store data immediately if already loaded within TTL
+  if (!isForce && get(cmsStore).isLoaded && now - lastFetchTime < CACHE_TTL_MS) {
+    return get(cmsStore);
+  }
+
   const fetcher = typeof customFetch === "function" ? customFetch : (typeof window !== "undefined" ? window.fetch : fetch);
   
   cmsStore.update((s) => ({ ...s, isSyncing: true, error: null }));
 
-  try {
-    const url = `${API_BASE_URL}/api/content/all`;
-    const res = await fetcher(url, {
-      headers: getHeaders()
-    });
+  inFlightFetch = (async () => {
+    try {
+      const url = `${API_BASE_URL}/api/content/all`;
+      const res = await fetcher(url, {
+        headers: getHeaders()
+      });
 
-    if (!res.ok) {
-      throw new Error(`HTTP error ${res.status}`);
-    }
-
-    const json = await res.json();
-    if (json.success && json.data) {
-      const d = json.data;
-
-      // Normalize team array
-      let normalizedTeam: PersonilData[] = defaultPersonil;
-      if (d.team) {
-        if (Array.isArray(d.team)) {
-          normalizedTeam = d.team.map((m: any) => ({
-            ...m,
-            fullname: m.fullname || m.fullName || "",
-            fullName: m.fullName || m.fullname || "",
-            job_level: m.job_level ?? m.jobLevel ?? 4,
-            jobLevel: m.jobLevel ?? m.job_level ?? 4,
-            job_title: m.job_title || m.jobTitle || "",
-            jobTitle: m.jobTitle || m.job_title || ""
-          }));
-        } else if (typeof d.team === "object") {
-          const combined = d.team.all || [
-            ...(d.team.shariaBoard || []),
-            ...(d.team.commissioners || []),
-            ...(d.team.directors || []),
-            ...(d.team.management || [])
-          ];
-          normalizedTeam = combined.map((m: any) => ({
-            ...m,
-            fullname: m.fullname || m.fullName || "",
-            fullName: m.fullName || m.fullname || "",
-            job_level: m.job_level ?? m.jobLevel ?? 4,
-            jobLevel: m.jobLevel ?? m.job_level ?? 4,
-            job_title: m.job_title || m.jobTitle || "",
-            jobTitle: m.jobTitle || m.job_title || ""
-          }));
-        }
+      if (!res.ok) {
+        throw new Error(`HTTP error ${res.status}`);
       }
 
-      cmsStore.update((state) => ({
-        ...state,
-        siteSettings: d.siteSettings || state.siteSettings,
-        heroContent: d.heroContent || state.heroContent,
-        philosophies: d.philosophies?.length ? d.philosophies : state.philosophies,
-        stats: d.stats?.length ? d.stats : state.stats,
-        products: d.products?.length ? d.products : state.products,
-        testimonials: d.testimonials?.length ? d.testimonials : state.testimonials,
-        missions: d.missions?.length ? d.missions : state.missions,
-        clients: d.clients?.length ? d.clients : state.clients,
-        supervise: d.supervise?.length ? d.supervise : state.supervise,
-        mediaCoverage: d.mediaCoverage || state.mediaCoverage,
-        awards: d.awards?.length ? d.awards : state.awards,
-        activityDocs: d.activityDocs?.length ? d.activityDocs : state.activityDocs,
-        borrowerInfo: d.borrowerInfo || state.borrowerInfo,
-        investorInfo: d.investorInfo || state.investorInfo,
-        riskDisclaimers: d.riskDisclaimers?.length ? d.riskDisclaimers : state.riskDisclaimers,
-        team: normalizedTeam.length ? normalizedTeam : state.team,
-        faqs: d.faqs || state.faqs,
-        blogPosts: d.blogPosts || state.blogPosts,
+      const json = await res.json();
+      if (json.success && json.data) {
+        lastFetchTime = Date.now();
+        const d = json.data;
+
+        // Normalize team array
+        let normalizedTeam: PersonilData[] = defaultPersonil;
+        if (d.team) {
+          if (Array.isArray(d.team)) {
+            normalizedTeam = d.team.map((m: any) => ({
+              ...m,
+              fullname: m.fullname || m.fullName || "",
+              fullName: m.fullName || m.fullname || "",
+              job_level: m.job_level ?? m.jobLevel ?? 4,
+              jobLevel: m.jobLevel ?? m.job_level ?? 4,
+              job_title: m.job_title || m.jobTitle || "",
+              jobTitle: m.jobTitle || m.job_title || ""
+            }));
+          } else if (typeof d.team === "object") {
+            const combined = d.team.all || [
+              ...(d.team.shariaBoard || []),
+              ...(d.team.commissioners || []),
+              ...(d.team.directors || []),
+              ...(d.team.management || [])
+            ];
+            normalizedTeam = combined.map((m: any) => ({
+              ...m,
+              fullname: m.fullname || m.fullName || "",
+              fullName: m.fullName || m.fullname || "",
+              job_level: m.job_level ?? m.jobLevel ?? 4,
+              jobLevel: m.jobLevel ?? m.job_level ?? 4,
+              job_title: m.job_title || m.jobTitle || "",
+              jobTitle: m.jobTitle || m.job_title || ""
+            }));
+          }
+        }
+
+        cmsStore.update((state) => ({
+          ...state,
+          siteSettings: d.siteSettings || state.siteSettings,
+          heroContent: d.heroContent || state.heroContent,
+          philosophies: d.philosophies?.length ? d.philosophies : state.philosophies,
+          stats: d.stats?.length ? d.stats : state.stats,
+          products: d.products?.length ? d.products : state.products,
+          testimonials: d.testimonials?.length ? d.testimonials : state.testimonials,
+          missions: d.missions?.length ? d.missions : state.missions,
+          clients: d.clients?.length ? d.clients : state.clients,
+          supervise: d.supervise?.length ? d.supervise : state.supervise,
+          mediaCoverage: d.mediaCoverage || state.mediaCoverage,
+          awards: d.awards?.length ? d.awards : state.awards,
+          activityDocs: d.activityDocs?.length ? d.activityDocs : state.activityDocs,
+          borrowerInfo: d.borrowerInfo || state.borrowerInfo,
+          investorInfo: d.investorInfo || state.investorInfo,
+          riskDisclaimers: d.riskDisclaimers?.length ? d.riskDisclaimers : state.riskDisclaimers,
+          team: normalizedTeam.length ? normalizedTeam : state.team,
+          faqs: d.faqs || state.faqs,
+          blogPosts: d.blogPosts || state.blogPosts,
+          isLoaded: true,
+          isSyncing: false,
+          lastSynced: new Date().toLocaleTimeString(),
+          error: null
+        }));
+        return json.data;
+      }
+    } catch (err: any) {
+      console.warn("[CMS Store] API sync failed, using default Namia content:", err.message);
+      cmsStore.update((s) => ({
+        ...s,
         isLoaded: true,
         isSyncing: false,
-        lastSynced: new Date().toLocaleTimeString(),
-        error: null
+        error: "Menggunakan data lokal teroptimalisasi (offline fallback)"
       }));
-      return json.data;
+    } finally {
+      inFlightFetch = null;
     }
-  } catch (err: any) {
-    console.warn("[CMS Store] API sync failed, using default Namia content:", err.message);
-    cmsStore.update((s) => ({
-      ...s,
-      isLoaded: true,
-      isSyncing: false,
-      error: "Menggunakan data lokal teroptimalisasi (offline fallback)"
-    }));
-  }
+  })();
+
+  return inFlightFetch;
 }
 
 // Update Site Settings
@@ -1238,6 +1774,26 @@ export async function updatePhilosophies(list: PhilosophyData[]) {
     return await res.json();
   } catch (err: any) {
     console.error("[CMS Store] Failed to update philosophies:", err);
+    throw err;
+  }
+}
+
+// Update Investor Info
+export async function updateInvestorInfo(data: Partial<InvestorInfo>) {
+  try {
+    cmsStore.update((s) => ({
+      ...s,
+      investorInfo: { ...s.investorInfo, ...data }
+    }));
+
+    const res = await fetch(`${API_BASE_URL}/api/content/investor`, {
+      method: "PUT",
+      headers: getHeaders(),
+      body: JSON.stringify(data)
+    });
+    return await res.json();
+  } catch (err: any) {
+    console.error("[CMS Store] Failed to update investor info:", err);
     throw err;
   }
 }

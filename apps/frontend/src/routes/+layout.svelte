@@ -25,6 +25,9 @@
 	<link rel="icon" type="image/svg+xml" href={favicon} />
 	<title>Namia Syariah — Smart Growth, Halal Impact | P2P Financing Syariah</title>
 	<meta name="description" content="Namia Syariah: Smart Growth, Halal Impact. Platform P2P financing & investasi produktif syariah terpercaya berizin & diawasi OJK. Berlandaskan prinsip An-Namaa' tanpa riba dengan akad Murabahah, Musyarakah, dan Ijarah." />
+	<!-- Auto-discovery for RSS 2.0 and Sitemap -->
+	<link rel="alternate" type="application/rss+xml" title="Namia Syariah — Sindikasi RSS 2.0" href="/rss.xml" />
+	<link rel="sitemap" type="application/xml" title="Sitemap XML" href="/sitemap.xml" />
 </svelte:head>
 
 {#if isStandalonePortal}

@@ -18,6 +18,7 @@
     ShieldCheck,
     Bookmark,
     Mail,
+    Rss
   } from "lucide-svelte";
   import { cmsStore, fetchCmsContent } from "$lib/cms";
   import { API_BASE_URL, NAMIA_API_KEY } from "$lib/api";
@@ -52,13 +53,16 @@
           category: b.category,
           author: b.author,
           authorRole: b.authorRole || "Dewan Redaksi Namia",
-          date: b.publishedAt
-            ? new Date(b.publishedAt).toLocaleDateString("id-ID", {
-                day: "numeric",
-                month: "long",
-                year: "numeric",
-              })
-            : "Februari 2026",
+          date: (() => {
+            try {
+              const d = b.publishedAt ? new Date(b.publishedAt) : null;
+              return d && !isNaN(d.getTime())
+                ? d.toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })
+                : "Februari 2026";
+            } catch {
+              return "Februari 2026";
+            }
+          })(),
           readTime: b.readTime || "5 min read",
           image: b.imageUrl || b.image || "/images/blog/grid/17.jpg",
           featured: b.featured ?? false,
@@ -117,382 +121,267 @@
 </script>
 
 <svelte:head>
-  <title>Namia Knowledge Hub & Blog | Literasi Fintech & Muamalah Syariah</title
-  >
+  <title>Namia Knowledge Hub & Blog | Literasi Fintech & Muamalah Syariah</title>
   <meta
     name="description"
     content="Artikel resmi, wawasan tim Namia Syariah, panduan muamalah syariah bebas riba, strategi permodalan UMKM halal, dan warta kemitraan fintech syariah terkini."
   />
 </svelte:head>
 
-<div class="space-y-0 font-sans">
-  <!-- HERO JUMBOTRON SECTION -->
-  <section
-    class="bg-[#0f172a] text-white py-14 sm:py-16 border-b border-slate-700"
-  >
-    <div class="max-w-5xl mx-auto px-4 text-center space-y-6">
-      <!-- Trust Badge -->
-      <div
-        class="inline-flex items-center gap-2 px-3 py-1 rounded-[3px] bg-slate-800 border border-slate-600 text-xs font-bold uppercase tracking-wider text-emerald-400"
-      >
-        <Sparkles class="w-3.5 h-3.5 text-emerald-400" />
-        <span>Pusat Literasi & Wawasan &bull; Namia Knowledge Hub</span>
-      </div>
-
-      <!-- Main Headline -->
-      <div class="space-y-3">
-        <h1
-          class="text-3xl sm:text-5xl font-bold tracking-tight uppercase leading-tight text-white"
-        >
-          Kabar Terkini, Riset & <br />
-          <span class="text-emerald-400"> Edukasi Fintech Syariah </span>
-        </h1>
-
-        <p
-          class="max-w-2xl mx-auto text-slate-300 text-xs sm:text-sm md:text-base font-normal leading-relaxed"
-        >
-          Kupasan mendalam seputar fiqih muamalah kontemporer, permodalan UMKM
-          halal, panduan investasi riil bebas riba, dan berita resmi Namia
-          Syariah.
-        </p>
-      </div>
-
-      <!-- Quick Metrics Ribbon -->
-      <div
-        class="pt-4 flex flex-wrap items-center justify-center gap-6 sm:gap-10 text-xs text-slate-300 font-medium"
-      >
-        <div class="flex items-center gap-2">
-          <BookOpen class="w-4 h-4 text-emerald-400" />
-          <span>8 Artikel Terpublikasi</span>
+<div class="blog-page space-y-0 font-sans">
+  <!-- PAGE HEADER WITH AUTHENTIC EARLY BOOTSTRAP 2.0 SUBHEAD JUMBOTRON -->
+  <section class="jumbotron-subhead">
+    <div class="container px-4">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div class="space-y-1.5">
+          <div class="flex items-center gap-2">
+            <span class="badge badge-success text-[10px] uppercase font-bold">
+              Namia Knowledge Hub
+            </span>
+            <a
+              href="/rss.xml"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="rss-badge"
+              title="Berlangganan Sindikasi RSS 2.0"
+            >
+              <Rss class="w-3 h-3 inline" />
+              <span>RSS 2.0</span>
+            </a>
+          </div>
+          <h1>Edukasi, Berita &amp; Literasi Syariah</h1>
+          <p>
+            Kupasan fiqih muamalah kontemporer, tips permodalan UMKM, dan warta resmi platform
+          </p>
         </div>
-        <div class="flex items-center gap-2">
-          <ShieldCheck class="w-4 h-4 text-emerald-400" />
-          <span>Ditinjau Dewan Pengawas Syariah</span>
-        </div>
-        <div class="flex items-center gap-2">
-          <TrendingUp class="w-4 h-4 text-emerald-400" />
-          <span>Fokus Pemberdayaan UMKM Halal</span>
-        </div>
+
+        <!-- Early Bootstrap Breadcrumb -->
+        <ul class="breadcrumb mb-0 text-slate-800 self-start md:self-auto">
+          <li><a href="/">Beranda</a> <span class="divider">/</span></li>
+          <li class="active">Blog Edukasi</li>
+        </ul>
       </div>
     </div>
   </section>
 
-  <!-- FEATURED HERO ARTICLE SPOTLIGHT (EDITOR'S PICK) -->
-  {#if featuredArticle && selectedCategory === "Semua" && !searchQuery.trim()}
-    <section class="py-12 bg-[#F9F9F9] border-b border-[#ECECEC]">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center gap-2 mb-4">
-          <span class="w-2.5 h-2.5 rounded-full bg-emerald-600"></span>
-          <span
-            class="text-xs font-bold uppercase tracking-wider text-slate-700"
-          >
-            Artikel Pilihan Redaksi (Editor's Pick)
-          </span>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <!-- SEARCH & CATEGORY BAR (EARLY BOOTSTRAP PANEL) -->
+    <div class="panel shadow-xs !mb-0">
+      <div class="panel-body !p-4 bg-slate-50 space-y-3">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-3">
+          <!-- Category Pills -->
+          <div class="flex flex-wrap gap-1.5 items-center">
+            {#each categories as c}
+              <button
+                type="button"
+                onclick={() => (selectedCategory = c)}
+                class="btn btn-mini {selectedCategory === c ? 'btn-success' : 'btn-default'}"
+              >
+                {c}
+              </button>
+            {/each}
+          </div>
+
+          <!-- Search Input -->
+          <div class="relative w-full md:w-72 shrink-0">
+            <Search class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              bind:value={searchQuery}
+              placeholder="Cari artikel, topik, atau penulis..."
+              class="w-full pl-8 pr-8 py-1.5 bg-white border border-slate-300 rounded-[4px] text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-emerald-600"
+            />
+            {#if searchQuery}
+              <button
+                type="button"
+                onclick={() => (searchQuery = "")}
+                class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 text-xs"
+              >
+                &times;
+              </button>
+            {/if}
+          </div>
         </div>
 
-        <div
-          class="bg-white rounded-[3px] border border-slate-300 shadow-xs overflow-hidden"
-        >
-          <div class="grid grid-cols-1 lg:grid-cols-12 items-center">
-            <!-- Cover Image (7 Cols) -->
-            <div
-              class="lg:col-span-7 relative h-72 sm:h-96 overflow-hidden bg-slate-900"
+        <!-- Filter Stats Strip -->
+        <div class="flex items-center justify-between text-xs text-slate-500 pt-2 border-t border-slate-200">
+          <div class="flex items-center gap-2">
+            <span>Ditemukan <strong>{filteredBlogs.length}</strong> artikel</span>
+            {#if selectedCategory !== "Semua"}
+              <span>&bull;</span>
+              <span class="label label-success">{selectedCategory}</span>
+            {/if}
+            {#if searchQuery}
+              <span>&bull;</span>
+              <span>Kata kunci: "<em>{searchQuery}</em>"</span>
+            {/if}
+          </div>
+
+          {#if selectedCategory !== "Semua" || searchQuery}
+            <button
+              type="button"
+              onclick={() => {
+                selectedCategory = "Semua";
+                searchQuery = "";
+              }}
+              class="text-xs text-slate-500 hover:underline cursor-pointer"
             >
-              <img
-                src={featuredArticle.image}
-                alt={featuredArticle.title}
-                class="w-full h-full object-cover"
-              />
-              <div class="absolute inset-0 bg-black/40 lg:hidden"></div>
-              <span
-                class="absolute top-4 left-4 px-3 py-1 rounded-[2px] bg-emerald-700 text-white font-bold text-xs uppercase tracking-wider border border-emerald-600"
-              >
+              Reset Filter
+            </button>
+          {/if}
+        </div>
+      </div>
+    </div>
+
+    <!-- FEATURED ARTICLE SPOTLIGHT -->
+    {#if featuredArticle && selectedCategory === "Semua" && !searchQuery.trim()}
+      <div class="panel ribbon-wrapper shadow-xs !mb-0">
+        <div class="ribbon-tag">Pilihan Redaksi</div>
+        <div class="grid grid-cols-1 lg:grid-cols-12 items-center">
+          <div class="lg:col-span-7 relative h-72 sm:h-84 overflow-hidden bg-slate-900">
+            <img
+              src={featuredArticle.image}
+              alt={featuredArticle.title}
+              class="w-full h-full object-cover"
+            />
+            <div class="absolute bottom-3 left-3">
+              <span class="badge badge-inverse">
                 {featuredArticle.category}
               </span>
             </div>
+          </div>
 
-            <!-- Content Details (5 Cols) -->
-            <div class="lg:col-span-5 p-6 sm:p-10 space-y-5">
-              <div class="flex items-center gap-3 text-xs text-slate-500">
-                <span class="flex items-center gap-1">
-                  <User class="w-3.5 h-3.5 text-emerald-700" />
-                  <span>{featuredArticle.author}</span>
-                </span>
-                <span>&bull;</span>
-                <span class="flex items-center gap-1">
-                  <Clock class="w-3.5 h-3.5 text-slate-400" />
-                  <span>{featuredArticle.readTime}</span>
-                </span>
-              </div>
+          <div class="lg:col-span-5 p-6 space-y-4 bg-white">
+            <div class="flex items-center gap-2 text-xs text-slate-500">
+              <span class="font-bold text-slate-800">{featuredArticle.author}</span>
+              <span>&bull;</span>
+              <span>{featuredArticle.date}</span>
+              <span>&bull;</span>
+              <span class="font-mono text-emerald-700">{featuredArticle.readTime}</span>
+            </div>
 
-              <h2
-                class="text-xl sm:text-2xl font-bold text-slate-900 uppercase leading-snug"
+            <h2 class="text-xl font-bold text-slate-900 leading-snug">
+              {featuredArticle.title}
+            </h2>
+
+            <p class="text-xs text-slate-600 leading-relaxed line-clamp-3">
+              {featuredArticle.summary}
+            </p>
+
+            <div class="well well-small !p-3 !mb-0 text-xs italic text-slate-700 border-l-4 border-l-emerald-600 bg-emerald-50/50">
+              "{featuredArticle.takeaway}"
+            </div>
+
+            <div class="pt-2 flex items-center justify-between border-t border-slate-200">
+              <span class="text-[11px] text-slate-500">{featuredArticle.authorRole}</span>
+              <button
+                type="button"
+                onclick={() => (activeArticle = featuredArticle)}
+                class="btn btn-small btn-success font-bold"
               >
-                {featuredArticle.title}
-              </h2>
-
-              <p
-                class="text-xs sm:text-sm text-slate-600 leading-relaxed line-clamp-4"
-              >
-                {featuredArticle.summary}
-              </p>
-
-              <!-- Key Takeaway Box -->
-              <div
-                class="p-3.5 bg-emerald-50 rounded-[2px] border-l-4 border-emerald-600 text-xs text-slate-700 italic"
-              >
-                "{featuredArticle.takeaway}"
-              </div>
-
-              <div
-                class="pt-2 flex items-center justify-between border-t border-slate-200"
-              >
-                <span class="text-xs text-slate-500 font-mono"
-                  >{featuredArticle.date}</span
-                >
-                <button
-                  type="button"
-                  onclick={() => (activeArticle = featuredArticle)}
-                  class="button-4-primary text-xs py-2 px-4 rounded-[3px] flex items-center gap-1.5 cursor-pointer"
-                >
-                  <span>Baca Selengkapnya</span>
-                  <ArrowRight class="w-3.5 h-3.5" />
-                </button>
-              </div>
+                <span>Baca Selengkapnya</span>
+                <ArrowRight class="w-3.5 h-3.5" />
+              </button>
             </div>
           </div>
         </div>
       </div>
-    </section>
-  {/if}
+    {/if}
 
-  <!-- SEARCH & CATEGORY FILTER SECTION -->
-  <section
-    class="py-4 bg-white border-b border-slate-300 sticky top-0 z-20 shadow-2xs"
-  >
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex flex-col lg:flex-row items-center justify-between gap-4">
-        <!-- Category Chips -->
-        <div
-          class="flex items-center gap-1.5 overflow-x-auto w-full lg:w-auto pb-1 lg:pb-0 scrollbar-none"
+    <!-- ARTICLES GRID -->
+    {#if filteredBlogs.length === 0}
+      <div class="well well-large text-center py-12 space-y-3 bg-white">
+        <BookOpen class="w-10 h-10 text-slate-400 mx-auto" />
+        <h3 class="text-base font-bold text-slate-800">Tidak ada artikel yang cocok</h3>
+        <p class="text-xs text-slate-500 max-w-md mx-auto">
+          Coba gunakan kata kunci lain atau pilih kategori yang tersedia.
+        </p>
+        <button
+          type="button"
+          onclick={() => {
+            selectedCategory = "Semua";
+            searchQuery = "";
+          }}
+          class="btn btn-small btn-success font-bold mt-2"
         >
-          {#each categories as c}
-            <button
-              type="button"
-              onclick={() => (selectedCategory = c)}
-              class="px-3 py-1.5 rounded-[3px] text-xs font-bold uppercase tracking-wider whitespace-nowrap transition-colors cursor-pointer border {selectedCategory ===
-              c
-                ? 'bg-emerald-700 text-white border-emerald-800'
-                : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-300'}"
-            >
-              {c}
-            </button>
-          {/each}
-        </div>
-
-        <!-- Search Bar -->
-        <div class="relative w-full lg:w-80 shrink-0">
-          <Search
-            class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"
-          />
-          <input
-            type="text"
-            bind:value={searchQuery}
-            placeholder="Cari judul, topik, atau penulis..."
-            class="w-full pl-10 pr-9 py-1.5 bg-white border border-slate-300 rounded-[3px] text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-emerald-600 transition-colors"
-          />
-          {#if searchQuery}
-            <button
-              type="button"
-              onclick={() => (searchQuery = "")}
-              class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 p-0.5 cursor-pointer"
-              aria-label="Hapus kata kunci"
-            >
-              <X class="w-3.5 h-3.5" />
-            </button>
-          {/if}
-        </div>
+          Tampilkan Semua Artikel
+        </button>
       </div>
+    {:else}
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {#each filteredBlogs as article}
+          <article class="panel flex flex-col justify-between shadow-xs hover:border-emerald-600 transition-colors !mb-0">
+            <!-- Thumbnail Image -->
+            <div class="relative h-48 overflow-hidden bg-slate-100 border-b border-slate-200">
+              <img
+                src={article.image}
+                alt={article.title}
+                class="w-full h-full object-cover"
+              />
+              <span class="absolute top-2.5 left-2.5 badge badge-inverse text-[10px]">
+                {article.category}
+              </span>
+              <span class="absolute bottom-2.5 right-2.5 badge badge-inverse text-[10px] flex items-center gap-1 font-mono">
+                <Clock class="w-3 h-3 text-emerald-400" />
+                <span>{article.readTime}</span>
+              </span>
+            </div>
 
-      <!-- Active Filter Status -->
-      <div
-        class="pt-2 mt-2 border-t border-slate-200 flex items-center justify-between text-xs text-slate-500"
-      >
-        <div class="flex items-center gap-2">
-          <span
-            >Menampilkan <strong>{filteredBlogs.length}</strong> artikel</span
-          >
-          {#if selectedCategory !== "Semua"}
-            <span>&bull;</span>
-            <span class="text-emerald-700 font-semibold"
-              >Kategori: {selectedCategory}</span
-            >
-          {/if}
-          {#if searchQuery}
-            <span>&bull;</span>
-            <span>Kata kunci: "<em>{searchQuery}</em>"</span>
-          {/if}
-        </div>
-
-        {#if selectedCategory !== "Semua" || searchQuery}
-          <button
-            type="button"
-            onclick={() => {
-              selectedCategory = "Semua";
-              searchQuery = "";
-            }}
-            class="text-emerald-700 hover:underline font-semibold cursor-pointer"
-          >
-            Reset Filter
-          </button>
-        {/if}
-      </div>
-    </div>
-  </section>
-
-  <!-- EDITORIAL ARTICLES GRID -->
-  <section class="py-16 bg-[#F9F9F9] border-b border-[#ECECEC]">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
-      {#if filteredBlogs.length === 0}
-        <div
-          class="bg-white rounded-[3px] border border-slate-300 p-12 text-center space-y-4 max-w-md mx-auto"
-        >
-          <div
-            class="w-12 h-12 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto"
-          >
-            <Search class="w-6 h-6" />
-          </div>
-          <h3 class="text-base font-bold text-slate-800 uppercase">
-            Tidak Ditemukan Artikel
-          </h3>
-          <p class="text-xs text-slate-500 leading-relaxed">
-            Tidak ada ulasan atau artikel yang sesuai dengan kriteria "{searchQuery}".
-            Coba gunakan kata kunci lain atau pilih kategori yang tersedia.
-          </p>
-          <button
-            type="button"
-            onclick={() => {
-              selectedCategory = "Semua";
-              searchQuery = "";
-            }}
-            class="button-4 text-xs py-2 px-4 rounded-[3px]"
-          >
-            Tampilkan Semua Artikel
-          </button>
-        </div>
-      {:else}
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {#each filteredBlogs as article}
-            <article
-              class="bg-white rounded-[3px] border border-slate-300 shadow-xs overflow-hidden flex flex-col justify-between"
-            >
-              <!-- Thumbnail Image -->
-              <div class="relative h-52 overflow-hidden bg-slate-100">
-                <img
-                  src={article.image}
-                  alt={article.title}
-                  class="w-full h-full object-cover"
-                />
-                <span
-                  class="absolute top-3.5 left-3.5 px-2.5 py-1 rounded-[2px] bg-slate-900 text-white font-bold text-[10px] uppercase tracking-wider"
-                >
-                  {article.category}
-                </span>
-                <span
-                  class="absolute bottom-3 right-3 px-2 py-0.5 rounded-[2px] bg-black/70 text-slate-200 text-[10px] font-mono flex items-center gap-1"
-                >
-                  <Clock class="w-3 h-3 text-emerald-400" />
-                  <span>{article.readTime}</span>
-                </span>
-              </div>
-
-              <!-- Body Details -->
-              <div class="p-6 flex-1 flex flex-col justify-between space-y-4">
-                <div class="space-y-3">
-                  <div
-                    class="flex items-center gap-2 text-[11px] text-slate-500"
-                  >
-                    <span class="font-medium text-slate-700"
-                      >{article.author}</span
-                    >
-                    <span>&bull;</span>
-                    <span class="text-slate-400">{article.date}</span>
-                  </div>
-
-                  <h3 class="text-base font-bold text-slate-900 leading-snug">
-                    {article.title}
-                  </h3>
-
-                  <p
-                    class="text-xs text-slate-600 leading-relaxed line-clamp-3"
-                  >
-                    {article.summary}
-                  </p>
+            <!-- Body Details -->
+            <div class="p-5 flex-1 flex flex-col justify-between space-y-3 bg-white">
+              <div class="space-y-2">
+                <div class="flex items-center gap-1.5 text-[11px] text-slate-500">
+                  <span class="font-bold text-slate-700">{article.author}</span>
+                  <span>&bull;</span>
+                  <span>{article.date}</span>
                 </div>
 
-                <!-- Footer Card Action -->
-                <div
-                  class="pt-4 border-t border-slate-200 flex items-center justify-between"
-                >
-                  <span class="text-[11px] text-emerald-700 font-semibold"
-                    >{article.authorRole}</span
-                  >
-                  <button
-                    type="button"
-                    onclick={() => (activeArticle = article)}
-                    class="text-xs font-bold uppercase tracking-wider text-slate-900 hover:text-emerald-700 flex items-center gap-1 cursor-pointer transition-colors"
-                  >
-                    <span>Baca</span>
-                    <ChevronRight class="w-4 h-4 text-emerald-600" />
-                  </button>
-                </div>
-              </div>
-            </article>
-          {/each}
-        </div>
-      {/if}
-    </div>
-  </section>
+                <h3 class="text-base font-bold text-slate-900 leading-snug line-clamp-2">
+                  {article.title}
+                </h3>
 
-  <!-- NEWSLETTER / BULETIN SYARIAH SUBSCRIPTION BANNER -->
-  <section class="py-16 bg-white border-b border-[#ECECEC]">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
-      <div
-        class="w-12 h-12 rounded-[3px] bg-emerald-50 border border-emerald-200 text-emerald-700 flex items-center justify-center mx-auto shadow-xs"
-      >
-        <Mail class="w-6 h-6" />
+                <p class="text-xs text-slate-600 leading-relaxed line-clamp-3">
+                  {article.summary}
+                </p>
+              </div>
+
+              <!-- Footer -->
+              <div class="pt-3 border-t border-slate-200 flex items-center justify-between">
+                <span class="text-[11px] text-emerald-800 font-semibold">{article.authorRole}</span>
+                <button
+                  type="button"
+                  onclick={() => (activeArticle = article)}
+                  class="btn btn-mini btn-default font-bold"
+                >
+                  <span>Baca</span>
+                  <ChevronRight class="w-3 h-3 text-emerald-700" />
+                </button>
+              </div>
+            </div>
+          </article>
+        {/each}
+      </div>
+    {/if}
+
+    <!-- NEWSLETTER BOX (EARLY BOOTSTRAP WELL) -->
+    <div class="well well-white !p-8 text-center space-y-4 max-w-3xl mx-auto border-emerald-300">
+      <div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto border border-emerald-300">
+        <Mail class="w-5 h-5" />
       </div>
 
-      <div class="space-y-2">
-        <span
-          class="text-xs font-bold text-emerald-700 uppercase tracking-widest block font-['Raleway']"
-          >Buletin Literasi Namia</span
-        >
-        <h3 class="text-2xl sm:text-3xl font-bold uppercase text-slate-900">
-          Dapatkan Wawasan Ekonomi & Investasi Halal Terkini
+      <div class="space-y-1">
+        <span class="label label-success text-[10px] uppercase">Warta Literasi Syariah</span>
+        <h3 class="text-xl font-bold text-slate-900 uppercase">
+          Dapatkan Kupasan Finansial Halal Berkala
         </h3>
-        <p
-          class="text-xs sm:text-sm text-slate-600 max-w-xl mx-auto font-sans leading-relaxed"
-        >
-          Kirimkan analisis fiqih muamalah kontemporer, kurasi peluang proyek
-          riil UMKM, dan tips finansial berkah langsung ke email Anda setiap
-          bulan.
+        <p class="text-xs text-slate-600 max-w-lg mx-auto">
+          Analisis fiqih muamalah kontemporer, kurasi peluang proyek riil UMKM, dan tips finansial berkah langsung ke email Anda.
         </p>
       </div>
 
       {#if newsletterSuccess}
-        <div
-          class="bg-emerald-50 border border-emerald-200 text-emerald-800 p-4 rounded-[3px] max-w-md mx-auto text-xs space-y-1"
-        >
-          <div class="font-bold flex items-center justify-center gap-1.5">
-            <CheckCircle2 class="w-4 h-4 text-emerald-600" />
-            <span>Terima Kasih Telah Berlangganan!</span>
-          </div>
-          <p>
-            Email konfirmasi telah kami kirimkan ke <strong
-              >{newsletterEmail}</strong
-            >. Insya Allah buletin perdana Anda segera tiba.
-          </p>
+        <div class="alert alert-success text-xs py-2 max-w-md mx-auto">
+          Jazakallah khair! Anda telah terdaftar dalam warta berkala Namia Syariah.
         </div>
       {:else}
         <form
@@ -500,96 +389,63 @@
             e.preventDefault();
             handleNewsletterSubmit();
           }}
-          class="max-w-md mx-auto flex flex-col sm:flex-row gap-2"
+          class="max-w-md mx-auto flex gap-2"
         >
           <input
             type="email"
             required
             bind:value={newsletterEmail}
-            placeholder="Ketikkan alamat email aktif Anda..."
-            class="flex-1 bg-white border border-slate-300 rounded-[3px] px-4 py-2 text-xs text-slate-800 placeholder-slate-400 focus:border-emerald-600 outline-none"
+            placeholder="Alamat email aktif Anda..."
+            class="flex-1 bg-white border border-slate-300 rounded-[4px] px-3 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-emerald-600"
           />
-          <button
-            type="submit"
-            class="button-4-primary text-xs py-2 px-6 shrink-0 flex items-center justify-center gap-1.5 cursor-pointer"
-          >
+          <button type="submit" class="btn btn-success btn-small font-bold">
             <Send class="w-3.5 h-3.5" />
             <span>Langganan</span>
           </button>
         </form>
-        <p class="text-[11px] text-slate-500">
-          Privasi Anda terjaga. Kami tidak mengirimkan spam dan Anda dapat
-          berhenti berlangganan kapan saja.
-        </p>
       {/if}
     </div>
-  </section>
+  </div>
 </div>
 
-<!-- COMPREHENSIVE ARTICLE DETAIL READER MODAL -->
+<!-- ARTICLE DETAIL READER MODAL -->
 {#if activeArticle}
-  <div
-    class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 flex items-center justify-center p-4 sm:p-6"
-  >
-    <div
-      class="bg-white rounded-[3px] max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-xl border border-slate-300 relative"
-    >
-      <!-- Modal Top Action Bar -->
-      <div
-        class="sticky top-0 z-10 bg-white px-6 py-4 border-b border-slate-200 flex items-center justify-between"
-      >
+  <div class="fixed inset-0 z-50 overflow-y-auto bg-black/60 flex items-center justify-center p-4 backdrop-blur-xs">
+    <div class="panel max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-2xl !mb-0 border-slate-400">
+      <!-- Modal Header -->
+      <div class="panel-heading panel-emerald flex items-center justify-between !py-3 !px-5 sticky top-0 z-10">
         <div class="flex items-center gap-2">
-          <span
-            class="px-2.5 py-0.5 rounded-[2px] bg-emerald-50 text-emerald-800 font-bold text-[11px] uppercase tracking-wider border border-emerald-200"
-          >
-            {activeArticle.category}
-          </span>
-          <span class="text-xs text-slate-400">&bull;</span>
-          <span class="text-xs text-slate-500">{activeArticle.readTime}</span>
+          <span class="badge badge-inverse text-[10px]">{activeArticle.category}</span>
+          <span class="text-xs text-emerald-100 font-mono">{activeArticle.readTime}</span>
         </div>
-
         <button
           type="button"
           onclick={() => (activeArticle = null)}
-          class="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-[2px] transition-colors cursor-pointer"
-          aria-label="Tutup jendela artikel"
+          class="text-white hover:text-emerald-200 font-bold text-lg cursor-pointer"
+          aria-label="Tutup"
         >
-          <X class="w-5 h-5" />
+          &times;
         </button>
       </div>
 
-      <!-- Article Header & Cover Photo -->
-      <div class="p-6 sm:p-8 space-y-6">
-        <div class="space-y-3">
-          <h1
-            class="text-xl sm:text-2xl font-bold text-slate-900 uppercase leading-snug"
-          >
+      <!-- Article Content -->
+      <div class="p-6 sm:p-8 space-y-5 bg-white">
+        <div class="space-y-2">
+          <h1 class="text-xl sm:text-2xl font-bold text-slate-900 leading-snug">
             {activeArticle.title}
           </h1>
 
-          <!-- Author Box -->
-          <div class="flex items-center gap-3 pt-2">
-            <div
-              class="w-10 h-10 rounded-[3px] bg-slate-100 border border-slate-300 flex items-center justify-center text-emerald-700"
-            >
-              <User class="w-5 h-5" />
-            </div>
-            <div class="text-xs">
-              <span class="font-bold text-slate-900 block"
-                >{activeArticle.author}</span
-              >
-              <span class="text-slate-500"
-                >{activeArticle.authorRole} &bull; {activeArticle.date}</span
-              >
-            </div>
+          <div class="flex items-center gap-2 text-xs text-slate-500">
+            <span class="font-bold text-slate-800">{activeArticle.author}</span>
+            <span>&bull;</span>
+            <span>{activeArticle.authorRole}</span>
+            <span>&bull;</span>
+            <span>{activeArticle.date}</span>
           </div>
         </div>
 
-        <!-- Featured Banner Photo -->
         {#if activeArticle.image}
-          <div
-            class="rounded-[2px] overflow-hidden h-64 sm:h-80 w-full bg-slate-900 border border-slate-300"
-          >
+          <div class="rounded-[3px] overflow-hidden h-64 sm:h-72 w-full bg-slate-900 border border-slate-300">
             <img
               src={activeArticle.image}
               alt={activeArticle.title}
@@ -598,79 +454,48 @@
           </div>
         {/if}
 
-        <!-- Key Takeaway Callout Quote -->
-        <div
-          class="p-4 bg-emerald-50 rounded-[2px] border-l-4 border-emerald-600 text-xs sm:text-sm text-slate-800 space-y-1"
-        >
-          <div
-            class="text-[10px] font-bold uppercase tracking-wider text-emerald-800"
-          >
-            Intisari Penting:
-          </div>
-          <p class="italic leading-relaxed font-serif">
-            "{activeArticle.takeaway}"
-          </p>
+        <!-- Key Takeaway -->
+        <div class="well well-small !p-3.5 !mb-0 border-l-4 border-l-emerald-600 text-xs italic text-slate-800 bg-emerald-50/60">
+          <strong class="not-italic text-emerald-900 uppercase block text-[10px] mb-0.5">Intisari Penting:</strong>
+          "{activeArticle.takeaway}"
         </div>
 
-        <!-- Full Formatted Article Paragraphs -->
-        <div
-          class="pt-2 text-xs sm:text-sm text-slate-700 leading-relaxed space-y-4 border-t border-slate-200 font-sans"
-        >
+        <!-- Body Paragraphs -->
+        <div class="text-xs sm:text-sm text-slate-700 leading-relaxed space-y-3.5 pt-2 border-t border-slate-200">
           {#each activeArticle.content as p}
             <p>{p}</p>
           {/each}
         </div>
+      </div>
 
-        <!-- Author & Disclaimer Note -->
-        <div
-          class="mt-8 pt-6 border-t border-slate-200 bg-slate-50 p-4 rounded-[3px] text-xs text-slate-600 space-y-2 border border-slate-200"
+      <!-- Modal Footer -->
+      <div class="panel-footer flex items-center justify-between bg-slate-50">
+        <button
+          type="button"
+          onclick={() => {
+            if (navigator.share) {
+              navigator.share({
+                title: activeArticle?.title,
+                url: window.location.href,
+              });
+            } else {
+              navigator.clipboard.writeText(window.location.href);
+              alert("Tautan artikel disalin!");
+            }
+          }}
+          class="btn btn-small flex items-center gap-1.5"
         >
-          <div
-            class="font-bold text-slate-700 uppercase text-[11px] flex items-center gap-1.5"
-          >
-            <ShieldCheck class="w-4 h-4 text-emerald-700" />
-            <span>Kepatuhan Literasi Syariah Namia</span>
-          </div>
-          <p class="leading-relaxed">
-            Artikel ini disusun semata-mata untuk tujuan edukasi dan literasi
-            publik. Setiap transaksi pendanaan atau pembiayaan di platform Namia
-            Syariah senantiasa mengacu pada akad resmi yang telah disetujui oleh
-            Dewan Pengawas Syariah serta mematuhi peraturan perundang-undangan
-            OJK yang berlaku.
-          </p>
-        </div>
+          <Share2 class="w-3.5 h-3.5" />
+          <span>Bagikan</span>
+        </button>
 
-        <!-- Modal Bottom Actions -->
-        <div
-          class="pt-4 flex items-center justify-between border-t border-slate-200"
+        <button
+          type="button"
+          onclick={() => (activeArticle = null)}
+          class="btn btn-small btn-success font-bold"
         >
-          <button
-            type="button"
-            onclick={() => {
-              if (navigator.share) {
-                navigator.share({
-                  title: activeArticle?.title,
-                  url: window.location.href,
-                });
-              } else {
-                navigator.clipboard.writeText(window.location.href);
-                alert("Tautan artikel berhasil disalin ke papan klip!");
-              }
-            }}
-            class="text-xs font-bold uppercase tracking-wider text-slate-700 hover:text-slate-900 flex items-center gap-1.5 cursor-pointer"
-          >
-            <Share2 class="w-4 h-4" />
-            <span>Bagikan Artikel</span>
-          </button>
-
-          <button
-            type="button"
-            onclick={() => (activeArticle = null)}
-            class="button-4-primary text-xs py-2 px-6 rounded-[3px] font-bold uppercase tracking-wider"
-          >
-            Tutup
-          </button>
-        </div>
+          Tutup
+        </button>
       </div>
     </div>
   </div>

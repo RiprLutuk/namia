@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { ShieldAlert, CheckCircle, Award, ArrowRight } from "lucide-svelte";
+  import { ShieldAlert, CheckCircle, Award, ArrowRight, Activity, Printer } from "lucide-svelte";
 
   let monthlyIncome = $state(15000000);
   let monthlyExpenses = $state(6000000);
@@ -42,236 +42,259 @@
     score = Math.min(850, Math.max(300, score));
 
     let tier = "Cukup";
-    let colorClass = "text-amber-600 bg-amber-50 border-amber-200";
+    let badgeClass = "badge-warning";
     let maxFunding = Math.round(disposable * 0.3 * 18);
 
     if (score >= 750) {
       tier = "Sangat Prima";
-      colorClass = "text-emerald-700 bg-emerald-50 border-emerald-200";
+      badgeClass = "badge-success";
       maxFunding = Math.round(disposable * 0.45 * 24);
     } else if (score >= 670) {
       tier = "Sehat & Layak";
-      colorClass = "text-sky-700 bg-sky-50 border-sky-200";
+      badgeClass = "badge-info";
       maxFunding = Math.round(disposable * 0.35 * 18);
     } else if (score < 580) {
       tier = "Perlu Pembenahan";
-      colorClass = "text-rose-700 bg-rose-50 border-rose-200";
+      badgeClass = "badge-important";
       maxFunding = Math.round(disposable * 0.15 * 6);
     }
 
+    const scorePercent = Math.round(((score - 300) / (850 - 300)) * 100);
+
     return {
       score,
+      scorePercent,
       tier,
-      colorClass,
+      badgeClass,
       dsr: Number(dsr.toFixed(1)),
       disposable,
       maxFunding,
     };
   });
+
+  function printEstimation() {
+    window.print();
+  }
 </script>
 
-<div
-  class="bg-white rounded-[3px] border border-slate-300 shadow-xs overflow-hidden font-sans"
->
-  <div
-    class="bg-[#0f172a] px-6 py-4 text-white flex items-center justify-between border-b border-slate-700"
-  >
-    <div class="flex items-center gap-3">
-      <div
-        class="w-8 h-8 rounded-[2px] bg-slate-800 border border-slate-600 flex items-center justify-center text-emerald-400"
-      >
-        <Award class="w-4 h-4" />
-      </div>
-      <div>
-        <h3 class="text-base font-bold text-white uppercase">
-          Kalkulator Skor Kelayakan Finansial
-        </h3>
-        <p class="text-[11px] text-slate-300">
-          Ukur rasio beban hutang (DSR) dan kapasitas pembiayaan Anda
-        </p>
-      </div>
+<div class="panel panel-default shadow-xs border border-slate-300 rounded-[4px] overflow-hidden font-sans !mb-0">
+  <!-- Early Bootstrap 2.0 Panel Header -->
+  <div class="panel-heading panel-emerald flex items-center justify-between !py-2.5 !px-3 sm:!px-4">
+    <div class="flex items-center gap-2 sm:gap-2.5 min-w-0">
+      <Activity class="w-4 h-4 text-emerald-100 shrink-0" />
+      <span class="text-xs sm:text-sm font-bold uppercase tracking-wider text-white truncate">
+        Uji Rasio Keuangan & Debt Service Ratio (DSR)
+      </span>
     </div>
-    <span
-      class="px-2.5 py-1 rounded-[2px] bg-slate-800 text-[10px] font-bold tracking-wider text-emerald-400 border border-slate-600"
-    >
-      ESTIMASI SKOR
+    <span class="badge badge-inverse text-[10px] uppercase font-bold shrink-0 ml-2">
+      Skor Kelayakan
     </span>
   </div>
 
-  <div class="p-5 sm:p-7 grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8">
-    <!-- Form Inputs (7 Cols) -->
-    <div class="lg:col-span-7 space-y-4">
-      <!-- Income & Existing Loan -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label
-            for="monthly-income-input"
-            class="text-xs font-semibold text-slate-700 uppercase tracking-wider block mb-1"
-            >Penghasilan Bersih / Bulan</label
-          >
-          <div class="relative">
-            <input
-              id="monthly-income-input"
-              type="number"
-              step="500000"
-              bind:value={monthlyIncome}
-              class="w-full h-9 bg-white border border-slate-300 rounded-[2px] px-3 text-xs font-medium text-slate-900 focus:outline-none focus:border-emerald-600"
-            />
+  <!-- Panel Body -->
+  <div class="panel-body p-3.5 sm:p-5 lg:p-6">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 items-stretch">
+      <!-- Input Controls (7 cols) -->
+      <div class="lg:col-span-7 space-y-4">
+        <!-- Penghasilan Bulanan Box (.well) -->
+        <div class="well well-white !p-3 sm:!p-4 !mb-0 space-y-2 border border-slate-300 rounded-[3px] shadow-2xs">
+          <div class="flex items-center justify-between gap-2">
+            <label for="monthly-income-slider" class="text-xs font-bold uppercase tracking-wider text-slate-700">
+              Penghasilan Bersih Bulanan:
+            </label>
+            <span class="font-mono font-bold text-xs sm:text-sm text-emerald-800 bg-emerald-50 border border-emerald-300 px-2 py-0.5 rounded-[3px] shadow-inner">
+              {formatRupiah(monthlyIncome)}
+            </span>
           </div>
-          <span class="text-[11px] text-slate-500 mt-1 block"
-            >{formatRupiah(monthlyIncome)}</span
-          >
-        </div>
 
-        <div>
-          <label
-            for="existing-loan-input"
-            class="text-xs font-semibold text-slate-700 uppercase tracking-wider block mb-1"
-            >Cicilan Hutang Berjalan</label
-          >
-          <div class="relative">
-            <input
-              id="existing-loan-input"
-              type="number"
-              step="250000"
-              bind:value={existingLoan}
-              class="w-full h-9 bg-white border border-slate-300 rounded-[2px] px-3 text-xs font-medium text-slate-900 focus:outline-none focus:border-emerald-600"
-            />
+          <input
+            id="monthly-income-slider"
+            type="range"
+            min="3000000"
+            max="50000000"
+            step="500000"
+            bind:value={monthlyIncome}
+            class="w-full accent-emerald-600 h-2 bg-slate-200 rounded cursor-pointer"
+          />
+
+          <div class="flex justify-between text-[10.5px] text-slate-500 font-mono">
+            <span>Rp 3 Jt</span>
+            <span>Rp 25 Jt</span>
+            <span>Rp 50 Jt</span>
           </div>
-          <span class="text-[11px] text-slate-500 mt-1 block"
-            >{formatRupiah(existingLoan)}</span
-          >
-        </div>
-      </div>
-
-      <!-- Living Expenses -->
-      <div>
-        <label
-          for="monthly-expenses-input"
-          class="text-xs font-semibold text-slate-700 uppercase tracking-wider block mb-1"
-          >Biaya Hidup & Pengeluaran Rutin</label
-        >
-        <input
-          id="monthly-expenses-input"
-          type="number"
-          step="500000"
-          bind:value={monthlyExpenses}
-          class="w-full h-9 bg-white border border-slate-300 rounded-[2px] px-3 text-xs font-medium text-slate-900 focus:outline-none focus:border-emerald-600"
-        />
-        <span class="text-[11px] text-slate-500 mt-1 block"
-          >{formatRupiah(monthlyExpenses)}</span
-        >
-      </div>
-
-      <!-- Employment & Status -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label
-            for="employment-status-select"
-            class="text-xs font-semibold text-slate-700 uppercase tracking-wider block mb-1"
-            >Status Pekerjaan</label
-          >
-          <select
-            id="employment-status-select"
-            bind:value={employmentType}
-            class="w-full h-9 bg-white border border-slate-300 rounded-[2px] px-3 text-xs text-slate-800 focus:outline-none focus:border-emerald-600"
-          >
-            <option value="permanent_employee">Karyawan Tetap</option>
-            <option value="contract_employee">Karyawan Kontrak</option>
-            <option value="entrepreneur">Pengusaha / Wirausaha</option>
-            <option value="freelancer">Freelancer / Profesional</option>
-          </select>
         </div>
 
-        <div>
-          <label
-            for="credit-history-select"
-            class="text-xs font-semibold text-slate-700 uppercase tracking-wider block mb-1"
-            >Riwayat Kredit (SLIK / OJK)</label
-          >
-          <select
-            id="credit-history-select"
-            bind:value={creditHistory}
-            class="w-full h-9 bg-white border border-slate-300 rounded-[2px] px-3 text-xs text-slate-800 focus:outline-none focus:border-emerald-600"
-          >
-            <option value="excellent">Sangat Baik (Kolektibilitas 1)</option>
-            <option value="good">Lancar & Tepat Waktu</option>
-            <option value="no_history">Belum Pernah Ada Kredit</option>
-            <option value="fair">Pernah Menunggak Singkat</option>
-          </select>
-        </div>
-      </div>
-    </div>
+        <!-- Pengeluaran Bulanan Box (.well) -->
+        <div class="well well-white !p-3 sm:!p-4 !mb-0 space-y-2 border border-slate-300 rounded-[3px] shadow-2xs">
+          <div class="flex items-center justify-between gap-2">
+            <label for="monthly-expense-slider" class="text-xs font-bold uppercase tracking-wider text-slate-700">
+              Pengeluaran Rutin Rumah Tangga:
+            </label>
+            <span class="font-mono font-bold text-xs sm:text-sm text-slate-800 bg-slate-100 border border-slate-300 px-2 py-0.5 rounded-[3px]">
+              {formatRupiah(monthlyExpenses)}
+            </span>
+          </div>
 
-    <!-- Output Result (5 Cols) -->
-    <div
-      class="lg:col-span-5 bg-slate-50 border border-slate-300 rounded-[3px] p-5 flex flex-col justify-between space-y-4"
-    >
-      <div class="space-y-4">
-        <div class="flex items-center justify-between">
-          <span
-            class="text-xs font-semibold uppercase tracking-wider text-slate-600"
-            >Estimasi Skor Kredit</span
-          >
-          <span
-            class="px-2 py-0.5 rounded-[2px] text-xs font-bold border {estimation.colorClass}"
-          >
-            {estimation.tier}
-          </span>
+          <input
+            id="monthly-expense-slider"
+            type="range"
+            min="1000000"
+            max="30000000"
+            step="500000"
+            bind:value={monthlyExpenses}
+            class="w-full accent-emerald-600 h-2 bg-slate-200 rounded cursor-pointer"
+          />
+
+          <div class="flex justify-between text-[10.5px] text-slate-500 font-mono">
+            <span>Rp 1 Jt</span>
+            <span>Rp 15 Jt</span>
+            <span>Rp 30 Jt</span>
+          </div>
         </div>
 
-        <div class="flex items-baseline gap-2">
-          <span
-            class="text-3xl sm:text-4xl font-extrabold text-slate-900 font-mono"
-            >{estimation.score}</span
-          >
-          <span class="text-xs text-slate-400 font-medium">/ 850</span>
+        <!-- Cicilan Berjalan Box (.well) -->
+        <div class="well well-white !p-3 sm:!p-4 !mb-0 space-y-2 border border-slate-300 rounded-[3px] shadow-2xs">
+          <div class="flex items-center justify-between gap-2">
+            <label for="existing-loan-slider" class="text-xs font-bold uppercase tracking-wider text-slate-700">
+              Cicilan Berjalan di Tempat Lain:
+            </label>
+            <span class="font-mono font-bold text-xs sm:text-sm text-slate-800 bg-slate-100 border border-slate-300 px-2 py-0.5 rounded-[3px]">
+              {formatRupiah(existingLoan)}
+            </span>
+          </div>
+
+          <input
+            id="existing-loan-slider"
+            type="range"
+            min="0"
+            max="20000000"
+            step="250000"
+            bind:value={existingLoan}
+            class="w-full accent-emerald-600 h-2 bg-slate-200 rounded cursor-pointer"
+          />
+
+          <div class="flex justify-between text-[10.5px] text-slate-500 font-mono">
+            <span>Rp 0 (Bebas Cicilan)</span>
+            <span>Rp 10 Jt</span>
+            <span>Rp 20 Jt</span>
+          </div>
         </div>
 
-        <div class="space-y-2 text-xs pt-3 border-t border-slate-300">
-          <div class="flex justify-between">
-            <span class="text-slate-600">Debt Service Ratio (DSR):</span>
-            <span
-              class="font-bold {estimation.dsr <= 30
-                ? 'text-emerald-800'
-                : 'text-amber-800'} font-mono">{estimation.dsr}%</span
+        <!-- Profil Pekerjaan & Kolektibilitas Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+          <div class="space-y-1.5">
+            <label for="employment-type" class="block text-xs font-bold uppercase tracking-wider text-slate-700">
+              Status Pekerjaan:
+            </label>
+            <select
+              id="employment-type"
+              bind:value={employmentType}
+              class="w-full text-xs font-semibold p-2 bg-white border border-slate-300 rounded-[3px] focus:outline-none focus:border-emerald-600 shadow-inner text-slate-800"
             >
+              <option value="permanent_employee">Karyawan Tetap</option>
+              <option value="entrepreneur">Wirausaha / UMKM</option>
+              <option value="contract_employee">Karyawan Kontrak</option>
+            </select>
           </div>
-          <div class="flex justify-between">
-            <span class="text-slate-600">Sisa Pendapatan Bebas:</span>
-            <span class="font-medium text-slate-900 font-mono"
-              >{formatRupiah(estimation.disposable)}</span
+
+          <div class="space-y-1.5">
+            <label for="credit-history" class="block text-xs font-bold uppercase tracking-wider text-slate-700">
+              Riwayat Kolektibilitas:
+            </label>
+            <select
+              id="credit-history"
+              bind:value={creditHistory}
+              class="w-full text-xs font-semibold p-2 bg-white border border-slate-300 rounded-[3px] focus:outline-none focus:border-emerald-600 shadow-inner text-slate-800"
             >
-          </div>
-          <div
-            class="flex justify-between pt-2 border-t border-slate-300 font-semibold text-slate-900"
-          >
-            <span>Rekomendasi Plafon:</span>
-            <span class="text-emerald-800 font-mono"
-              >{formatRupiah(estimation.maxFunding)}</span
-            >
+              <option value="excellent">Kolektibilitas 1 (Lancar Sempurna)</option>
+              <option value="good">Kolektibilitas 1 (Lancar)</option>
+              <option value="no_history">Belum Pernah Ada Pinjaman</option>
+              <option value="fair">Pernah Terlambat &lt; 30 Hari</option>
+            </select>
           </div>
         </div>
-
-        <p class="text-[11px] text-slate-500 italic leading-relaxed pt-1">
-          {#if estimation.dsr <= 30}
-            Profil keuangan Anda berada pada kategori ideal untuk pengajuan
-            produk pembiayaan syariah.
-          {:else}
-            Rasio cicilan hutang Anda cukup tinggi. Disarankan melunasi beberapa
-            kewajiban sebelum menambah pembiayaan baru.
-          {/if}
-        </p>
       </div>
 
-      <div class="pt-2">
-        <a
-          href="/aggregator?maxAmount={estimation.maxFunding}"
-          class="button-4-primary w-full text-xs py-2 px-4 rounded-[3px] flex items-center justify-center gap-1.5 font-bold uppercase tracking-wider"
-        >
-          <span>Cari Produk Sesuai</span>
-          <ArrowRight class="w-3.5 h-3.5" />
-        </a>
+      <!-- Output Result Section (5 cols) -->
+      <div class="lg:col-span-5 flex flex-col justify-between h-full">
+        <div class="well well-emerald !p-3.5 sm:!p-4 lg:!p-5 border-emerald-300 rounded-[4px] flex-1 flex flex-col justify-between space-y-4 !mb-0 shadow-xs">
+          <div class="space-y-3.5">
+            <!-- Header Result -->
+            <div class="flex items-center justify-between border-b border-emerald-200 pb-2">
+              <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-900">
+                Hasil Analisis Kelayakan
+              </span>
+              <span class="badge {estimation.score >= 670 ? 'badge-success' : 'badge-warning'} text-[9.5px] uppercase font-bold tracking-wide">
+                {estimation.tier}
+              </span>
+            </div>
+
+            <!-- Big Number -->
+            <div>
+              <div class="text-2xl sm:text-3xl lg:text-4xl font-extrabold font-mono text-emerald-900 tracking-tight leading-none">
+                {estimation.score}
+                <span class="text-xs sm:text-sm text-emerald-700 font-normal font-sans">/ 850</span>
+              </div>
+              <p class="text-[11px] text-emerald-800 mt-1.5 leading-snug">
+                Skor estimasi mandiri berbasis rasio beban utang (DSR) dan kapasitas riil angsuran.
+              </p>
+            </div>
+
+            <!-- Authentic Early Bootstrap Striped Progress Bar -->
+            <div class="space-y-1">
+              <div class="flex justify-between text-[11px] font-bold text-slate-700">
+                <span>Indeks Kelayakan</span>
+                <span class="text-emerald-800 font-bold">{estimation.scorePercent}%</span>
+              </div>
+              <div class="progress progress-striped active !h-4 !mb-0 rounded-[3px] border border-slate-300">
+                <div class="bar" style="width: {estimation.scorePercent}%"></div>
+              </div>
+            </div>
+
+            <!-- Authentic Early Bootstrap Table Breakdown -->
+            <div class="overflow-hidden border border-slate-300 rounded-[3px] bg-white">
+              <table class="table table-bordered table-striped !mb-0 text-xs">
+                <tbody>
+                  <tr>
+                    <td class="font-bold text-slate-700 w-1/2 !py-1.5 !px-2.5">Rasio Utang (DSR):</td>
+                    <td class="font-mono font-bold text-right !py-1.5 !px-2.5 {estimation.dsr > 35 ? 'text-amber-700' : 'text-emerald-700'}">
+                      {estimation.dsr}% (Maks. 35%)
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="font-bold text-slate-700 !py-1.5 !px-2.5">Sisa Dana Bebas:</td>
+                    <td class="font-mono font-bold text-right text-slate-900 !py-1.5 !px-2.5">{formatRupiah(estimation.disposable)}</td>
+                  </tr>
+                  <tr class="bg-emerald-50/80">
+                    <td class="font-extrabold text-emerald-950 !py-2 !px-2.5">Rekomendasi Plafon:</td>
+                    <td class="font-mono font-extrabold text-right text-emerald-900 text-sm !py-2 !px-2.5">{formatRupiah(estimation.maxFunding)}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Action Buttons in Early Bootstrap Style -->
+          <div class="pt-2 border-t border-emerald-200 flex flex-col sm:flex-row items-stretch gap-2">
+            <button
+              type="button"
+              onclick={printEstimation}
+              class="btn btn-default !py-2 !px-3 font-semibold text-xs flex items-center justify-center gap-1.5 shrink-0"
+              title="Cetak Hasil Evaluasi"
+            >
+              <Printer class="w-3.5 h-3.5" />
+              <span>Cetak</span>
+            </button>
+
+            <a
+              href="/borrower"
+              class="btn btn-success btn-large flex-1 !py-2.5 !px-3 font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-sm text-center"
+            >
+              <span>Ajukan Berdasarkan Skor</span>
+              <ArrowRight class="w-3.5 h-3.5" />
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   </div>

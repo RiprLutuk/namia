@@ -784,7 +784,7 @@
                 editingProduct = {
                   name: "",
                   provider: "PT Namia Finansial Teknologi",
-                  logo: "/images/products/_1_barang.jpg",
+                  logo: "/images/products/namia_murabahah_goods.jpg",
                   description: "",
                   minAmount: 5000000,
                   maxAmount: 100000000,

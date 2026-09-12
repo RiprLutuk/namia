@@ -19,3 +19,6 @@ Disallow: /auth/
 Disallow: /backoffice/
 Disallow: /cms/
 Disallow: /api/
+
+# Canonical XML Sitemap
+Sitemap: https://namia.id/sitemap.xml

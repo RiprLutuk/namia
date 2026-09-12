@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-11T16:13:45.048Z",
+  "updatedAt": "2026-09-12T16:10:34.089Z",
   "siteSettings": {
     "brandName": "Namia Syariah",
     "companyName": "PT Namia Finansial Teknologi",
@@ -108,12 +108,12 @@
       "id": 1,
       "categoryId": 1,
       "categorySlug": "p2p-lending",
-      "name": "Pembiayaan Pengadaan Barang (Murabahah)",
+      "name": "Pembiayaan Pengadaan Barang & Inventaris",
       "provider": "PT Namia Finansial Teknologi",
-      "logo": "/images/products/_1_barang.jpg",
-      "description": "Pembiayaan Jual Beli Barang (Murabahah) untuk pengadaan mesin, bahan baku, perlengkapan toko, dan aset produktif halal.",
-      "minAmount": 2000000,
-      "maxAmount": 100000000,
+      "logo": "/images/products/namia_murabahah_goods.jpg",
+      "description": "Pengadaan mesin produksi, perlengkapan toko, bahan baku halal, dan alat kerja UMKM dengan akad jual beli transparan, harga perolehan pasti, dan angsuran tetap tanpa riba.",
+      "minAmount": 5000000,
+      "maxAmount": 250000000,
       "minTenorMonths": 3,
       "maxTenorMonths": 24,
       "interestRateAnnual": 8.5,
@@ -122,9 +122,9 @@
       "shariaAccredited": true,
       "contractType": "Murabahah",
       "features": [
-        "Akad Jual Beli Murabahah Jelas & Transparan",
-        "Margin Flat Pasti Tanpa Bunga Berbunga",
-        "Barang Langsung Dibelikan Sesuai Kebutuhan",
+        "Akad Jual Beli Murabahah Murni Tanpa Bunga",
+        "Barang & Aset Dibelikan Langsung Sesuai Kebutuhan",
+        "Cicilan Flat Tetap Hingga Akhir Tenor",
         "Diawasi Dewan Pengawas Syariah DSN-MUI"
       ],
       "applyUrl": "/borrower",
@@ -135,12 +135,12 @@
       "id": 2,
       "categoryId": 2,
       "categorySlug": "pembiayaan-usaha",
-      "name": "Kemitraan Modal Usaha (Musyarakah)",
+      "name": "Kemitraan Modal Usaha & Ekspansi UMKM",
       "provider": "PT Namia Finansial Teknologi",
-      "logo": "/images/products/_3_usaha.jpg",
-      "description": "Kemitraan permodalan bagi hasil riil untuk ekspansi outlet, peningkatan kapasitas produksi, dan proyek usaha UMKM yang sedang berkembang.",
-      "minAmount": 10000000,
-      "maxAmount": 500000000,
+      "logo": "/images/products/namia_musyarakah_partner.jpg",
+      "description": "Penyertaan modal kemitraan produktif untuk pembukaan cabang baru, peningkatan kapasitas pabrik, dan proyek usaha UMKM bertumbuh dengan nisbah bagi hasil riil berkeadilan.",
+      "minAmount": 20000000,
+      "maxAmount": 1000000000,
       "minTenorMonths": 6,
       "maxTenorMonths": 36,
       "interestRateAnnual": 12.5,
@@ -150,49 +150,22 @@
       "contractType": "Musyarakah",
       "features": [
         "Kemitraan Berkeadilan (Bagi Hasil Riil Sesuai Nisbah)",
-        "Plafon Pendanaan Hingga Rp 500 Juta",
-        "Pendampingan Manajemen & Mentoring Bisnis",
-        "Keterbukaan Laporan Keuangan Berkala"
-      ],
-      "applyUrl": "/borrower",
-      "isFeatured": true,
-      "targetAudience": "both"
-    },
-    {
-      "id": 3,
-      "categoryId": 1,
-      "categorySlug": "p2p-lending",
-      "name": "Pembiayaan Sewa & Manfaat Jasa (Ijarah)",
-      "provider": "PT Namia Finansial Teknologi",
-      "logo": "/images/products/_2_jasa.jpg",
-      "description": "Pembiayaan sewa manfaat jasa untuk kebutuhan pendidikan, pelatihan profesi karyawan, sewa tempat usaha, dan layanan penting lainnya.",
-      "minAmount": 2000000,
-      "maxAmount": 50000000,
-      "minTenorMonths": 3,
-      "maxTenorMonths": 18,
-      "interestRateAnnual": 8,
-      "adminFee": 35000,
-      "rating": 4.8,
-      "shariaAccredited": true,
-      "contractType": "Ijarah",
-      "features": [
-        "Akad Sewa Manfaat Jasa (Ijarah)",
-        "Ujrah (Biaya Layanan) Disepakati di Awal",
-        "Tanpa Denda Keterlambatan Ribawi",
-        "Verifikasi & Persetujuan Dokumen Cepat"
+        "Plafon Pendanaan Hingga Rp 1 Miliar",
+        "Pendampingan Manajemen & Mentoring Keuangan",
+        "Pencairan Bertahap Berbasis Milestone Proyek"
       ],
       "applyUrl": "/borrower",
       "isFeatured": true,
       "targetAudience": "borrower"
     },
     {
-      "id": 4,
+      "id": 3,
       "categoryId": 3,
       "categorySlug": "invoice-financing",
-      "name": "Invoice & PO Financing Syariah",
+      "name": "Invoice & PO Financing Syariah (Anjak Piutang)",
       "provider": "PT Namia Finansial Teknologi",
-      "logo": "/images/products/_1_barang.jpg",
-      "description": "Pembiayaan talangan piutang invoice / purchase order resmi untuk menjaga arus kas operasional vendor vendor korporat dan instansi.",
+      "logo": "/images/products/namia_invoice_financing.jpg",
+      "description": "Talangan likuiditas arus kas jangka pendek berbasis Purchase Order (PO) atau tagihan invoice resmi korporasi dan instansi terverifikasi agar operasional vendor tetap lancar.",
       "minAmount": 25000000,
       "maxAmount": 2000000000,
       "minTenorMonths": 1,
@@ -204,148 +177,94 @@
       "contractType": "Wakalah bil Ujrah",
       "features": [
         "Plafon Likuiditas Hingga Rp 2 Miliar",
-        "Pencairan Cepat (2-3 Hari Kerja)",
-        "Underwriting Berdasarkan Kredibilitas Payor",
-        "Bebas Riba & Tidak Mengganggu Rasio Hutang Bank"
+        "Pencairan Kilat 2 - 3 Hari Kerja",
+        "Underwriting Berdasarkan Kredibilitas Payor Resmi",
+        "Sesuai Fatwa DSN-MUI No. 67 tentang Anjak Piutang"
       ],
       "applyUrl": "/borrower",
       "isFeatured": true,
-      "targetAudience": "both"
+      "targetAudience": "borrower"
+    },
+    {
+      "id": 4,
+      "categoryId": 1,
+      "categorySlug": "sewa-aset",
+      "name": "Pembiayaan Sewa Manfaat & Aset (IMBT)",
+      "provider": "PT Namia Finansial Teknologi",
+      "logo": "/images/products/namia_imbt_leasing.jpg",
+      "description": "Pembiayaan sewa tempat usaha, ruko komersial, armada kendaraan logistik, dan utilitas produktif dengan opsi pengalihan kepemilikan aset menjadi milik UMKM di akhir masa sewa.",
+      "minAmount": 10000000,
+      "maxAmount": 300000000,
+      "minTenorMonths": 6,
+      "maxTenorMonths": 36,
+      "interestRateAnnual": 8,
+      "adminFee": 75000,
+      "rating": 4.8,
+      "shariaAccredited": true,
+      "contractType": "Ijarah Muntahiya Bittamlik",
+      "features": [
+        "Akad Ijarah Muntahiya Bittamlik (IMBT)",
+        "Opsi Pengalihan Kepemilikan Aset di Akhir Tenor",
+        "Ujrah Sewa Disepakati di Awal Tanpa Fluktuasi",
+        "Bebas Denda Keterlambatan Ribawi"
+      ],
+      "applyUrl": "/borrower",
+      "isFeatured": true,
+      "targetAudience": "borrower"
     },
     {
       "id": 5,
-      "categoryId": 4,
-      "categorySlug": "pembiayaan-sosial",
-      "name": "Program Hijrah Bebas Riba (Qardh Al-Hasan)",
+      "categoryId": 5,
+      "categorySlug": "pendanaan-investor",
+      "name": "Pendanaan Proyek Produktif UMKM (Lender)",
       "provider": "PT Namia Finansial Teknologi",
-      "logo": "/images/products/p_qardh.jpg",
-      "description": "Program kemaslahatan khusus pelunasan bergilir jeratan hutang rentenir dan pinjol ilegal tanpa tambahan biaya bunga sepeserpun.",
+      "logo": "/images/products/namia_mudharabah_lender.jpg",
+      "description": "Wadah bagi para pendana (investor ritel & institusi) untuk menyalurkan dana ke proyek UMKM produktif pilihan dengan imbal hasil bagi hasil riil, transparan, dan terproteksi mitigasi risiko.",
       "minAmount": 1000000,
-      "maxAmount": 25000000,
+      "maxAmount": 500000000,
       "minTenorMonths": 3,
-      "maxTenorMonths": 24,
-      "interestRateAnnual": 0,
+      "maxTenorMonths": 12,
+      "interestRateAnnual": 14.5,
       "adminFee": 0,
       "rating": 5,
       "shariaAccredited": true,
-      "contractType": "Qardh",
+      "contractType": "Mudharabah Muqayyadah",
       "features": [
-        "Murni 0% Bunga & 0% Biaya Tambahan",
-        "Pembebasan dari Teror Rentenir & Bunga Jahat",
-        "Edukasi Finansial Syariah & Pendampingan Hidup",
-        "Didukung Komunitas Peduli & Dana Kebajikan"
+        "Bagi Hasil Riil Kompetitif Ekuivalen 12% - 18% p.a.",
+        "UMKM Terverifikasi Uji Tuntas Finansial & Karakter (5C)",
+        "Mitigasi Risiko & Proteksi Asuransi Pembiayaan",
+        "Monitoring Kinerja Portofolio Secara Real-Time"
       ],
-      "applyUrl": "/borrower",
+      "applyUrl": "/investor",
       "isFeatured": true,
-      "targetAudience": "borrower"
+      "targetAudience": "investor"
     },
     {
       "id": 6,
-      "categoryId": 4,
-      "categorySlug": "pembiayaan-sosial",
-      "name": "Dana Talangan Umroh & Haji Berkah",
+      "categoryId": 6,
+      "categorySlug": "supply-chain",
+      "name": "Pembiayaan Ekosistem Rantai Pasok (Supply Chain)",
       "provider": "PT Namia Finansial Teknologi",
-      "logo": "/images/products/_4_sosial.jpg",
-      "description": "Pembiayaan keberangkatan ibadah tanah suci bekerja sama dengan biro perjalanan terakreditasi Kemenag melalui akad Ijarah Multijasa.",
-      "minAmount": 5000000,
-      "maxAmount": 45000000,
-      "minTenorMonths": 6,
-      "maxTenorMonths": 24,
-      "interestRateAnnual": 7.5,
-      "adminFee": 50000,
+      "logo": "/images/products/namia_supply_chain.jpg",
+      "description": "Pembiayaan terintegrasi bagi jaringan distributor, agen, dan sub-dealer UMKM dalam satu rantai pasok terverifikasi dengan limit bergulir untuk menjamin kelancaran perputaran barang.",
+      "minAmount": 50000000,
+      "maxAmount": 1500000000,
+      "minTenorMonths": 1,
+      "maxTenorMonths": 3,
+      "interestRateAnnual": 9.5,
+      "adminFee": 100000,
       "rating": 4.9,
       "shariaAccredited": true,
-      "contractType": "Ijarah Multijasa",
+      "contractType": "Murabahah & Wakalah",
       "features": [
-        "Berangkat Dahulu, Cicil Tenang Tanpa Riba",
-        "Bermitra dengan Travel Resmi Berizin Kemenag",
-        "Pilihan Porsi Haji Khusus & Paket Umroh Hemat",
-        "Asuransi Perjalanan Takaful Syariah Termasuk"
+        "Plafon Bergulir (Revolving Credit Line) Otomatis",
+        "Persetujuan Cepat untuk Repeat Order Terverifikasi",
+        "Koneksi Ekosistem Terintegrasi Distributor & Agen",
+        "Mendukung Ketahanan Rantai Pasok Pangan & Ritel"
       ],
       "applyUrl": "/borrower",
-      "isFeatured": false,
-      "targetAudience": "borrower"
-    },
-    {
-      "id": 7,
-      "categoryId": 5,
-      "categorySlug": "asuransi-syariah",
-      "name": "Takaful Proteksi Usaha & Jiwa Berkah",
-      "provider": "Takaful Partner Indonesia",
-      "logo": "/images/products/_2_jasa.jpg",
-      "description": "Dana tolong menolong halal santunan meninggal, kecelakaan, dan proteksi tempat usaha bebas unsur riba dan gharar.",
-      "minAmount": 100000,
-      "maxAmount": 500000000,
-      "minTenorMonths": 12,
-      "maxTenorMonths": 60,
-      "interestRateAnnual": 0,
-      "adminFee": 10000,
-      "rating": 4.9,
-      "shariaAccredited": true,
-      "contractType": "Ta'awun & Tabarru'",
-      "features": [
-        "Dana Tolong Menolong Halal (Tabarru')",
-        "Santunan Meninggal & Kecelakaan Kerja",
-        "Klaim Cepat 100% Digital Tanpa Ribet",
-        "Bebas Unsur Riba, Maisir, & Gharar"
-      ],
-      "applyUrl": "/onboarding?product=asuransi-takaful",
       "isFeatured": true,
       "targetAudience": "both"
-    },
-    {
-      "id": 8,
-      "categoryId": 6,
-      "categorySlug": "paylater-syariah",
-      "name": "Namia Flexi Halal Paylater",
-      "provider": "PT Namia Finansial Teknologi",
-      "logo": "/images/products/_1_barang.jpg",
-      "description": "Paylater syariah belanja pengadaan perlengkapan usaha bebas denda bunga menumpuk, scan QRIS merchant melalui akad Qardh dan Ujrah transparan.",
-      "minAmount": 500000,
-      "maxAmount": 15000000,
-      "minTenorMonths": 1,
-      "maxTenorMonths": 12,
-      "interestRateAnnual": 0,
-      "adminFee": 15000,
-      "rating": 4.7,
-      "shariaAccredited": true,
-      "contractType": "Qardh & Ujrah",
-      "features": [
-        "Bebas Denda Bunga Berjalan Menumpuk",
-        "Scan QRIS di 10.000+ Merchant Rekanan",
-        "E-KYC Dukcapil Cepat 5 Menit",
-        "Ujrah Layanan Transparan & Pasti"
-      ],
-      "applyUrl": "/onboarding?product=paylater-syariah",
-      "isFeatured": true,
-      "targetAudience": "both"
-    },
-    {
-      "id": 9,
-      "categoryId": 7,
-      "categorySlug": "reksa-dana-syariah",
-      "name": "Sukuk Wakalah Air Minum Desa Produktif",
-      "provider": "PT Namia Finansial Teknologi",
-      "logo": "/images/products/_3_usaha.jpg",
-      "description": "Sukuk investasi underlying asset riil & halal fasilitas air minum dan sanitasi pedesaan dengan pembagian imbal hasil bulanan.",
-      "minAmount": 1000000,
-      "maxAmount": 100000000,
-      "minTenorMonths": 12,
-      "maxTenorMonths": 36,
-      "interestRateAnnual": 11.2,
-      "adminFee": 25000,
-      "rating": 4.8,
-      "shariaAccredited": true,
-      "contractType": "Wakalah bil Ujrah",
-      "features": [
-        "Underlying Asset Riil & Halal (Fasilitas Air Bersih)",
-        "Pembagian Imbal Hasil Setiap Bulan",
-        "Didukung Pemerintah Daerah & Komunitas",
-        "Laporan Kinerja Transparan & Diawasi DPS"
-      ],
-      "applyUrl": "/onboarding?product=sukuk-air-bersih",
-      "isFeatured": true,
-      "targetAudience": "investor"
     }
   ],
   "stats": [
@@ -557,7 +476,7 @@
       "categoryName": "Aplikasi",
       "isInvestor": 0,
       "question": "Informasi atau dokumen apa sajakah yang dibutuhkan untuk pengajuan pinjaman?",
-      "answer": "<b>Pertama</b>, dokumen yang dibutuhkan oleh pengguna dana yang bekerja sebagai karyawan adalah :<br/>rn    a. KTP pengguna dana<br/>rn    b. Kartu keluarga<br/>rn    c. NPWP<br/>rn    d. SK pengangkatan pegawai / surat keterangan bekerja<br/>rn    e. Slip Gaji bulan terakhir<br/>rn    f. Rekening Koran 3 bulan terakhir<br/><br/>rn<b>Kedua</b>, dokumen yang dibutuhkan oleh pengguna dana yang berwirausaha perorangan :<br/>rn    a. KTP pengguna dana<br/>rn    b. Kartu keluarga<br/>rn    c. NPWP<br/>rn    d. Surat izin usaha perdagangan (SIUP)/surat keterangan usaha (SKU)<br/>rn    e. Laporan keuangan minimal 1 tahun terakhir namun akan diutamakan jika dapat memberikan laporan keuangan 2 tahun terakhir<br/>rn    f. Rekening Koran 3 bulan terakhir<br/><br/>rn<b>Ketiga</b>, dokumen yg dibutuhkan oleh pengguna dana yang bekerja professional:<br/>rn    a. KTP pengguna dana<br/>rn    b. Kartu keluarga<br/>rn    c. NPWP<br/>rn    d. Surat izin praktek<br/>rn    e. Laporan keuangan minimal 1 tahun terakhir namun akan diutamakan jika dapat memberikan laporan keuangan 2 tahun terakhir / slip gaji bila bekerja<br/>rn    f. Rekening koran 3 bulan terakhir<br/><br/>rn<b>Keempat</b>, dokumen yang dibutuhkan oleh pengguna dana yang berbadan hukum :<br/>rn    a. KTP Direktur Utama<br/>rn    b. NPWP Direktur Utama<br/>rn    c. Legalitas perusahaan <br/>rn    d. NPWP Perusahaan<br/>rn    e. Laporan keuangan minimal 1 tahun terakhir, namun akan diutamakan jika dapat memberikan laporan keuangan 2 tahun terakhir.<br/>"
+      "answer": "<b>1. Karyawan:</b> KTP, Kartu Keluarga, NPWP, SK Pengangkatan/Keterangan Bekerja, Slip Gaji bulan terakhir, dan Rekening Koran 3 bulan terakhir.<br/><br/><b>2. Wirausaha Perorangan:</b> KTP, Kartu Keluarga, NPWP, Surat Izin Usaha (NIB/SIUP/SKU), Laporan Keuangan 1-2 tahun terakhir, dan Rekening Koran 3 bulan terakhir.<br/><br/><b>3. Tenaga Profesional:</b> KTP, KK, NPWP, Surat Izin Praktik, Laporan Keuangan/Slip Gaji, dan Rekening Koran 3 bulan terakhir.<br/><br/><b>4. Badan Usaha (PT/CV):</b> KTP & NPWP Direksi, Akta Pendirian & SK Kemenkumham, NPWP Perusahaan, Laporan Keuangan 1-2 tahun terakhir, dan Rekening Koran operasional 3 bulan terakhir."
     },
     {
       "id": 2,
@@ -1125,7 +1044,7 @@
     },
     {
       "id": 4,
-      "title": "Kepatuhan Syariah Mutlak",
+      "title": "Kepatuhan Syariah",
       "arabicTitle": "Al-Imtitsal Asy-Syar'i (الامتثال الشرعي)",
       "description": "Diawasi langsung oleh Dewan Pengawas Syariah tersertifikasi DSN-MUI dan berizin OJK untuk menjamin kemurnian fiqih muamalah.",
       "icon": "ShieldCheck",
@@ -1142,29 +1061,236 @@
       "content": "Alhamdulillah, pembiayaan Murabahah dari Namia Syariah memudahkan pengadaan bahan baku kain saat lonjakan pesanan menjelang Ramadhan. Tidak ada bunga ribawi, harganya pasti, dan berkah bagi seluruh penjahit kami.",
       "rating": 5,
       "type": "borrower",
-      "fundedAmount": "Rp 150.000.000"
+      "fundedAmount": "Rp 150.000.000",
+      "date": "10 Sep 2026"
     },
     {
       "id": 2,
       "name": "Fajar Wicaksono, S.T.",
       "role": "Investor Retail Mandiri",
-      "businessName": "Profesional IT, Jakarta",
+      "businessName": "Profesional IT, Jakarta Selatan",
       "avatar": "/images/team/p_riki_sq.jpeg",
       "content": "Sebagai pendana, ketenangan batin nomor satu. Di Namia Syariah, akadnya jelas (Musyarakah/Mudharabah), proyeknya ada di dunia nyata, dan pengembalian bagi hasilnya sangat kompetitif dibanding instrumen konvensional.",
       "rating": 5,
       "type": "investor",
-      "fundedAmount": "Pendana Aktif sejak 2023"
+      "fundedAmount": "Pendana Aktif sejak 2023",
+      "date": "08 Sep 2026"
     },
     {
       "id": 3,
       "name": "Ahmad Fauzi",
       "role": "Direktur Operasional",
-      "businessName": "PT Sinergi Pangan Nusantara",
+      "businessName": "PT Sinergi Pangan Nusantara, Karawang",
       "avatar": "/images/team/p_krisna_sq.jpeg",
       "content": "Invoice Financing dari Namia Syariah membantu kami menjaga likuiditas cash flow supplier pangan tanpa harus menjaminkan aset berat. Proses digitalnya sangat cepat dan transparan.",
       "rating": 5,
       "type": "borrower",
-      "fundedAmount": "Rp 650.000.000"
+      "fundedAmount": "Rp 650.000.000",
+      "date": "06 Sep 2026"
+    },
+    {
+      "id": 4,
+      "name": "dr. H. Hendra Gunawan, Sp.A",
+      "role": "Dokter Spesialis & Angel Investor",
+      "businessName": "Klinik Pratama Sehat Berkah, Bandung",
+      "avatar": "/images/team/p_syauqi_sq.jpg",
+      "content": "Sangat mengapresiasi transparansi rasio TKB90 dan mitigasi risikonya. Portofolio pendanaan saya dialokasikan ke UMKM sektor produktif yang terkurasi ketat oleh tim analis Namia.",
+      "rating": 5,
+      "type": "investor",
+      "fundedAmount": "Pendana Terverifikasi",
+      "date": "04 Sep 2026"
+    },
+    {
+      "id": 5,
+      "name": "Nurul Hidayati, S.E.",
+      "role": "Founder & CEO",
+      "businessName": "CV Berkah Rempah Nusantara, Surabaya",
+      "avatar": "/images/team/p_putri_sq.jpeg",
+      "content": "Plafon modal kerja Musyarakah yang kami terima memungkinkan ekspor 3 kontainer rempah ke Timur Tengah tepat waktu. Bagi hasilnya adil dan didampingi langsung oleh account officer syariah.",
+      "rating": 5,
+      "type": "borrower",
+      "fundedAmount": "Rp 280.000.000",
+      "date": "02 Sep 2026"
+    },
+    {
+      "id": 6,
+      "name": "Ir. Bambang Triyono",
+      "role": "Komisaris Utama",
+      "businessName": "PT Surya Energi Mandiri, Tangerang",
+      "avatar": "/images/team/p_kuseryansyah_sq.jpeg",
+      "content": "Skema Istishna' & IMBT untuk pengadaan mesin perakitan panel surya sangat solutif. Tidak ada skema denda berbunga yang mencekik, semua klausul akad disetujui bersama secara musyawarah.",
+      "rating": 5,
+      "type": "borrower",
+      "fundedAmount": "Rp 1.200.000.000",
+      "date": "30 Agu 2026"
+    },
+    {
+      "id": 7,
+      "name": "Sarah Anggraini, M.M.",
+      "role": "Head of Wealth Management",
+      "businessName": "Komunitas Muslim Financial Hub, Yogyakarta",
+      "avatar": "/images/team/p_putri_sq.jpeg",
+      "content": "Platform P2P syariah paling rapi dan kredibel yang pernah saya ikuti. Laporan bulanan proyek UMKM disajikan lengkap dengan foto lapangan dan neraca laba rugi berkala.",
+      "rating": 5,
+      "type": "investor",
+      "fundedAmount": "Pendana sejak 2022",
+      "date": "28 Agu 2026"
+    },
+    {
+      "id": 8,
+      "name": "H. Subhan Mansyur",
+      "role": "Ketua Koperasi",
+      "businessName": "Koperasi Agro Makmur Gayo, Aceh Tengah",
+      "avatar": "/images/team/p_asep_sq.jpeg",
+      "content": "Petani kopi binaan kami di dataran tinggi Gayo kini memiliki akses modal pra-panen dengan akad Salam yang sah. Panen terserap pasar dengan harga pantas tanpa tengkulak.",
+      "rating": 5,
+      "type": "borrower",
+      "fundedAmount": "Rp 450.000.000",
+      "date": "25 Agu 2026"
+    },
+    {
+      "id": 9,
+      "name": "Muhammad Dimas Rizky",
+      "role": "Co-Founder",
+      "businessName": "Kopi Sela Nusantara, Malang",
+      "avatar": "/images/team/p_ramzi_sq.jpeg",
+      "content": "Sebagai wirausaha muda, akses perbankan seringkali rumit karena syarat agunan. Namia Syariah hadir dengan penilaian kelayakan usaha berbasis invoice dan transaksi riil. Luar biasa!",
+      "rating": 5,
+      "type": "borrower",
+      "fundedAmount": "Rp 120.000.000",
+      "date": "22 Agu 2026"
+    },
+    {
+      "id": 10,
+      "name": "Rina Agustina, S.Farm., Apt.",
+      "role": "Apoteker & Pemilik",
+      "businessName": "Apotek Medika Berkah, Semarang",
+      "avatar": "/images/team/p_putri_sq.jpeg",
+      "content": "Pengadaan stok obat-obatan esensial dan vitamin di musim penghujan terbantu sekali oleh pembiayaan persediaan Namia. Penjualan apotek kami naik 35% dalam 3 bulan.",
+      "rating": 5,
+      "type": "borrower",
+      "fundedAmount": "Rp 200.000.000",
+      "date": "19 Agu 2026"
+    },
+    {
+      "id": 11,
+      "name": "Budi Prasetyo, M.T.",
+      "role": "Principal Software Engineer",
+      "businessName": "Pendana Retail, BSD Tangerang Selatan",
+      "avatar": "/images/team/p_riki_sq.jpeg",
+      "content": "User interface aplikasinya responsif, perhitungan return transparan dan payout bagi hasil setiap tanggal 10 langsung masuk ke rekening escrow tanpa potongan aneh-aneh.",
+      "rating": 5,
+      "type": "investor",
+      "fundedAmount": "Portofolio Aktif 18 Proyek",
+      "date": "16 Agu 2026"
+    },
+    {
+      "id": 12,
+      "name": "H. Dedi Mulyadi",
+      "role": "Owner & Pengelola",
+      "businessName": "Dedi Logistik & Armada Truk, Cirebon",
+      "avatar": "/images/team/p_krisna_sq.jpeg",
+      "content": "Penambahan 2 armada truk pendingin melalui skema pembiayaan Ijarah Muntahiyah Bittamlik berjalan mulus. Usaha distribusi hasil laut kami berkembang pesat.",
+      "rating": 5,
+      "type": "borrower",
+      "fundedAmount": "Rp 500.000.000",
+      "date": "14 Agu 2026"
+    },
+    {
+      "id": 13,
+      "name": "Hj. Mariam Ulfah",
+      "role": "Pengrajin Tenun Sutra Tradisional",
+      "businessName": "Sentra Sutra Lagosi, Sengkang Wajo",
+      "avatar": "/images/team/p_putri_sq.jpeg",
+      "content": "Menenun kain sutra khas Bugis butuh modal benang berkualitas. Syukur kepada Allah kami dipertemukan dengan Namia Syariah. Pelayanannya ramah, menjunjung adab dan amanah.",
+      "rating": 5,
+      "type": "borrower",
+      "fundedAmount": "Rp 85.000.000",
+      "date": "11 Agu 2026"
+    },
+    {
+      "id": 14,
+      "name": "Raden Mas Arya Kusuma",
+      "role": "Konsultan Keuangan Syariah",
+      "businessName": "Islamic Financial Advisory, Solo",
+      "avatar": "/images/team/p_endi_dps_sq.jpeg",
+      "content": "Saya telah mengaudit dan memeriksa skema akad pembiayaan Namia Syariah secara independen. Kesesuaian fatwa DSN-MUI diterapkan konsisten dari pra-akad hingga pelunasan.",
+      "rating": 5,
+      "type": "investor",
+      "fundedAmount": "Pendana Berpengalaman",
+      "date": "09 Agu 2026"
+    },
+    {
+      "id": 15,
+      "name": "Taufik Ismail, S.Kom.",
+      "role": "Direktur Utama",
+      "businessName": "CV Kreasi Logam Mandiri, Sidoarjo",
+      "avatar": "/images/team/p_fahri_dps_sq.jpeg",
+      "content": "Mendapat SPK pengadaan komponen pabrik otomotif senilai 1 miliar. Namia Syariah mendanai purchase order tersebut dalam 4 hari kerja. Usaha manufaktur lokal kami terselamatkan.",
+      "rating": 5,
+      "type": "borrower",
+      "fundedAmount": "Rp 340.000.000",
+      "date": "07 Agu 2026"
+    },
+    {
+      "id": 16,
+      "name": "Aisyah Putri Maharani",
+      "role": "Brand Founder",
+      "businessName": "Glow Sharia Herbal Cosmetics, Bekasi",
+      "avatar": "/images/team/p_putri_sq.jpeg",
+      "content": "Sebagai brand kecantikan yang bersertifikasi Halal MUI, kami ingin seluruh permodalan juga suci dari riba. Di Namia Syariah kami menemukan mitra finansial yang sevisi.",
+      "rating": 5,
+      "type": "borrower",
+      "fundedAmount": "Rp 225.000.000",
+      "date": "04 Agu 2026"
+    },
+    {
+      "id": 17,
+      "name": "H. Zulkifli Harahap",
+      "role": "Distributor Utama Sembako",
+      "businessName": "Harahap Berkah Niaga, Medan",
+      "avatar": "/images/team/p_asep_sq.jpeg",
+      "content": "Perputaran omset beras dan minyak goreng sangat cepat. Pembiayaan modal kerja bergulir dengan skema bagi hasil proporsional sangat membantu perputaran kas gudang.",
+      "rating": 5,
+      "type": "borrower",
+      "fundedAmount": "Rp 850.000.000",
+      "date": "01 Agu 2026"
+    },
+    {
+      "id": 18,
+      "name": "Eko Wahyudi, CFA",
+      "role": "Portofolio Strategist & Retail Lender",
+      "businessName": "Investor Mandiri, Menteng Jakarta Pusat",
+      "avatar": "/images/team/p_riki_sq.jpeg",
+      "content": "Tingkat pengembalian bersih rata-rata 14% - 16% per tahun dengan risiko gagal bayar yang sangat terkendali. Diversifikasi portofolio ke puluhan proyek sangat mudah dilakukan.",
+      "rating": 5,
+      "type": "investor",
+      "fundedAmount": "Portofolio Aktif sejak 2024",
+      "date": "29 Jul 2026"
+    },
+    {
+      "id": 19,
+      "name": "Dewi Lestari Handayani",
+      "role": "Owner & Eksportir",
+      "businessName": "Bambu Lestari Eco-Craft, Gianyar Bali",
+      "avatar": "/images/team/p_putri_sq.jpeg",
+      "content": "Kami memberdayakan 40 perajin anyaman bambu di pedesaan. Berkat modal kerja syariah, kami bisa memenuhi pesanan hotel ramah lingkungan di mancanegara.",
+      "rating": 5,
+      "type": "borrower",
+      "fundedAmount": "Rp 310.000.000",
+      "date": "26 Jul 2026"
+    },
+    {
+      "id": 20,
+      "name": "H. M. Firdaus, Lc., M.A.",
+      "role": "Dosen Ekonomi Islam & Pegiat Wakaf",
+      "businessName": "Lembaga Edukasi Muamalah, Depok",
+      "avatar": "/images/team/p_endi_dps_sq.jpeg",
+      "content": "Model fintech peer-to-peer syariah seperti Namia membuktikan bahwa inovasi teknologi finansial mampu menghidupkan kembali roh ta'awun (tolong-menolong) dan keadilan ekonomi syariat.",
+      "rating": 5,
+      "type": "investor",
+      "fundedAmount": "Pendana Istiqomah",
+      "date": "22 Jul 2026"
     }
   ],
   "missions": [
@@ -1250,6 +1376,30 @@
       "name": "Capsugel",
       "picture": "/images/clients/capsugel.jpg",
       "category": "Kesehatan Halal"
+    },
+    {
+      "id": 11,
+      "name": "Bank Permata Syariah",
+      "picture": "/images/clients/permata_syariah.jpg",
+      "category": "Perbankan Syariah"
+    },
+    {
+      "id": 12,
+      "name": "Pertamina",
+      "picture": "/images/clients/pertamina.png",
+      "category": "Energi & BUMN"
+    },
+    {
+      "id": 13,
+      "name": "Jamkrida Jakarta",
+      "picture": "/images/clients/jamkrida_jakarta.png",
+      "category": "Penjaminan Daerah"
+    },
+    {
+      "id": 14,
+      "name": "Qasir POS Syariah",
+      "picture": "/images/clients/qasir.png",
+      "category": "Fintech Kasir"
     }
   ],
   "supervise": [
@@ -1283,29 +1433,34 @@
       "id": 1,
       "name": "The Jakarta Post",
       "logo": "/images/mediacover/logo-jakarta-post.png",
+      "title": "Namia Syariah: Pioneering Ethical Sharia P2P Lending for Indonesian MSMEs",
       "description": "Namia Syariah: Pioneering Ethical Sharia P2P Lending for Indonesian MSMEs",
-      "source": "The Jakarta Post"
+      "excerpt": "Platform fintech syariah terkemuka ini membuktikan pertumbuhan pembiayaan inklusif bagi ribuan wirausaha lokal dengan akad muamalah murni tanpa bunga bank.",
+      "source": "The Jakarta Post",
+      "date": "14 Agustus 2025",
+      "url": "https://thejakartapost.com"
     },
     {
       "id": 2,
       "name": "Kompas",
       "logo": "/images/mediacover/logo-kompas.png",
+      "title": "Langkah Strategis Namia Syariah Salurkan Rp 2,4 Triliun ke Sektor Riil",
       "description": "Langkah Strategis Namia Syariah Salurkan Rp 2,4 Triliun ke Sektor Riil",
-      "source": "Harian Kompas"
+      "excerpt": "Distribusi likuiditas produktif ke 27 provinsi mendorong geliat rantai pasok dan memperkuat ketahanan ratusan UMKM pangan, logistik, dan perdagangan.",
+      "source": "Harian Kompas",
+      "date": "22 Oktober 2025",
+      "url": "https://kompas.id"
     },
     {
       "id": 3,
       "name": "Republika Online",
       "logo": "/images/mediacover/logo-rol.jpg",
+      "title": "Solusi Cerdas Pembiayaan Tanpa Riba: Modal Kerja Halal untuk Pelaku Usaha",
       "description": "Solusi Cerdas Pembiayaan Tanpa Riba: Dari Program Pergi Riba hingga Modal Kerja Halal",
-      "source": "Republika"
-    },
-    {
-      "id": 4,
-      "name": "Bisnis Indonesia",
-      "logo": "/images/mediacover/logo-jakarta-post.png",
-      "description": "Transformasi Digital Fintech Syariah Menopang Ketahanan Ekosistem Halal Nasional",
-      "source": "Bisnis Indonesia"
+      "excerpt": "Membuka akses permodalan etis berbasis kemitraan bagi pedagang pasar, industri kreatif, dan jasa logistik tanpa risiko denda keterlambatan berbunga.",
+      "source": "Republika Online",
+      "date": "05 Desember 2025",
+      "url": "https://republika.co.id"
     }
   ],
   "awards": [
@@ -1630,6 +1785,239 @@
         "icon": "Lock",
         "badge": "Proteksi Portofolio"
       }
+    ],
+    "heroTitle": "Tumbuhkan Aset dengan",
+    "heroHighlight": "Imbal Hasil Halal & Berkah",
+    "heroBadge": "PLATFORM P2P FINANCING SYARIAH BERIZIN OJK",
+    "heroBadgeContract": "MUDHARABAH & MUSYARAKAH",
+    "heroLead": "Salurkan pendanaan langsung ke proyek UMKM produktif pilihan. Nikmati imbal hasil kompetitif hingga 18% p.a. dengan transparansi akad syariah tanpa riba, diawasi langsung oleh DSN-MUI.",
+    "heroReturnRange": "12% - 18%",
+    "heroMinInvestment": "Rp 1.000.000",
+    "heroTkb90": "98.4%",
+    "heroShariaCompliance": "100% Sah",
+    "ctaTitle": "Siap Memulai Pendanaan Syariah?",
+    "ctaSubtitle": "Buka akun Anda dalam 3 menit dan pilih proyek UMKM produktif dengan imbal hasil berkah.",
+    "ctaButtonText": "Katalog Proyek Aktif",
+    "ctaButtonUrl": "/aggregator",
+    "liveDealsTicker": [
+      "🟢 [DEAL TERPILIH] Pengadaan Bahan Baku Tekstil Ramadhan - PT Berkah Garment (Murabahah) • Terkumpul 88% (Sisa Rp 30 Jt) • Margin 16.5% p.a.",
+      "🟢 [DEAL BARU] Ekspansi Rantai Pasok Pangan Sembako - CV Barokah Agro (Supply Chain) • Terkumpul 65% • Margin 14.8% p.a.",
+      "🟢 [DISTRIBUSI DIVIDEN] Pembagian Bagi Hasil 128 Proyek Berjalan Telah Ditransfer ke Escrow Akun Lender",
+      "🟢 [STATISTIK RESMI] TKB90 Terjaga di 98.4% • Rp 148+ Miliar Telah Disalurkan ke Sektor Riil UMKM Indonesia"
+    ],
+    "featuredDeal": {
+      "title": "Pengadaan Bahan Baku Tekstil & Benang Katun Musim Raya",
+      "borrower": "PT Berkah Busana Mandiri",
+      "sector": "Industri Manufaktur & Tekstil",
+      "targetAmount": "Rp 250.000.000",
+      "fundedAmount": "Rp 220.000.000",
+      "fundedPercent": 88,
+      "tenor": "3 Bulan (Pelunasan Sekaligus)",
+      "yieldRate": "16.5% p.a.",
+      "contract": "Murabahah Pengadaan",
+      "rating": "AAA (Invoice Backed)",
+      "minInvest": "Rp 1.000.000",
+      "timeLeft": "2 Hari 14 Jam"
+    },
+    "liveDeals": [
+      {
+        "id": "NM-2026-081",
+        "title": "Pengadaan Seragam & Perlengkapan Sekolah Ramadhan",
+        "borrower": "CV Mitra Edukasi Nasional",
+        "sector": "Garmen & Konveksi",
+        "targetAmount": "Rp 180.000.000",
+        "fundedPercent": 92,
+        "tenor": "3 Bulan",
+        "yieldRate": "16.0% p.a.",
+        "contract": "Murabahah",
+        "rating": "AAA",
+        "status": "Hampir Penuh"
+      },
+      {
+        "id": "NM-2026-082",
+        "title": "Penyediaan Bahan Baku Minyak Goreng & Beras Grosir",
+        "borrower": "PT Pangan Berkah Sejahtera",
+        "sector": "FMCG & Sembako",
+        "targetAmount": "Rp 350.000.000",
+        "fundedPercent": 74,
+        "tenor": "2 Bulan",
+        "yieldRate": "14.5% p.a.",
+        "contract": "Supply Chain",
+        "rating": "AA+",
+        "status": "Pendanaan Aktif"
+      },
+      {
+        "id": "NM-2026-083",
+        "title": "Ekspansi Gerai Farmasi & Obat Resep Daerah",
+        "borrower": "CV Medika Syariah Mandiri",
+        "sector": "Kesehatan & Farmasi",
+        "targetAmount": "Rp 120.000.000",
+        "fundedPercent": 85,
+        "tenor": "6 Bulan",
+        "yieldRate": "17.2% p.a.",
+        "contract": "Musyarakah",
+        "rating": "AA",
+        "status": "Pendanaan Aktif"
+      },
+      {
+        "id": "NM-2026-084",
+        "title": "Sewa Mesin Cetak Packaging Ramah Lingkungan",
+        "borrower": "PT Kreasi Pack Nusantara",
+        "sector": "Manufaktur Kemasan",
+        "targetAmount": "Rp 220.000.000",
+        "fundedPercent": 60,
+        "tenor": "6 Bulan",
+        "yieldRate": "15.0% p.a.",
+        "contract": "Ijarah",
+        "rating": "A+",
+        "status": "Pendanaan Aktif"
+      }
+    ],
+    "benchmarkRows": [
+      {
+        "instrument": "Namia Syariah P2P Financing",
+        "yieldRange": "12.0% - 18.0% p.a.",
+        "contractType": "Akad Muamalah (Bagi Hasil / Margin)",
+        "riskProfile": "Terukur (5C Credit Scoring & Agunan)",
+        "taxRate": "PPh Final 15%",
+        "liquidity": "3 - 12 Bulan (Cepat Berputar)",
+        "shariaStatus": "100% Sah & Diawasi DSN-MUI",
+        "isHighlighted": true
+      },
+      {
+        "instrument": "Deposito Mudharabah Bank Syariah",
+        "yieldRange": "4.0% - 6.5% p.a.",
+        "contractType": "Akad Mudharabah Mutlaqah",
+        "riskProfile": "Sangat Rendah (Dijamin LPS s/d 2M)",
+        "taxRate": "PPh Final 20%",
+        "liquidity": "1 - 12 Bulan (Terkunci)",
+        "shariaStatus": "Sah Syariah"
+      },
+      {
+        "instrument": "Sukuk Ritel / SBSN Negara",
+        "yieldRange": "6.0% - 6.6% p.a.",
+        "contractType": "Akad Ijarah / Wakalah",
+        "riskProfile": "Bebas Risiko Gagal Bayar (APBN)",
+        "taxRate": "PPh Final 10%",
+        "liquidity": "3 - 5 Tahun (Jangka Panjang)",
+        "shariaStatus": "Sah Syariah"
+      },
+      {
+        "instrument": "Deposito Bank Konvensional",
+        "yieldRange": "3.5% - 4.5% p.a.",
+        "contractType": "Bunga Pinjaman (Riba Bank)",
+        "riskProfile": "Rendah (Dijamin LPS)",
+        "taxRate": "PPh Final 20%",
+        "liquidity": "1 - 12 Bulan (Terkunci)",
+        "shariaStatus": "Haram (Riba Fadhl & Nasi'ah)"
+      },
+      {
+        "instrument": "Tabungan Rekening Biasa",
+        "yieldRange": "0.2% - 1.0% p.a.",
+        "contractType": "Bunga Rekening",
+        "riskProfile": "Rendah",
+        "taxRate": "PPh Final 20%",
+        "liquidity": "Setiap Saat",
+        "shariaStatus": "Rugi Tergerus Inflasi (Riil Negatif)"
+      }
+    ],
+    "lenderTiers": [
+      {
+        "level": "Tier 1",
+        "name": "Lender Ritel Mandiri",
+        "minCommitment": "Rp 1.000.000",
+        "badge": "BRONZE MEMBER",
+        "color": "from-slate-700 to-slate-800",
+        "features": [
+          "Akses Penuh Seluruh Prospektus Terverifikasi",
+          "Distribusi Imbal Hasil Bulanan Otomatis",
+          "Dashboard Portofolio & Laporan Real-Time",
+          "Kalkulator Simulasi Finansial Mandiri"
+        ]
+      },
+      {
+        "level": "Tier 2",
+        "name": "Lender Prioritas",
+        "minCommitment": "Rp 25.000.000",
+        "badge": "SILVER INVESTOR",
+        "color": "from-emerald-800 to-teal-900",
+        "isPopular": true,
+        "features": [
+          "Fitur Auto-Allocation Prioritas (Tanpa Rebutan Kuota)",
+          "Early-Bird 24 Jam Akses Proyek Rating AAA",
+          "Dedicated Customer Support via WhatsApp Priority",
+          "Rekapitulasi Dokumen Pajak & Bukti Potong SPT",
+          "Undangan Eksklusif Diskusi Fiqih Muamalah Bulanan"
+        ]
+      },
+      {
+        "level": "Tier 3",
+        "name": "Lender Institusi & Korporasi",
+        "minCommitment": "Rp 100.000.000",
+        "badge": "GOLD INSTITUTIONAL",
+        "color": "from-amber-800 to-yellow-950",
+        "features": [
+          "Dedicated Relationship Manager (RM) Syariah Pribadi",
+          "Akses Private Bourse / Large Scale Deals Khusus",
+          "Custom Escrow Sub-Account Terintegrasi Host-to-Host",
+          "Opsi Penjaminan Asuransi Pembiayaan 100%",
+          "Kunjungan Audit Fisik Langsung ke Mitra UMKM"
+        ]
+      }
+    ],
+    "sectorAllocations": [
+      {
+        "sector": "Manufaktur & Tekstil Sandang",
+        "percentage": 35,
+        "desc": "Penyediaan benang, kain katun, konveksi seragam, garmen ekspor"
+      },
+      {
+        "sector": "FMCG & Rantai Pasok Pangan",
+        "percentage": 28,
+        "desc": "Distribusi sembako grosir, beras, minyak nabati, produk konsumer"
+      },
+      {
+        "sector": "Layanan Kesehatan & Farmasi",
+        "percentage": 22,
+        "desc": "Pengadaan alat kesehatan klinik, apotek jaringan, obat generik"
+      },
+      {
+        "sector": "Jasa Logistik & Manufaktur Kemasan",
+        "percentage": 15,
+        "desc": "Armada cold chain, mesin cetak kemasan ramah lingkungan"
+      }
+    ],
+    "officialFatwas": [
+      {
+        "number": "No. 117/DSN-MUI/II/2018",
+        "year": "2018",
+        "title": "Layanan Pembiayaan Berbasis Teknologi Informasi",
+        "subject": "Landasan operasional platform P2P Financing Syariah di Indonesia"
+      },
+      {
+        "number": "No. 04/DSN-MUI/IV/2000",
+        "year": "2000",
+        "title": "Akad Murabahah",
+        "subject": "Jual beli komoditas riil dengan transparansi harga pokok dan margin"
+      },
+      {
+        "number": "No. 07/DSN-MUI/IV/2000",
+        "year": "2000",
+        "title": "Akad Mudharabah",
+        "subject": "Kemitraan penanaman modal usaha dengan nisbah bagi hasil murni"
+      },
+      {
+        "number": "No. 08/DSN-MUI/IV/2000",
+        "year": "2000",
+        "title": "Akad Musyarakah",
+        "subject": "Penyertaan modal kerja bersama untuk proyek produktif"
+      },
+      {
+        "number": "No. 112/DSN-MUI/IX/2017",
+        "year": "2017",
+        "title": "Akad Ijarah",
+        "subject": "Pembiayaan sewa manfaat atas aset fisik operasional usaha"
+      }
     ]
   },
   "riskDisclaimers": [
@@ -1744,6 +2132,366 @@
       "kycStep": 1,
       "status": "pending",
       "createdAt": "2026-09-11T16:13:45.046Z"
+    },
+    {
+      "fullName": "Ahmad Dahlan",
+      "email": "ahmad.dahlan@example.com",
+      "phone": "081234567890",
+      "needCategory": "p2p-lending",
+      "targetAmount": 25000000,
+      "targetTenorMonths": 12,
+      "id": 1,
+      "kycStep": 1,
+      "status": "pending",
+      "createdAt": "2026-09-11T16:18:28.212Z"
+    },
+    {
+      "fullName": "Ahmad Dahlan",
+      "email": "ahmad.dahlan@example.com",
+      "phone": "081234567890",
+      "needCategory": "p2p-lending",
+      "targetAmount": 25000000,
+      "targetTenorMonths": 12,
+      "id": 1,
+      "kycStep": 1,
+      "status": "pending",
+      "createdAt": "2026-09-11T16:19:54.939Z"
+    },
+    {
+      "fullName": "Ahmad Dahlan",
+      "email": "ahmad.dahlan@example.com",
+      "phone": "081234567890",
+      "needCategory": "p2p-lending",
+      "targetAmount": 25000000,
+      "targetTenorMonths": 12,
+      "id": 1,
+      "kycStep": 1,
+      "status": "pending",
+      "createdAt": "2026-09-11T16:20:01.900Z"
+    },
+    {
+      "fullName": "Ahmad Dahlan",
+      "email": "ahmad.dahlan@example.com",
+      "phone": "081234567890",
+      "needCategory": "p2p-lending",
+      "targetAmount": 25000000,
+      "targetTenorMonths": 12,
+      "id": 1,
+      "kycStep": 1,
+      "status": "pending",
+      "createdAt": "2026-09-11T16:24:41.555Z"
+    },
+    {
+      "fullName": "Ahmad Dahlan",
+      "email": "ahmad.dahlan@example.com",
+      "phone": "081234567890",
+      "needCategory": "p2p-lending",
+      "targetAmount": 25000000,
+      "targetTenorMonths": 12,
+      "id": 1,
+      "kycStep": 1,
+      "status": "pending",
+      "createdAt": "2026-09-11T16:28:28.168Z"
+    },
+    {
+      "fullName": "Ahmad Dahlan",
+      "email": "ahmad.dahlan@example.com",
+      "phone": "081234567890",
+      "needCategory": "p2p-lending",
+      "targetAmount": 25000000,
+      "targetTenorMonths": 12,
+      "id": 1,
+      "kycStep": 1,
+      "status": "pending",
+      "createdAt": "2026-09-11T16:38:32.433Z"
+    },
+    {
+      "fullName": "Ahmad Dahlan",
+      "email": "ahmad.dahlan@example.com",
+      "phone": "081234567890",
+      "needCategory": "p2p-lending",
+      "targetAmount": 25000000,
+      "targetTenorMonths": 12,
+      "id": 1,
+      "kycStep": 1,
+      "status": "pending",
+      "createdAt": "2026-09-11T16:45:07.756Z"
+    },
+    {
+      "fullName": "Ahmad Dahlan",
+      "email": "ahmad.dahlan@example.com",
+      "phone": "081234567890",
+      "needCategory": "p2p-lending",
+      "targetAmount": 25000000,
+      "targetTenorMonths": 12,
+      "id": 1,
+      "kycStep": 1,
+      "status": "pending",
+      "createdAt": "2026-09-11T16:54:54.369Z"
+    },
+    {
+      "fullName": "Ahmad Dahlan",
+      "email": "ahmad.dahlan@example.com",
+      "phone": "081234567890",
+      "needCategory": "p2p-lending",
+      "targetAmount": 25000000,
+      "targetTenorMonths": 12,
+      "id": 1,
+      "kycStep": 1,
+      "status": "pending",
+      "createdAt": "2026-09-11T16:55:56.121Z"
+    },
+    {
+      "fullName": "Ahmad Dahlan",
+      "email": "ahmad.dahlan@example.com",
+      "phone": "081234567890",
+      "needCategory": "p2p-lending",
+      "targetAmount": 25000000,
+      "targetTenorMonths": 12,
+      "id": 1,
+      "kycStep": 1,
+      "status": "pending",
+      "createdAt": "2026-09-11T17:02:30.162Z"
+    },
+    {
+      "fullName": "Ahmad Dahlan",
+      "email": "ahmad.dahlan@example.com",
+      "phone": "081234567890",
+      "needCategory": "p2p-lending",
+      "targetAmount": 25000000,
+      "targetTenorMonths": 12,
+      "id": 1,
+      "kycStep": 1,
+      "status": "pending",
+      "createdAt": "2026-09-11T17:07:44.812Z"
+    },
+    {
+      "fullName": "Ahmad Dahlan",
+      "email": "ahmad.dahlan@example.com",
+      "phone": "081234567890",
+      "needCategory": "p2p-lending",
+      "targetAmount": 25000000,
+      "targetTenorMonths": 12,
+      "id": 1,
+      "kycStep": 1,
+      "status": "pending",
+      "createdAt": "2026-09-11T17:13:39.747Z"
+    },
+    {
+      "fullName": "Ahmad Dahlan",
+      "email": "ahmad.dahlan@example.com",
+      "phone": "081234567890",
+      "needCategory": "p2p-lending",
+      "targetAmount": 25000000,
+      "targetTenorMonths": 12,
+      "id": 1,
+      "kycStep": 1,
+      "status": "pending",
+      "createdAt": "2026-09-11T17:21:35.980Z"
+    },
+    {
+      "fullName": "Ahmad Dahlan",
+      "email": "ahmad.dahlan@example.com",
+      "phone": "081234567890",
+      "needCategory": "p2p-lending",
+      "targetAmount": 25000000,
+      "targetTenorMonths": 12,
+      "id": 1,
+      "kycStep": 1,
+      "status": "pending",
+      "createdAt": "2026-09-11T17:26:24.607Z"
+    },
+    {
+      "fullName": "Ahmad Dahlan",
+      "email": "ahmad.dahlan@example.com",
+      "phone": "081234567890",
+      "needCategory": "p2p-lending",
+      "targetAmount": 25000000,
+      "targetTenorMonths": 12,
+      "id": 1,
+      "kycStep": 1,
+      "status": "pending",
+      "createdAt": "2026-09-11T17:30:24.802Z"
+    },
+    {
+      "fullName": "Ahmad Dahlan",
+      "email": "ahmad.dahlan@example.com",
+      "phone": "081234567890",
+      "needCategory": "p2p-lending",
+      "targetAmount": 25000000,
+      "targetTenorMonths": 12,
+      "id": 1,
+      "kycStep": 1,
+      "status": "pending",
+      "createdAt": "2026-09-11T17:30:48.990Z"
+    },
+    {
+      "fullName": "Ahmad Dahlan",
+      "email": "ahmad.dahlan@example.com",
+      "phone": "081234567890",
+      "needCategory": "p2p-lending",
+      "targetAmount": 25000000,
+      "targetTenorMonths": 12,
+      "id": 1,
+      "kycStep": 1,
+      "status": "pending",
+      "createdAt": "2026-09-11T20:27:50.949Z"
+    },
+    {
+      "fullName": "Ahmad Dahlan",
+      "email": "ahmad.dahlan@example.com",
+      "phone": "081234567890",
+      "needCategory": "p2p-lending",
+      "targetAmount": 25000000,
+      "targetTenorMonths": 12,
+      "id": 1,
+      "kycStep": 1,
+      "status": "pending",
+      "createdAt": "2026-09-11T20:34:17.639Z"
+    },
+    {
+      "fullName": "Ahmad Dahlan",
+      "email": "ahmad.dahlan@example.com",
+      "phone": "081234567890",
+      "needCategory": "p2p-lending",
+      "targetAmount": 25000000,
+      "targetTenorMonths": 12,
+      "id": 1,
+      "kycStep": 1,
+      "status": "pending",
+      "createdAt": "2026-09-11T20:43:05.604Z"
+    },
+    {
+      "fullName": "Ahmad Dahlan",
+      "email": "ahmad.dahlan@example.com",
+      "phone": "081234567890",
+      "needCategory": "p2p-lending",
+      "targetAmount": 25000000,
+      "targetTenorMonths": 12,
+      "id": 1,
+      "kycStep": 1,
+      "status": "pending",
+      "createdAt": "2026-09-12T05:08:40.877Z"
+    },
+    {
+      "fullName": "Ahmad Dahlan",
+      "email": "ahmad.dahlan@example.com",
+      "phone": "081234567890",
+      "needCategory": "p2p-lending",
+      "targetAmount": 25000000,
+      "targetTenorMonths": 12,
+      "id": 1,
+      "kycStep": 1,
+      "status": "pending",
+      "createdAt": "2026-09-12T06:05:36.538Z"
+    },
+    {
+      "fullName": "Ahmad Dahlan",
+      "email": "ahmad.dahlan@example.com",
+      "phone": "081234567890",
+      "needCategory": "p2p-lending",
+      "targetAmount": 25000000,
+      "targetTenorMonths": 12,
+      "id": 1,
+      "kycStep": 1,
+      "status": "pending",
+      "createdAt": "2026-09-12T07:20:39.458Z"
+    },
+    {
+      "fullName": "Ahmad Dahlan",
+      "email": "ahmad.dahlan@example.com",
+      "phone": "081234567890",
+      "needCategory": "p2p-lending",
+      "targetAmount": 25000000,
+      "targetTenorMonths": 12,
+      "id": 1,
+      "kycStep": 1,
+      "status": "pending",
+      "createdAt": "2026-09-12T14:25:05.389Z"
+    },
+    {
+      "fullName": "Ahmad Dahlan",
+      "email": "ahmad.dahlan@example.com",
+      "phone": "081234567890",
+      "needCategory": "p2p-lending",
+      "targetAmount": 25000000,
+      "targetTenorMonths": 12,
+      "id": 1,
+      "kycStep": 1,
+      "status": "pending",
+      "createdAt": "2026-09-12T14:27:03.117Z"
+    },
+    {
+      "fullName": "Ahmad Dahlan",
+      "email": "ahmad.dahlan@example.com",
+      "phone": "081234567890",
+      "needCategory": "p2p-lending",
+      "targetAmount": 25000000,
+      "targetTenorMonths": 12,
+      "id": 1,
+      "kycStep": 1,
+      "status": "pending",
+      "createdAt": "2026-09-12T14:29:11.266Z"
+    },
+    {
+      "fullName": "Ahmad Dahlan",
+      "email": "ahmad.dahlan@example.com",
+      "phone": "081234567890",
+      "needCategory": "p2p-lending",
+      "targetAmount": 25000000,
+      "targetTenorMonths": 12,
+      "id": 1,
+      "kycStep": 1,
+      "status": "pending",
+      "createdAt": "2026-09-12T14:32:50.293Z"
+    },
+    {
+      "fullName": "Ahmad Dahlan",
+      "email": "ahmad.dahlan@example.com",
+      "phone": "081234567890",
+      "needCategory": "p2p-lending",
+      "targetAmount": 25000000,
+      "targetTenorMonths": 12,
+      "id": 1,
+      "kycStep": 1,
+      "status": "pending",
+      "createdAt": "2026-09-12T14:40:02.447Z"
+    },
+    {
+      "fullName": "Ahmad Dahlan",
+      "email": "ahmad.dahlan@example.com",
+      "phone": "081234567890",
+      "needCategory": "p2p-lending",
+      "targetAmount": 25000000,
+      "targetTenorMonths": 12,
+      "id": 1,
+      "kycStep": 1,
+      "status": "pending",
+      "createdAt": "2026-09-12T14:47:34.170Z"
+    },
+    {
+      "fullName": "Ahmad Dahlan",
+      "email": "ahmad.dahlan@example.com",
+      "phone": "081234567890",
+      "needCategory": "p2p-lending",
+      "targetAmount": 25000000,
+      "targetTenorMonths": 12,
+      "id": 1,
+      "kycStep": 1,
+      "status": "pending",
+      "createdAt": "2026-09-12T14:56:01.416Z"
+    },
+    {
+      "fullName": "Ahmad Dahlan",
+      "email": "ahmad.dahlan@example.com",
+      "phone": "081234567890",
+      "needCategory": "p2p-lending",
+      "targetAmount": 25000000,
+      "targetTenorMonths": 12,
+      "id": 1,
+      "kycStep": 1,
+      "status": "pending",
+      "createdAt": "2026-09-12T15:05:02.983Z"
     }
   ]
 }

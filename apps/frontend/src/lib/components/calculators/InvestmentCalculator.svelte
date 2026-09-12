@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { TrendingUp, HelpCircle, ArrowUpRight } from "lucide-svelte";
+  import { TrendingUp, HelpCircle, ArrowUpRight, Coins, Printer } from "lucide-svelte";
 
   let initialDeposit = $state(10000000);
   let monthlyDeposit = $state(500000);
-  let expectedAnnualYield = $state(10);
+  let expectedAnnualYield = $state(12);
   let durationYears = $state(3);
   let nisbahInvestor = $state(70); // 70% for investor, 30% for manager
 
@@ -32,193 +32,252 @@
     }
 
     const profit = Math.round(balance - totalInvested);
+    const profitPercent = totalInvested > 0 ? Math.round((profit / totalInvested) * 100) : 0;
+
     return {
       totalInvested: Math.round(totalInvested),
       profit,
+      profitPercent,
       finalValue: Math.round(balance),
     };
   });
+
+  function printSimulation() {
+    window.print();
+  }
 </script>
 
-<div
-  class="bg-white rounded-[3px] border border-slate-300 shadow-xs overflow-hidden font-sans"
->
-  <div
-    class="bg-[#0f172a] px-6 py-4 text-white flex items-center justify-between border-b border-slate-700"
-  >
-    <div class="flex items-center gap-3">
-      <div
-        class="w-8 h-8 rounded-[2px] bg-slate-800 border border-slate-600 flex items-center justify-center text-emerald-400"
-      >
-        <TrendingUp class="w-4 h-4" />
-      </div>
-      <div>
-        <h3 class="text-base font-bold text-white uppercase">
-          Kalkulator Investasi & Sukuk Syariah
-        </h3>
-        <p class="text-[11px] text-slate-300">
-          Simulasi proyeksi imbal hasil akad Mudharabah & Musyarakah
-        </p>
-      </div>
+<div class="panel panel-default shadow-xs border border-slate-300 rounded-[4px] overflow-hidden font-sans !mb-0">
+  <!-- Early Bootstrap 2.0 Panel Header -->
+  <div class="panel-heading panel-emerald flex items-center justify-between !py-2.5 !px-3 sm:!px-4">
+    <div class="flex items-center gap-2 sm:gap-2.5 min-w-0">
+      <TrendingUp class="w-4 h-4 text-emerald-100 shrink-0" />
+      <span class="text-xs sm:text-sm font-bold uppercase tracking-wider text-white truncate">
+        Simulasi Investasi Bagi Hasil Mudharabah
+      </span>
     </div>
-    <span
-      class="px-2.5 py-1 rounded-[2px] bg-slate-800 text-[10px] font-bold tracking-wider text-emerald-400 border border-slate-600"
-    >
-      NISBAH {nisbahInvestor}:{100 - nisbahInvestor}
+    <span class="badge badge-inverse text-[10px] uppercase font-bold shrink-0 ml-2">
+      Akad Mudharabah
     </span>
   </div>
 
-  <div class="p-5 sm:p-7 grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8">
-    <!-- Inputs (7 Cols) -->
-    <div class="lg:col-span-7 space-y-5">
-      <!-- Setoran Awal -->
-      <div>
-        <div class="flex justify-between items-center mb-1.5">
-          <label
-            for="initial-deposit-slider"
-            class="text-xs font-semibold text-slate-700"
-            >Modal Investasi Awal</label
-          >
-          <span class="text-base font-bold text-emerald-800 font-mono"
-            >{formatRupiah(initialDeposit)}</span
-          >
-        </div>
-        <input
-          id="initial-deposit-slider"
-          type="range"
-          min="1000000"
-          max="100000000"
-          step="1000000"
-          bind:value={initialDeposit}
-          class="w-full h-1.5 bg-slate-200 rounded-[2px] appearance-none cursor-pointer accent-emerald-700"
-        />
-        <div class="flex justify-between text-[11px] text-slate-500 mt-1">
-          <span>Rp 1 Jt</span>
-          <span>Rp 50 Jt</span>
-          <span>Rp 100 Jt</span>
-        </div>
-      </div>
-
-      <!-- Rutin Bulanan -->
-      <div>
-        <div class="flex justify-between items-center mb-1.5">
-          <label
-            for="monthly-deposit-slider"
-            class="text-xs font-semibold text-slate-700"
-            >Top-Up Rutin Bulanan</label
-          >
-          <span class="text-base font-bold text-slate-900 font-mono"
-            >{formatRupiah(monthlyDeposit)}</span
-          >
-        </div>
-        <input
-          id="monthly-deposit-slider"
-          type="range"
-          min="0"
-          max="10000000"
-          step="250000"
-          bind:value={monthlyDeposit}
-          class="w-full h-1.5 bg-slate-200 rounded-[2px] appearance-none cursor-pointer accent-emerald-700"
-        />
-      </div>
-
-      <!-- Durasi & Nisbah Grid -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label
-            for="duration-years-select"
-            class="text-xs font-semibold text-slate-600 uppercase tracking-wider block mb-1.5"
-            >Durasi Pendanaan</label
-          >
-          <select
-            id="duration-years-select"
-            bind:value={durationYears}
-            class="w-full h-9 bg-white border border-slate-300 rounded-[2px] px-3 text-xs font-medium text-slate-800 focus:outline-none focus:border-emerald-600"
-          >
-            <option value={1}>1 Tahun (12 Bulan)</option>
-            <option value={2}>2 Tahun (24 Bulan)</option>
-            <option value={3}>3 Tahun (36 Bulan)</option>
-            <option value={5}>5 Tahun (60 Bulan)</option>
-          </select>
-        </div>
-
-        <div>
-          <div class="flex items-center justify-between mb-1.5">
-            <label
-              for="nisbah-slider"
-              class="text-xs font-semibold text-slate-600 uppercase tracking-wider"
-              >Nisbah Investor</label
-            >
-            <span class="text-xs font-bold text-emerald-800 font-mono"
-              >{nisbahInvestor}%</span
-            >
+  <!-- Panel Body -->
+  <div class="panel-body p-3.5 sm:p-5 lg:p-6">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 items-stretch">
+      <!-- Input Controls (7 cols) -->
+      <div class="lg:col-span-7 space-y-4">
+        <!-- Modal Awal Box (.well) -->
+        <div class="well well-white !p-3 sm:!p-4 !mb-0 space-y-2 border border-slate-300 rounded-[3px] shadow-2xs">
+          <div class="flex items-center justify-between gap-2">
+            <label for="initial-deposit-slider" class="text-xs font-bold uppercase tracking-wider text-slate-700">
+              Modal Investasi Awal:
+            </label>
+            <span class="font-mono font-bold text-xs sm:text-sm text-emerald-800 bg-emerald-50 border border-emerald-300 px-2 py-0.5 rounded-[3px] shadow-inner">
+              {formatRupiah(initialDeposit)}
+            </span>
           </div>
+
           <input
-            id="nisbah-slider"
+            id="initial-deposit-slider"
             type="range"
-            min="50"
-            max="90"
-            step="5"
-            bind:value={nisbahInvestor}
-            class="w-full h-1.5 bg-slate-200 rounded-[2px] appearance-none cursor-pointer accent-emerald-700 mt-2"
+            min="1000000"
+            max="500000000"
+            step="1000000"
+            bind:value={initialDeposit}
+            class="w-full accent-emerald-600 h-2 bg-slate-200 rounded cursor-pointer"
           />
+
+          <div class="flex justify-between text-[10.5px] text-slate-500 font-mono">
+            <span>Rp 1 Jt</span>
+            <span>Rp 100 Jt</span>
+            <span>Rp 500 Jt</span>
+          </div>
+        </div>
+
+        <!-- Top-up Rutin Bulanan Box (.well) -->
+        <div class="well well-white !p-3 sm:!p-4 !mb-0 space-y-2 border border-slate-300 rounded-[3px] shadow-2xs">
+          <div class="flex items-center justify-between gap-2">
+            <label for="monthly-deposit-slider" class="text-xs font-bold uppercase tracking-wider text-slate-700">
+              Top-up Rutin Bulanan:
+            </label>
+            <span class="font-mono font-bold text-xs sm:text-sm text-emerald-800 bg-emerald-50 border border-emerald-300 px-2 py-0.5 rounded-[3px] shadow-inner">
+              {formatRupiah(monthlyDeposit)} /bln
+            </span>
+          </div>
+
+          <input
+            id="monthly-deposit-slider"
+            type="range"
+            min="0"
+            max="10000000"
+            step="250000"
+            bind:value={monthlyDeposit}
+            class="w-full accent-emerald-600 h-2 bg-slate-200 rounded cursor-pointer"
+          />
+
+          <div class="flex justify-between text-[10.5px] text-slate-500 font-mono">
+            <span>Rp 0 (Sekali Investasi)</span>
+            <span>Rp 5 Jt</span>
+            <span>Rp 10 Jt</span>
+          </div>
+        </div>
+
+        <!-- Durasi Investasi Range Slider Box (.well) -->
+        <div class="well well-white !p-3 sm:!p-4 !mb-0 space-y-2 border border-slate-300 rounded-[3px] shadow-2xs">
+          <div class="flex items-center justify-between gap-2">
+            <label for="duration-years-slider" class="text-xs font-bold uppercase tracking-wider text-slate-700">
+              Durasi Investasi:
+            </label>
+            <span class="font-mono font-bold text-xs sm:text-sm text-emerald-800 bg-emerald-50 border border-emerald-300 px-2 py-0.5 rounded-[3px] shadow-inner">
+              {durationYears} Tahun ({durationYears * 12} Bulan)
+            </span>
+          </div>
+
+          <input
+            id="duration-years-slider"
+            type="range"
+            min="1"
+            max="5"
+            step="1"
+            bind:value={durationYears}
+            class="w-full accent-emerald-600 h-2 bg-slate-200 rounded cursor-pointer"
+          />
+
+          <div class="flex justify-between text-[10.5px] text-slate-500 font-mono">
+            <span>1 Tahun</span>
+            <span>2 Tahun</span>
+            <span>3 Tahun</span>
+            <span>5 Tahun</span>
+          </div>
+        </div>
+
+        <!-- Nisbah Bagi Hasil Box (.well) -->
+        <div class="well well-white !p-3 sm:!p-4 !mb-0 space-y-2 border border-slate-300 rounded-[3px] shadow-2xs">
+          <div class="flex items-center justify-between gap-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-700">Porsi Bagi Hasil (Nisbah):</span>
+            <span class="text-xs font-mono font-bold text-emerald-800 bg-emerald-50 border border-emerald-300 px-2 py-0.5 rounded-[3px]">
+              {nisbahInvestor}% : {100 - nisbahInvestor}%
+            </span>
+          </div>
+          <div class="btn-group w-full grid grid-cols-3">
+            {#each [60, 70, 80] as n}
+              <button
+                type="button"
+                onclick={() => (nisbahInvestor = n)}
+                class="btn {nisbahInvestor === n ? 'btn-success active font-bold' : 'btn-default'} !py-1.5 !px-1 text-xs text-center w-full"
+              >
+                {n} : {100 - n}
+              </button>
+            {/each}
+          </div>
+        </div>
+
+        <!-- Proyeksi Imbal Hasil Bruto Slider (.well) -->
+        <div class="well well-white !p-3 sm:!p-4 !mb-0 space-y-2 border border-slate-300 rounded-[3px] shadow-2xs">
+          <div class="flex items-center justify-between gap-2">
+            <label for="expected-yield-slider" class="text-xs font-bold uppercase tracking-wider text-slate-700">
+              Proyeksi Imbal Hasil Bruto:
+            </label>
+            <span class="font-mono font-bold text-xs sm:text-sm text-emerald-800 bg-emerald-50 border border-emerald-300 px-2 py-0.5 rounded-[3px] shadow-inner">
+              {expectedAnnualYield}% p.a. (Net: {effectiveYield}%)
+            </span>
+          </div>
+
+          <input
+            id="expected-yield-slider"
+            type="range"
+            min="8"
+            max="22"
+            step="0.5"
+            bind:value={expectedAnnualYield}
+            class="w-full accent-emerald-600 h-2 bg-slate-200 rounded cursor-pointer"
+          />
+
+          <div class="flex justify-between text-[10.5px] text-slate-500 font-mono">
+            <span>8.0% (Konservatif)</span>
+            <span>15.0% (Moderat)</span>
+            <span>22.0% (Agresif)</span>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- Output (5 Cols) -->
-    <div
-      class="lg:col-span-5 bg-slate-50 border border-slate-300 rounded-[3px] p-5 flex flex-col justify-between space-y-4"
-    >
-      <div class="space-y-4">
-        <div>
-          <span
-            class="text-[11px] font-semibold uppercase tracking-wider text-slate-500 block"
-            >Proyeksi Nilai Akhir</span
-          >
-          <div
-            class="text-2xl sm:text-3xl font-extrabold text-emerald-800 font-mono mt-0.5"
-          >
-            {formatRupiah(calculationResult.finalValue)}
+      <!-- Output Result Section (5 cols) -->
+      <div class="lg:col-span-5 flex flex-col justify-between h-full">
+        <div class="well well-emerald !p-3.5 sm:!p-4 lg:!p-5 border-emerald-300 rounded-[4px] flex-1 flex flex-col justify-between space-y-4 !mb-0 shadow-xs">
+          <div class="space-y-3.5">
+            <!-- Header Result -->
+            <div class="flex items-center justify-between border-b border-emerald-200 pb-2">
+              <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-900">
+                Estimasi Nilai Akhir
+              </span>
+              <span class="label label-success text-[9.5px] uppercase font-bold tracking-wide">
+                Nisbah {nisbahInvestor}:{100 - nisbahInvestor}
+              </span>
+            </div>
+
+            <!-- Big Number -->
+            <div>
+              <div class="text-2xl sm:text-3xl lg:text-4xl font-extrabold font-mono text-emerald-900 tracking-tight leading-none">
+                {formatRupiah(calculationResult.finalValue)}
+              </div>
+              <p class="text-[11px] text-emerald-800 mt-1.5 leading-snug">
+                Proyeksi akumulasi modal pokok dan bagi hasil riil berbasis nisbah {nisbahInvestor}%.
+              </p>
+            </div>
+
+            <!-- Authentic Early Bootstrap Striped Progress Bar -->
+            <div class="space-y-1">
+              <div class="flex justify-between text-[11px] font-bold text-slate-700">
+                <span>Modal Pokok Disetor</span>
+                <span class="text-emerald-800 font-bold">+{calculationResult.profitPercent}% Bagi Hasil</span>
+              </div>
+              <div class="progress progress-striped active !h-4 !mb-0 rounded-[3px] border border-slate-300">
+                <div class="bar" style="width: 100%"></div>
+              </div>
+            </div>
+
+            <!-- Authentic Early Bootstrap Table Breakdown -->
+            <div class="overflow-hidden border border-slate-300 rounded-[3px] bg-white">
+              <table class="table table-bordered table-striped !mb-0 text-xs">
+                <tbody>
+                  <tr>
+                    <td class="font-bold text-slate-700 w-1/2 !py-1.5 !px-2.5">Total Modal Disetor:</td>
+                    <td class="font-mono font-bold text-right text-slate-900 !py-1.5 !px-2.5">{formatRupiah(calculationResult.totalInvested)}</td>
+                  </tr>
+                  <tr>
+                    <td class="font-bold text-slate-700 !py-1.5 !px-2.5">Estimasi Bagi Hasil ({effectiveYield}% net):</td>
+                    <td class="font-mono font-bold text-right text-emerald-700 !py-1.5 !px-2.5">+{formatRupiah(calculationResult.profit)}</td>
+                  </tr>
+                  <tr class="bg-emerald-50/80">
+                    <td class="font-extrabold text-emerald-950 !py-2 !px-2.5">Total Saldo Akhir:</td>
+                    <td class="font-mono font-extrabold text-right text-emerald-900 text-sm !py-2 !px-2.5">{formatRupiah(calculationResult.finalValue)}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
-          <div
-            class="inline-flex items-center gap-1 text-xs text-emerald-800 font-semibold mt-1"
-          >
-            <span>Imbal Hasil: ~{effectiveYield}% / tahun</span>
+
+          <!-- Action Buttons in Early Bootstrap Style -->
+          <div class="pt-2 border-t border-emerald-200 flex flex-col sm:flex-row items-stretch gap-2">
+            <button
+              type="button"
+              onclick={printSimulation}
+              class="btn btn-default !py-2 !px-3 font-semibold text-xs flex items-center justify-center gap-1.5 shrink-0"
+              title="Cetak Ringkasan Investasi"
+            >
+              <Printer class="w-3.5 h-3.5" />
+              <span>Cetak</span>
+            </button>
+
+            <a
+              href="/investor"
+              class="btn btn-success btn-large flex-1 !py-2.5 !px-3 font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-sm text-center"
+            >
+              <span>Mulai Mendanai Proyek</span>
+              <ArrowUpRight class="w-3.5 h-3.5" />
+            </a>
           </div>
         </div>
-
-        <div
-          class="pt-3 border-t border-slate-300 space-y-2 text-xs text-slate-600"
-        >
-          <div class="flex justify-between">
-            <span>Total Pokok Disetor</span>
-            <span class="font-medium text-slate-900 font-mono"
-              >{formatRupiah(calculationResult.totalInvested)}</span
-            >
-          </div>
-          <div class="flex justify-between">
-            <span>Estimasi Bagi Hasil</span>
-            <span class="font-semibold text-emerald-800 font-mono"
-              >+{formatRupiah(calculationResult.profit)}</span
-            >
-          </div>
-        </div>
-
-        <p class="text-[11px] text-slate-500 leading-relaxed italic pt-1">
-          *Bagi hasil merupakan proyeksi berdasarkan rata-rata historis proyek
-          sejenis. Realisasi aktual bergantung pada kinerja riil usaha mitra.
-        </p>
-      </div>
-
-      <div class="pt-2">
-        <a
-          href="/investor"
-          class="button-4-primary w-full text-xs py-2 px-4 rounded-[3px] flex items-center justify-center gap-1.5 font-bold uppercase tracking-wider"
-        >
-          <span>Mulai Pendanaan</span>
-          <ArrowUpRight class="w-3.5 h-3.5" />
-        </a>
       </div>
     </div>
   </div>

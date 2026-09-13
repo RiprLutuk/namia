@@ -1,35 +1,22 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import {
-    MapPin,
-    Phone,
-    Mail,
-    Clock,
-    Send,
-    CheckCircle2,
-    ChevronDown,
-    ChevronUp,
-    Search,
-    ExternalLink,
-    MessageSquare,
-    MessageCircle,
-    Building2,
-    ShieldCheck,
-    HelpCircle,
-    Sparkles,
-    ArrowRight,
-    X,
-    Briefcase,
-    FileText,
-    Share2,
-    AlertCircle,
-  } from "lucide-svelte";
+  import { Search, Phone, Mail, MessageCircle, MapPin, Send, CheckCircle2, ArrowRight } from "lucide-svelte";
   import { cmsStore, fetchCmsContent } from "$lib/cms";
   import { API_BASE_URL, NAMIA_API_KEY } from "$lib/api";
-
-  onMount(() => {
-    fetchCmsContent();
-  });
+  onMount(() => { fetchCmsContent(); });
+  const settings = $derived($cmsStore.siteSettings);
+  const whatsappUrl = $derived(`https://wa.me/${settings.whatsapp.replace(/\D/g, "")}`);
+  const phoneUrl = $derived(`tel:${settings.phone.replace(/[^\d+]/g, "")}`);
+  let searchQuery = $state("");
+  let audience = $state("all");
+  let activeCategory = $state("Semua");
+  let openFaqIds = $state(new Set<number>());
+  const faqs = $derived($cmsStore.faqs.map(faq => ({ ...faq, question: faq.question || faq.q || "", answer: faq.answer || faq.a || "", category: faq.categoryName || faq.category || "Umum" })));
+  const audienceFaqs = $derived(faqs.filter(faq => audience === "all" || (audience === "investor" ? Boolean(faq.isInvestor) : !faq.isInvestor)));
+  const categories = $derived(["Semua", ...new Set(audienceFaqs.map(faq => faq.category))]);
+  const filteredFaqs = $derived(audienceFaqs.filter(faq => (activeCategory === "Semua" || faq.category === activeCategory) && `${faq.question} ${faq.answer.replace(/<[^>]*>/g, " ")}`.toLowerCase().includes(searchQuery.trim().toLowerCase())));
+  function changeAudience(value: string) { audience = value; activeCategory = "Semua"; }
+  function toggleFaq(id: number) { const next = new Set(openFaqIds); next.has(id) ? next.delete(id) : next.add(id); openFaqIds = next; }
 
   let name = $state("");
   let email = $state("");
@@ -37,796 +24,77 @@
   let category = $state("Pertanyaan Umum");
   let subject = $state("");
   let message = $state("");
+  let submitting = $state(false);
   let submitted = $state(false);
-
-  // FAQ Filter State
-  let activeFaqTab = $state<"all" | "borrower" | "investor">("all");
-  let activeCategoryFilter = $state<string>("Semua");
-  let searchQuery = $state("");
-  let openFaqIds = $state<Set<number>>(new Set([1, 2]));
-
-  function toggleFaq(id: number) {
-    const next = new Set(openFaqIds);
-    if (next.has(id)) {
-      next.delete(id);
-    } else {
-      next.add(id);
-    }
-    openFaqIds = next;
-  }
-
-  function expandAll() {
-    const allIds = new Set<number>();
-    filteredCategories.forEach((cat) =>
-      cat.faqs.forEach((f) => allIds.add(f.id)),
-    );
-    openFaqIds = allIds;
-  }
-
-  function collapseAll() {
-    openFaqIds = new Set();
-  }
-
-  // Derived filtered categories and questions directly from database via $cmsStore
-  let allFaqs = $derived($cmsStore.faqs || []);
-
-  let filteredCategories = $derived.by(() => {
-    let list = allFaqs;
-
-    if (activeFaqTab === "borrower") {
-      list = list.filter((f) => !f.isInvestor);
-    } else if (activeFaqTab === "investor") {
-      list = list.filter((f) => f.isInvestor);
-    }
-
-    if (activeCategoryFilter !== "Semua") {
-      list = list.filter(
-        (f) => (f.categoryName || f.category) === activeCategoryFilter,
-      );
-    }
-
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      list = list.filter(
-        (f) =>
-          (f.question || f.q || "").toLowerCase().includes(q) ||
-          (f.answer || f.a || "").toLowerCase().includes(q),
-      );
-    }
-
-    // Group by category
-    const map = new Map<string, any[]>();
-    for (const f of list) {
-      const cat = f.categoryName || f.category || "Umum";
-      if (!map.has(cat)) map.set(cat, []);
-      map.get(cat)!.push({
-        id: f.id,
-        question: f.question || f.q,
-        answer: f.answer || f.a,
-        isInvestor: f.isInvestor,
-        categoryId: f.categoryId || 1,
-      });
-    }
-
-    return Array.from(map.entries()).map(([catName, qas]) => ({
-      id: qas[0]?.categoryId || 1,
-      name: catName,
-      isInvestor: qas[0]?.isInvestor ?? 0,
-      faqs: qas,
-    }));
-  });
-
-  // Total count of visible FAQs
-  let totalVisibleFaqs = $derived.by(() => {
-    return filteredCategories.reduce((acc, cat) => acc + cat.faqs.length, 0);
-  });
-
-  // Available unique category names based on tab
-  let availableCategories = $derived.by(() => {
-    let list = allFaqs;
-    if (activeFaqTab === "borrower") {
-      list = list.filter((f) => !f.isInvestor);
-    } else if (activeFaqTab === "investor") {
-      list = list.filter((f) => f.isInvestor);
-    }
-    const names = Array.from(
-      new Set(list.map((f) => f.categoryName || f.category || "Umum")),
-    );
-    return ["Semua", ...names];
-  });
-
-  async function handleContactSubmit() {
-    if (!name || !email || !message) return;
+  let submitError = $state("");
+  async function handleContactSubmit(event: SubmitEvent) {
+    event.preventDefault();
+    if (submitting) return;
+    submitting = true;
+    submitError = "";
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15000);
     try {
-      await fetch(`${API_BASE_URL}/api/leads`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": NAMIA_API_KEY,
-        },
-        body: JSON.stringify({
-          fullName: name,
-          email,
-          phone: phone || "080000000000",
-          needCategory: category,
-          targetAmount: 0,
-          targetTenorMonths: 0,
-          message: `${subject ? "[" + subject + "] " : ""}${message}`,
-        }),
+      const response = await fetch(`${API_BASE_URL}/api/leads`, {
+        method: "POST", signal: controller.signal,
+        headers: { "Content-Type": "application/json", "x-api-key": NAMIA_API_KEY },
+        body: JSON.stringify({ fullName: name.trim(), email: email.trim(), phone: phone.trim(), needCategory: category, notes: `${subject.trim() ? `[${subject.trim()}] ` : ""}${message.trim()}` }),
       });
+      const result = await response.json();
+      if (!response.ok || result.success !== true) throw new Error("Pesan belum tersimpan");
       submitted = true;
-    } catch (e) {
-      submitted = true;
-    }
+    } catch {
+      submitError = "Pesan belum terkirim. Isi formulir Anda tetap tersimpan di halaman ini. Coba kirim lagi atau hubungi kami melalui WhatsApp.";
+    } finally { clearTimeout(timeout); submitting = false; }
   }
+  function resetForm() { submitted = false; name = ""; email = ""; phone = ""; subject = ""; message = ""; submitError = ""; }
 </script>
 
-<svelte:head>
-  <title>Pusat Bantuan, FAQ & Kontak Resmi | Namia Syariah</title>
-  <meta
-    name="description"
-    content="Kanal kontak resmi dan pusat tanya jawab (FAQ) PT Namia Finansial Teknologi (Namia Syariah). Layanan konsultasi pendanaan dan pengajuan pembiayaan syariah."
-  />
-</svelte:head>
+<svelte:head><title>Pusat Bantuan & Kontak | Namia Syariah</title><meta name="description" content="Temukan jawaban tentang pendanaan dan pembiayaan, hubungi layanan Namia, atau kirim pertanyaan dan pengaduan." /></svelte:head>
 
-<div class="contacts-page">
-  <!-- HERO SECTION: FULL-WIDTH TWITTER BOOTSTRAP 2.0 JUMBOTRON MASTHEAD -->
-  <section class="jumbotron-masthead">
-    <div class="container px-4">
-      <div class="max-w-4xl mx-auto space-y-4 text-center">
-        <!-- Trust Badge -->
-        <div class="inline-flex items-center gap-2">
-          <span class="badge badge-success px-3 py-1 font-bold text-xs">
-            <Sparkles class="w-3.5 h-3.5 inline mr-1" />
-            LAYANAN & BANTUAN RESMI &bull; PT NAMIA FINANSIAL TEKNOLOGI
-          </span>
-          <span class="badge badge-inverse hidden sm:inline-block text-xs py-1 px-3 font-bold">
-            24/7 HELPDESK
-          </span>
+<div class="portal-page contacts-page">
+  <div class="portal-container">
+    <header class="page-intro"><p class="portal-kicker">Pusat bantuan</p><h1 class="portal-heading">Ada yang perlu dibicarakan?<br />Kami siap mendengarkan.</h1><p class="intro-copy">Cari jawaban singkat atau ceritakan kebutuhan Anda kepada tim layanan Namia.</p></header>
+    <div class="help-layout">
+      <section id="faq" class="faq-section" aria-labelledby="faq-title">
+        <div class="faq-tools portal-panel">
+          <div class="panel-caption"><h2 id="faq-title">Temukan jawaban Anda</h2><span>Pertanyaan umum</span></div>
+          <div class="search-content"><label class="search-field"><Search size={18} /><input type="search" bind:value={searchQuery} aria-label="Cari pertanyaan" placeholder="Misalnya: akad, dokumen, pencairan" /></label><div class="audience-filter" aria-label="Jenis pertanyaan"><button type="button" class:active={audience === "all"} aria-pressed={audience === "all"} onclick={() => changeAudience("all")}>Semua</button><button type="button" class:active={audience === "borrower"} aria-pressed={audience === "borrower"} onclick={() => changeAudience("borrower")}>Pembiayaan</button><button type="button" class:active={audience === "investor"} aria-pressed={audience === "investor"} onclick={() => changeAudience("investor")}>Pendanaan</button></div><label class="category-select">Topik<select bind:value={activeCategory}>{#each categories as item}<option value={item}>{item}</option>{/each}</select></label></div>
         </div>
-
-        <h1>
-          Pusat Bantuan, FAQ & <br />
-          <span class="text-emerald-700">Kontak Resmi Namia</span>
-        </h1>
-
-        <p class="lead max-w-2xl mx-auto">
-          Kami siap mendampingi perjalanan investasi halal dan permodalan usaha syariah Anda dengan pelayanan profesional, ramah, dan amanah.
-        </p>
-
-        <!-- Quick Metrics / Direct Contacts Ribbon inside Hero -->
-        <div class="pt-4 max-w-4xl mx-auto">
-          <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
-            <a
-              href="tel:+622183782337"
-              class="well well-white text-center p-3 mb-0 block border border-slate-300 shadow-xs hover:border-emerald-600 transition-colors"
-            >
-              <div class="w-7 h-7 rounded bg-emerald-50 border border-emerald-200 flex items-center justify-center mb-1 text-emerald-700 mx-auto">
-                <Phone class="w-3.5 h-3.5" />
-              </div>
-              <div class="text-xs sm:text-sm font-bold text-slate-800 font-mono">
-                (+62) 21 8378 2337
-              </div>
-              <div class="text-[10px] text-slate-500 font-semibold uppercase tracking-wider mt-0.5">
-                Telepon Kantor
-              </div>
-            </a>
-
-            <a
-              href="https://wa.me/6282297770619"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="well well-white text-center p-3 mb-0 block border border-slate-300 shadow-xs hover:border-emerald-600 transition-colors"
-            >
-              <div class="w-7 h-7 rounded bg-emerald-50 border border-emerald-200 flex items-center justify-center mb-1 text-emerald-700 mx-auto">
-                <MessageCircle class="w-3.5 h-3.5" />
-              </div>
-              <div class="text-xs sm:text-sm font-bold text-emerald-800 font-mono">
-                +62 822-9777-0619
-              </div>
-              <div class="text-[10px] text-slate-500 font-semibold uppercase tracking-wider mt-0.5">
-                WhatsApp CS Resmi
-              </div>
-            </a>
-
-            <a
-              href="mailto:salam@namia.id"
-              class="well well-white text-center p-3 mb-0 block border border-slate-300 shadow-xs hover:border-emerald-600 transition-colors"
-            >
-              <div class="w-7 h-7 rounded bg-emerald-50 border border-emerald-200 flex items-center justify-center mb-1 text-emerald-700 mx-auto">
-                <Mail class="w-3.5 h-3.5" />
-              </div>
-              <div class="text-xs sm:text-sm font-bold text-slate-800 font-mono">
-                salam@namia.id
-              </div>
-              <div class="text-[10px] text-slate-500 font-semibold uppercase tracking-wider mt-0.5">
-                Email Resmi
-              </div>
-            </a>
-
-            <a
-              href="https://maps.google.com/maps?q=Menara%20MTH,%20Jakarta"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="well well-white text-center p-3 mb-0 block border border-slate-300 shadow-xs hover:border-emerald-600 transition-colors"
-            >
-              <div class="w-7 h-7 rounded bg-emerald-50 border border-emerald-200 flex items-center justify-center mb-1 text-emerald-700 mx-auto">
-                <MapPin class="w-3.5 h-3.5" />
-              </div>
-              <div class="text-xs sm:text-sm font-bold text-slate-800">
-                Menara MTH Lt. 10
-              </div>
-              <div class="text-[10px] text-slate-500 font-semibold uppercase tracking-wider mt-0.5">
-                Tebet, Jakarta Selatan
-              </div>
-            </a>
-          </div>
+        <div class="faq-controls"><span aria-live="polite">{filteredFaqs.length} jawaban</span><div><button type="button" onclick={() => openFaqIds = new Set(filteredFaqs.map(faq => faq.id))}>Buka semua</button><span> / </span><button type="button" onclick={() => openFaqIds = new Set()}>Tutup semua</button></div></div>
+        <div class="faq-list portal-panel">
+          {#each filteredFaqs as faq}
+            <article class="faq-item"><h3><button type="button" aria-expanded={openFaqIds.has(faq.id)} aria-controls={`answer-${faq.id}`} onclick={() => toggleFaq(faq.id)}><span>{faq.question}</span><span class="faq-toggle" aria-hidden="true">{openFaqIds.has(faq.id) ? "−" : "+"}</span></button></h3><div id={`answer-${faq.id}`} class="faq-answer" hidden={!openFaqIds.has(faq.id)}>{@html faq.answer}</div></article>
+          {:else}<div class="empty-state"><h3>Jawaban belum ditemukan.</h3><p>Coba kata kunci lain atau kirim pertanyaan melalui formulir.</p><button type="button" class="portal-button-secondary" onclick={() => { searchQuery = ""; audience = "all"; activeCategory = "Semua"; }}>Tampilkan semua jawaban</button></div>{/each}
         </div>
-      </div>
+      </section>
+      <aside class="contact-sidebar">
+        <section class="direct-contact portal-panel"><div class="panel-caption"><h2>Bicara langsung</h2></div><div class="contact-options"><a href={whatsappUrl} target="_blank" rel="noopener noreferrer"><MessageCircle size={19} /><span><strong>WhatsApp</strong><small>{settings.whatsapp}</small></span><ArrowRight size={15} /></a><a href={phoneUrl}><Phone size={18} /><span><strong>Telepon</strong><small>{settings.phone}</small></span><ArrowRight size={15} /></a><a href={`mailto:${settings.email}`}><Mail size={18} /><span><strong>Email</strong><small>{settings.email}</small></span><ArrowRight size={15} /></a></div><div class="service-hours"><strong>Jam layanan</strong><p>{settings.operatingHours}</p></div></section>
+        <a href="#form-kontak" class="message-shortcut"><span><strong>Ingin menjelaskan lebih rinci?</strong><small>Kirim pertanyaan atau pengaduan.</small></span><ArrowRight size={18} /></a>
+      </aside>
     </div>
-  </section>
-
-  <!-- BREADCRUMB SUB-BAR -->
-  <div class="bg-slate-100 border-b border-slate-200 py-2">
-    <div class="container px-4">
-      <ul class="breadcrumb mb-0">
-        <li><a href="/">Beranda</a> <span class="divider">/</span></li>
-        <li class="active">Pusat Bantuan, FAQ & Kontak Resmi &bull; PT Namia Finansial Teknologi</li>
-      </ul>
-    </div>
-  </div>
-
-  <!-- 4 DIRECT SERVICE CHANNELS -->
-  <section class="py-12 bg-white border-b border-[#E5E5E5]">
-    <div class="container space-y-8">
-      <div class="heading-block text-center max-w-2xl mx-auto">
-        <span class="label label-info text-xs uppercase tracking-wider mb-1">Saluran Bantuan Terpadu</span>
-        <h2 class="text-2xl font-bold text-slate-900 uppercase">Pilih Layanan Sesuai Kebutuhan</h2>
-        <p class="text-xs sm:text-sm text-slate-600">
-          Temukan kanal perwakilan tim Namia Syariah yang tepat untuk mempercepat penanganan informasi atau pertanyaan Anda.
-        </p>
-      </div>
-
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <!-- Channel 1: Borrower Support -->
-        <div class="panel panel-default p-4 space-y-3 flex flex-col justify-between mb-0 shadow-xs">
-          <div class="space-y-2">
-            <div class="w-8 h-8 rounded bg-emerald-100 text-emerald-800 flex items-center justify-center border border-emerald-200">
-              <Briefcase class="w-4 h-4" />
-            </div>
-            <h3 class="text-sm font-bold text-slate-900 uppercase">
-              Layanan Penerima Dana
-            </h3>
-            <p class="text-xs text-slate-600 leading-relaxed mb-0">
-              Bantuan pengajuan permodalan UMKM, penjelasan skema akad Murabahah/Ijarah, dan cek status verifikasi proposal.
-            </p>
-          </div>
-          <div class="pt-2 border-t border-slate-100">
-            <a href="/borrower" class="btn btn-default btn-mini w-100 font-bold uppercase">
-              <span>Panduan Pembiayaan &rarr;</span>
-            </a>
-          </div>
-        </div>
-
-        <!-- Channel 2: Investor Support -->
-        <div class="panel panel-default p-4 space-y-3 flex flex-col justify-between mb-0 shadow-xs">
-          <div class="space-y-2">
-            <div class="w-8 h-8 rounded bg-emerald-100 text-emerald-800 flex items-center justify-center border border-emerald-200">
-              <ShieldCheck class="w-4 h-4" />
-            </div>
-            <h3 class="text-sm font-bold text-slate-900 uppercase">
-              Layanan Pendana (Investor)
-            </h3>
-            <p class="text-xs text-slate-600 leading-relaxed mb-0">
-              Konsultasi portofolio proyek riil, bantuan pendaftaran akun diaspora internasional, dan jadwal pengembalian bagi hasil.
-            </p>
-          </div>
-          <div class="pt-2 border-t border-slate-100">
-            <a href="/investor" class="btn btn-default btn-mini w-100 font-bold uppercase">
-              <span>Panduan Pendanaan &rarr;</span>
-            </a>
-          </div>
-        </div>
-
-        <!-- Channel 3: Institutional Partnership -->
-        <div class="panel panel-default p-4 space-y-3 flex flex-col justify-between mb-0 shadow-xs">
-          <div class="space-y-2">
-            <div class="w-8 h-8 rounded bg-emerald-100 text-emerald-800 flex items-center justify-center border border-emerald-200">
-              <Building2 class="w-4 h-4" />
-            </div>
-            <h3 class="text-sm font-bold text-slate-900 uppercase">
-              Kemitraan & Kelembagaan
-            </h3>
-            <p class="text-xs text-slate-600 leading-relaxed mb-0">
-              Kerja sama korporasi, perbankan syariah, lembaga wakaf/sosial, institusi pendidikan, dan media partner.
-            </p>
-          </div>
-          <div class="pt-2 border-t border-slate-100">
-            <a href="mailto:salam@namia.id?subject=Kemitraan%20Kelembagaan%20Namia" class="btn btn-default btn-mini w-100 font-bold uppercase">
-              <span>Kirim Proposal &rarr;</span>
-            </a>
-          </div>
-        </div>
-
-        <!-- Channel 4: Customer Care & Whistleblowing -->
-        <div class="panel panel-default p-4 space-y-3 flex flex-col justify-between mb-0 shadow-xs">
-          <div class="space-y-2">
-            <div class="w-8 h-8 rounded bg-emerald-100 text-emerald-800 flex items-center justify-center border border-emerald-200">
-              <HelpCircle class="w-4 h-4" />
-            </div>
-            <h3 class="text-sm font-bold text-slate-900 uppercase">
-              Pengaduan & Kepatuhan
-            </h3>
-            <p class="text-xs text-slate-600 leading-relaxed mb-0">
-              Kanal resmi pengaduan konsumen berkeadilan dan kepatuhan syariah yang diawasi langsung DPS DSN-MUI.
-            </p>
-          </div>
-          <div class="pt-2 border-t border-slate-100">
-            <a href="#form-kontak" class="btn btn-default btn-mini w-100 font-bold uppercase">
-              <span>Tulis Pengaduan &rarr;</span>
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- FAQ SECTION WITH SMART SEARCH & TAB FILTERS -->
-  <section id="faq" class="py-12 bg-slate-50 border-b border-[#E5E5E5]">
-    <div class="container space-y-8">
-      <div class="heading-block text-center max-w-2xl mx-auto">
-        <span class="label label-success text-xs uppercase tracking-wider mb-1">Pertanyaan yang Sering Diajukan</span>
-        <h2 class="text-2xl font-bold text-slate-900 uppercase">Pusat Informasi & FAQ</h2>
-        <p class="text-xs sm:text-sm text-slate-600">
-          Temukan jawaban cepat atas pertanyaan seputar tata kelola, akad muamalah, proses seleksi mitra, dan keamanan dana di Namia Syariah.
-        </p>
-      </div>
-
-      <!-- FAQ Search Bar & Main Segment Tabs -->
-      <div class="panel panel-default p-4 shadow-xs space-y-3 mb-0">
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
-          <!-- Segment Tabs -->
-          <div class="btn-group">
-            <button
-              type="button"
-              onclick={() => {
-                activeFaqTab = "all";
-                activeCategoryFilter = "Semua";
-              }}
-              class="btn btn-small {activeFaqTab === 'all' ? 'btn-primary' : 'btn-default'}"
-            >
-              Semua Pertanyaan
-            </button>
-            <button
-              type="button"
-              onclick={() => {
-                activeFaqTab = "borrower";
-                activeCategoryFilter = "Semua";
-              }}
-              class="btn btn-small {activeFaqTab === 'borrower' ? 'btn-primary' : 'btn-default'}"
-            >
-              Pengguna Dana (Borrower)
-            </button>
-            <button
-              type="button"
-              onclick={() => {
-                activeFaqTab = "investor";
-                activeCategoryFilter = "Semua";
-              }}
-              class="btn btn-small {activeFaqTab === 'investor' ? 'btn-primary' : 'btn-default'}"
-            >
-              Pendana (Investor)
-            </button>
-          </div>
-
-          <!-- Live Search Input -->
-          <div class="relative w-full md:w-72">
-            <Search class="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              bind:value={searchQuery}
-              placeholder="Cari topik atau kata kunci..."
-              class="form-control input-sm pl-8 pr-7 w-100 text-xs"
-            />
-            {#if searchQuery}
-              <button
-                type="button"
-                onclick={() => (searchQuery = "")}
-                class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700"
-                aria-label="Hapus pencarian"
-              >
-                <X class="w-3.5 h-3.5" />
-              </button>
-            {/if}
-          </div>
-        </div>
-
-        <!-- Sub-Category Filter Chips & Controls -->
-        <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-200 text-xs">
-          <div class="flex flex-wrap items-center gap-1">
-            <span class="font-bold text-slate-600 uppercase text-[11px] mr-1">Kategori:</span>
-            {#each availableCategories as c}
-              <button
-                type="button"
-                onclick={() => (activeCategoryFilter = c)}
-                class="btn btn-mini {activeCategoryFilter === c ? 'btn-inverse' : 'btn-default'}"
-              >
-                {c}
-              </button>
-            {/each}
-          </div>
-
-          <div class="flex items-center gap-2 text-[11px] text-slate-500">
-            <span>Menampilkan <strong>{totalVisibleFaqs}</strong> tanya-jawab</span>
-            <span>&bull;</span>
-            <button
-              type="button"
-              onclick={expandAll}
-              class="text-emerald-700 hover:underline font-semibold"
-            >
-              Buka Semua
-            </button>
-            <span>/</span>
-            <button
-              type="button"
-              onclick={collapseAll}
-              class="text-slate-600 hover:underline"
-            >
-              Tutup Semua
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- FAQ Category Groups & Accordion Lists -->
-      <div class="space-y-6">
-        {#if filteredCategories.length === 0}
-          <div class="well text-center p-8 space-y-2 mb-0">
-            <Search class="w-8 h-8 text-slate-400 mx-auto" />
-            <h4 class="text-sm font-bold text-slate-800 uppercase mb-0">
-              Tidak Ditemukan Pertanyaan
-            </h4>
-            <p class="text-xs text-slate-500 max-w-md mx-auto mb-2">
-              Tidak ada hasil yang sesuai dengan kata kunci "{searchQuery}". Silakan coba kata kunci lain atau gunakan formulir di bawah untuk menanyakan langsung.
-            </p>
-            <button
-              type="button"
-              onclick={() => {
-                searchQuery = "";
-                activeCategoryFilter = "Semua";
-              }}
-              class="btn btn-default btn-small"
-            >
-              Reset Filter Pencarian
-            </button>
-          </div>
+    <section id="form-kontak" class="message-section" aria-labelledby="form-title">
+      <div class="form-intro"><p class="portal-kicker">Tulis kepada kami</p><h2 id="form-title">Ceritakan kebutuhan Anda.</h2><p>Untuk konsultasi pendanaan, pembiayaan usaha, kemitraan, atau kendala layanan. Pilih topik agar pesan Anda lebih mudah ditindaklanjuti.</p><div class="office"><MapPin size={20} /><div><strong>{settings.companyName}</strong><p>{settings.address}</p><a href={`https://maps.google.com/maps?q=${encodeURIComponent(settings.address)}`} target="_blank" rel="noopener noreferrer">Lihat lokasi kantor ↗</a></div></div></div>
+      <div class="form-panel portal-panel">
+        {#if submitted}
+          <div class="success-state" role="status"><CheckCircle2 size={36} /><h3>Pesan Anda telah diterima.</h3><p>Terima kasih sudah bercerita. Tim kami dapat menghubungi Anda melalui kontak yang Anda cantumkan.</p><button type="button" class="portal-button-secondary" onclick={resetForm}>Kirim pesan lain</button></div>
         {:else}
-          {#each filteredCategories as cat}
-            <div class="space-y-3">
-              <div class="flex items-center justify-between pb-1 border-b border-slate-300">
-                <div class="flex items-center gap-2">
-                  <span class="badge badge-success text-[10px]">KATEGORI</span>
-                  <h3 class="text-sm font-bold text-slate-900 uppercase mb-0">
-                    {cat.name}
-                  </h3>
-                  <span class="label {cat.isInvestor ? 'label-info' : 'label-default'} text-[10px]">
-                    {cat.isInvestor ? "Investor" : "Borrower"}
-                  </span>
-                </div>
-                <span class="text-xs text-slate-500 font-mono">({cat.faqs.length} pertanyaan)</span>
-              </div>
-
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-3 items-start">
-                {#each cat.faqs as item}
-                  <div class="panel panel-default mb-0 shadow-2xs">
-                    <button
-                      type="button"
-                      onclick={() => toggleFaq(item.id)}
-                      class="w-100 p-3 text-left flex items-start justify-between gap-2 bg-white hover:bg-slate-50 transition-colors"
-                    >
-                      <span class="text-xs font-bold text-slate-800 leading-snug">
-                        {item.question}
-                      </span>
-                      <div class="w-4 h-4 flex items-center justify-center shrink-0 text-slate-400">
-                        {#if openFaqIds.has(item.id)}
-                          <ChevronUp class="w-3.5 h-3.5 text-emerald-600" />
-                        {:else}
-                          <ChevronDown class="w-3.5 h-3.5" />
-                        {/if}
-                      </div>
-                    </button>
-
-                    {#if openFaqIds.has(item.id)}
-                      <div class="p-3 text-xs text-slate-600 leading-relaxed border-t border-slate-200 bg-slate-50">
-                        {@html item.answer}
-                      </div>
-                    {/if}
-                  </div>
-                {/each}
-              </div>
-            </div>
-          {/each}
+          <form onsubmit={handleContactSubmit}>
+            <div class="form-heading"><h3>Formulir pesan</h3><span>Kolom bertanda * wajib diisi</span></div>
+            <div class="field-grid"><label>Nama lengkap *<input name="name" autocomplete="name" required minlength="3" maxlength="128" bind:value={name} placeholder="Nama Anda" /></label><label>Email *<input name="email" type="email" autocomplete="email" required bind:value={email} placeholder="nama@email.com" /></label><label>Nomor telepon / WhatsApp *<input name="phone" type="tel" autocomplete="tel" required minlength="8" maxlength="20" bind:value={phone} placeholder="08xxxxxxxxxx" /></label><label>Topik pesan<select bind:value={category}><option>Pertanyaan Umum</option><option>Pengajuan Pembiayaan (Borrower)</option><option>Konsultasi Pendanaan (Investor)</option><option>Kemitraan Strategis & Korporasi</option><option>Pengaduan & Pelayanan Konsumen</option></select></label></div>
+            <label>Subjek <span class="optional">(opsional)</span><input bind:value={subject} placeholder="Ringkasan kebutuhan Anda" /></label><label>Pesan *<textarea rows="5" required bind:value={message} placeholder="Ceritakan kebutuhan atau kendala Anda. Jangan sertakan PIN, kata sandi, atau kode OTP."></textarea></label>
+            {#if submitError}<div class="submit-error" role="alert">{submitError} <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">Buka WhatsApp ↗</a></div>{/if}
+            <div class="form-footer"><span>Kontak Anda digunakan untuk menindaklanjuti pesan ini.</span><button type="submit" class="portal-button" disabled={submitting}><Send size={16} />{submitting ? "Mengirim pesan…" : "Kirim pesan"}</button></div>
+          </form>
         {/if}
       </div>
-    </div>
-  </section>
-
-  <!-- INTEGRATED CONTACT FORM & OFFICE MAP LOCATION -->
-  <section id="form-kontak" class="py-12 bg-white border-b border-[#E5E5E5]">
-    <div class="container space-y-8">
-      <div class="heading-block text-center max-w-2xl mx-auto">
-        <span class="label label-info text-xs uppercase tracking-wider mb-1">Komunikasi Langsung</span>
-        <h2 class="text-2xl font-bold text-slate-900 uppercase">Kirim Pesan & Kunjungi Kantor Kami</h2>
-        <p class="text-xs sm:text-sm text-slate-600">
-          Silakan isi formulir di bawah ini atau kunjungi kantor operasional kami di jam kerja untuk berdiskusi tatap muka.
-        </p>
-      </div>
-
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        <!-- Left: Direct Inquiry Form -->
-        <div class="lg:col-span-7 panel panel-default p-5 sm:p-6 shadow-sm mb-0">
-          {#if submitted}
-            <div class="text-center py-8 space-y-3">
-              <div class="w-12 h-12 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto border border-emerald-300">
-                <CheckCircle2 class="w-6 h-6" />
-              </div>
-              <h3 class="text-xl font-bold text-slate-900 uppercase mb-0">
-                Pesan Anda Berhasil Terkirim!
-              </h3>
-              <p class="text-xs sm:text-sm text-slate-600 max-w-md mx-auto leading-relaxed">
-                Jazakallahu khairan. Tim Customer Care Namia Syariah telah menerima pesan Anda dan akan menghubungi Anda kembali dalam kurun waktu 1x24 jam kerja.
-              </p>
-              <div class="pt-2">
-                <button
-                  type="button"
-                  onclick={() => {
-                    submitted = false;
-                    name = "";
-                    email = "";
-                    phone = "";
-                    subject = "";
-                    message = "";
-                  }}
-                  class="btn btn-primary btn-small"
-                >
-                  Kirim Pesan Lainnya
-                </button>
-              </div>
-            </div>
-          {:else}
-            <form
-              onsubmit={(e) => {
-                e.preventDefault();
-                handleContactSubmit();
-              }}
-              class="space-y-3"
-            >
-              <div class="pb-2 border-b border-slate-200">
-                <h3 class="text-base font-bold text-slate-900 uppercase mb-0">
-                  Formulir Pesan Nasabah
-                </h3>
-                <span class="text-xs text-slate-500">
-                  Semua informasi Anda dijamin kerahasiaannya sesuai ketentuan perlindungan data pribadi.
-                </span>
-              </div>
-
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div class="form-group mb-0">
-                  <label for="contact-name" class="control-label text-xs font-bold uppercase">
-                    Nama Lengkap *
-                  </label>
-                  <input
-                    id="contact-name"
-                    type="text"
-                    required
-                    bind:value={name}
-                    placeholder="Nama lengkap Anda"
-                    class="form-control input-sm text-xs"
-                  />
-                </div>
-
-                <div class="form-group mb-0">
-                  <label for="contact-email" class="control-label text-xs font-bold uppercase">
-                    Alamat Email *
-                  </label>
-                  <input
-                    id="contact-email"
-                    type="email"
-                    required
-                    bind:value={email}
-                    placeholder="nama@domain.com"
-                    class="form-control input-sm text-xs"
-                  />
-                </div>
-              </div>
-
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div class="form-group mb-0">
-                  <label for="contact-phone" class="control-label text-xs font-bold uppercase">
-                    Nomor WhatsApp / HP
-                  </label>
-                  <input
-                    id="contact-phone"
-                    type="tel"
-                    bind:value={phone}
-                    placeholder="0812xxxxxxx"
-                    class="form-control input-sm text-xs"
-                  />
-                </div>
-
-                <div class="form-group mb-0">
-                  <label for="contact-category" class="control-label text-xs font-bold uppercase">
-                    Kategori Keperluan
-                  </label>
-                  <select
-                    id="contact-category"
-                    bind:value={category}
-                    class="form-control input-sm text-xs"
-                  >
-                    <option value="Pertanyaan Umum">Pertanyaan Umum</option>
-                    <option value="Pengajuan Pembiayaan (Borrower)">Pengajuan Pembiayaan (Borrower)</option>
-                    <option value="Konsultasi Pendanaan (Investor)">Konsultasi Pendanaan (Investor)</option>
-                    <option value="Kemitraan Strategis & Korporasi">Kemitraan Strategis & Korporasi</option>
-                    <option value="Pengaduan & Pelayanan Konsumen">Pengaduan & Pelayanan Konsumen</option>
-                  </select>
-                </div>
-              </div>
-
-              <div class="form-group mb-0">
-                <label for="contact-subject" class="control-label text-xs font-bold uppercase">
-                  Subjek Pertanyaan
-                </label>
-                <input
-                  id="contact-subject"
-                  type="text"
-                  bind:value={subject}
-                  placeholder="Contoh: Konsultasi Pembiayaan Modal Kerja Usaha Roti"
-                  class="form-control input-sm text-xs"
-                />
-              </div>
-
-              <div class="form-group mb-0">
-                <label for="contact-message" class="control-label text-xs font-bold uppercase">
-                  Pesan Lengkap *
-                </label>
-                <textarea
-                  id="contact-message"
-                  rows="4"
-                  required
-                  bind:value={message}
-                  placeholder="Tuliskan secara rinci pertanyaan, kebutuhan pembiayaan, atau masukan Anda..."
-                  class="form-control text-xs"
-                ></textarea>
-              </div>
-
-              <div class="pt-2 flex items-center justify-between">
-                <span class="text-[11px] text-slate-500">* Wajib diisi</span>
-                <button
-                  type="submit"
-                  class="btn btn-primary btn-small font-bold uppercase flex items-center gap-1.5"
-                >
-                  <Send class="w-3.5 h-3.5 inline" />
-                  <span>Kirimkan Pesan</span>
-                </button>
-              </div>
-            </form>
-          {/if}
-        </div>
-
-        <!-- Right: Office Address & Maps Card -->
-        <div class="lg:col-span-5 space-y-4">
-          <div class="panel panel-default overflow-hidden shadow-xs mb-0">
-            <div class="relative h-40 overflow-hidden bg-slate-100 border-b border-slate-200">
-              <img
-                src="/images/about/menara_mth.jpg"
-                alt="Menara MTH Kantor Pusat Namia"
-                class="w-full h-full object-cover"
-              />
-              <div class="absolute inset-0 bg-black/40"></div>
-              <div class="absolute bottom-2 left-3 right-3 text-white">
-                <span class="badge badge-success text-[10px] uppercase">
-                  Kantor Pusat Operasional
-                </span>
-                <h4 class="font-bold text-sm uppercase mt-1 mb-0">
-                  PT Namia Finansial Teknologi
-                </h4>
-              </div>
-            </div>
-
-            <div class="panel-body p-4 space-y-3 text-xs text-slate-600">
-              <div class="flex items-start gap-2.5">
-                <MapPin class="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" />
-                <div>
-                  <strong class="text-slate-900 block">Alamat Kantor:</strong>
-                  <span>Menara MTH Lantai 10, Jl. Letjen M.T. Haryono Kav. 23, Tebet Barat, Jakarta Selatan 12820</span>
-                </div>
-              </div>
-
-              <div class="flex items-start gap-2.5">
-                <Clock class="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" />
-                <div>
-                  <strong class="text-slate-900 block">Jam Layanan:</strong>
-                  <span>Senin &ndash; Jumat: 09.00 &ndash; 17.00 WIB</span>
-                  <span class="text-slate-400 block mt-0.5">Sabtu, Minggu & Hari Libur Nasional: Tutup</span>
-                </div>
-              </div>
-
-              <div class="flex items-start gap-2.5">
-                <Phone class="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" />
-                <div>
-                  <strong class="text-slate-900 block">Telepon & Fax:</strong>
-                  <span class="font-mono">(+62) 21 8378 2337</span>
-                </div>
-              </div>
-
-              <div class="pt-2 border-t border-slate-200 flex gap-2">
-                <a
-                  href="https://maps.google.com/maps?q=Menara%20MTH,%20Jakarta"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="btn btn-default btn-small flex-1 text-center"
-                >
-                  <MapPin class="w-3.5 h-3.5 inline mr-1 text-emerald-700" />
-                  <span>Google Maps ↗</span>
-                </a>
-
-                <a
-                  href="https://wa.me/6282297770619?text=Halo%20Namia,%20saya%20ingin%20konsultasi%20layanan%20fintech%20syariah"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="btn btn-primary btn-small flex-1 text-center"
-                >
-                  <MessageCircle class="w-3.5 h-3.5 inline mr-1" />
-                  <span>WhatsApp ↗</span>
-                </a>
-              </div>
-            </div>
-          </div>
-
-          <!-- OJK & DPS Compliance Trust Banner -->
-          <div class="well well-small space-y-1 text-xs mb-0">
-            <div class="flex items-center gap-1.5 text-slate-900 font-bold uppercase tracking-wider">
-              <ShieldCheck class="w-4 h-4 text-emerald-700" />
-              <span>Transparansi & Perlindungan Konsumen</span>
-            </div>
-            <p class="text-slate-600 leading-relaxed mb-0">
-              Namia Syariah beroperasi dengan izin dan pengawasan berkala dari Otoritas Jasa Keuangan (OJK) serta didampingi oleh Dewan Pengawas Syariah (DPS) bersertifikasi DSN-MUI untuk menjaga hak-hak nasabah secara adil.
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- SOLID RETRO CTA BANNER -->
-  <section class="py-8 text-white text-center" style="background: linear-gradient(180deg, #059669 0%, #047857 100%); border-top: 1px solid #065f46; border-bottom: 1px solid #065f46;">
-    <div class="container flex flex-col sm:flex-row items-center justify-between gap-4">
-      <div class="text-left space-y-1">
-        <h3 class="text-xl font-bold uppercase tracking-wider text-white mb-0">
-          Butuh Konsultasi Lebih Lanjut?
-        </h3>
-        <p class="text-xs text-emerald-100 mb-0">
-          Customer Representative kami siap memandu Anda memilih skema pembiayaan atau instrumen pendanaan yang tepat.
-        </p>
-      </div>
-      <div class="flex items-center gap-2 shrink-0">
-        <a
-          href="https://wa.me/6282297770619"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="btn btn-default btn-large font-bold"
-        >
-          <MessageCircle class="w-4 h-4 inline mr-1 text-emerald-700" />
-          <span>Chat WhatsApp</span>
-        </a>
-        <a
-          href="tel:+622183782337"
-          class="btn btn-primary btn-large font-bold"
-        >
-          <Phone class="w-4 h-4 inline mr-1" />
-          <span>Hubungi Telepon</span>
-        </a>
-      </div>
-    </div>
-  </section>
+    </section>
+  </div>
 </div>
+
+<style>
+  .contacts-page{padding:48px 0 72px}.page-intro{margin-bottom:32px;max-width:800px}.intro-copy{font-size:16px;line-height:1.75;color:#65736e;margin:18px 0 0}.help-layout{display:grid;grid-template-columns:minmax(0,1fr) 290px;gap:28px;align-items:start}.faq-section{min-width:0;scroll-margin-top:110px}.faq-tools{overflow:hidden}.panel-caption{display:flex;justify-content:space-between;align-items:center;gap:15px;padding:15px 20px;background:#e8eee3;border-bottom:1px solid #ccd9c7}.panel-caption h2{font:700 14px/1.5 Tahoma,Arial,sans-serif;margin:0;color:#233b35}.panel-caption>span{font-size:11px;color:#65736e}.search-content{padding:20px;display:flex;flex-wrap:wrap;align-items:center;gap:14px}.search-field{display:flex;align-items:center;gap:10px;padding:0 13px;flex-basis:100%;border:1px solid #bccbb7;border-radius:4px;color:#65736e;background:#fff}.search-field input{border:0;background:transparent;width:100%;min-width:0;padding:13px 0;font:14px Tahoma,Arial,sans-serif;color:#233b35}.search-field:focus-within{outline:2px solid #165b45;outline-offset:2px}.search-field input:focus{outline:none}.audience-filter{display:flex;gap:5px;flex-wrap:wrap}.audience-filter button{border:1px solid transparent;border-radius:4px;padding:9px 11px;background:#f1f5ec;color:#53675c;font-size:12px;cursor:pointer}.audience-filter button.active{border-color:#afc3a6;background:#dfecb9;color:#165b45;font-weight:700}.category-select{display:flex;gap:8px;align-items:center;font-size:12px;color:#65736e;margin-left:auto}.category-select select{max-width:185px;padding:8px 10px;border:1px solid #c4d2bd;background:#fff;border-radius:4px;font-size:12px;color:#233b35}.faq-controls{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:17px 0 12px;font-size:11px;color:#65736e}.faq-controls button{font:inherit;border:0;background:none;color:#165b45;padding:5px 0;cursor:pointer}.faq-list{overflow:hidden}.faq-item+.faq-item{border-top:1px solid #dae3d4}.faq-item h3{margin:0}.faq-item h3 button{display:flex;justify-content:space-between;align-items:center;gap:20px;width:100%;padding:19px 22px;text-align:left;border:0;background:#fff;color:#233b35;font:600 14px/1.6 Tahoma,Arial,sans-serif;cursor:pointer}.faq-item h3 button:hover{background:#f7faf3}.faq-toggle{font-size:22px;font-weight:400;color:#165b45}.faq-answer{padding:0 22px 22px;font-size:14px;line-height:1.85;color:#53675c}.faq-answer :global(p){margin:0 0 10px}.faq-answer :global(a){color:#165b45;text-decoration:underline}.faq-answer :global(ul),.faq-answer :global(ol){padding-left:22px}.contact-sidebar{display:grid;gap:18px}.direct-contact{overflow:hidden}.contact-options{padding:0 18px}.contact-options a{display:flex;gap:12px;align-items:center;padding:19px 0;color:#165b45}.contact-options a+a{border-top:1px solid #dce5d7}.contact-options a>span{flex:1;min-width:0}.contact-options strong{font-size:13px;display:block}.contact-options small{font-size:12px;color:#65736e;display:block;margin-top:4px;overflow-wrap:anywhere}.service-hours{padding:16px 18px;background:#f5f8f0;border-top:1px solid #d5e0cf;font-size:12px}.service-hours strong{color:#233b35}.service-hours p{line-height:1.7;color:#65736e;margin:6px 0 0}.message-shortcut{display:flex;align-items:center;gap:15px;padding:18px;background:#e6edda;border:1px solid #cbd8bd;border-radius:5px;color:#165b45}.message-shortcut>span{flex:1}.message-shortcut strong{display:block;font-size:13px;line-height:1.6}.message-shortcut small{display:block;font-size:12px;color:#65736e;line-height:1.6;margin-top:5px}.message-section{display:grid;grid-template-columns:330px minmax(0,1fr);gap:50px;align-items:start;margin-top:50px;padding-top:36px;border-top:1px solid #cdd9c7;scroll-margin-top:110px}.form-intro h2{font:30px/1.3 Georgia,serif;margin:10px 0 15px;color:#233b35}.form-intro>p:not(.portal-kicker){font-size:14px;line-height:1.85;color:#65736e}.office{display:flex;gap:12px;border-top:1px solid #d5dfcf;margin-top:25px;padding-top:24px;color:#165b45}.office :global(svg){flex-shrink:0;margin-top:2px}.office strong{font-size:12px}.office p{font-size:13px;line-height:1.7;color:#65736e;margin:8px 0 12px}.office a{font-size:12px;color:#165b45;text-decoration:underline;text-underline-offset:3px}.form-panel{padding:26px}.form-heading{display:flex;justify-content:space-between;align-items:center;gap:14px;padding-bottom:20px;margin-bottom:20px;border-bottom:1px solid #d8e2d2}.form-heading h3{font-size:15px;margin:0;color:#233b35}.form-heading>span{font-size:11px;color:#65736e}.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 18px}.form-panel label{display:block;font-size:12px;font-weight:700;color:#233b35;margin-bottom:18px}.form-panel input,.form-panel select,.form-panel textarea{display:block;box-sizing:border-box;width:100%;min-width:0;margin-top:8px;padding:11px 12px;border:1px solid #bbcdb5;border-radius:4px;background:#fff;color:#233b35;font:13px/1.6 Tahoma,Arial,sans-serif;box-shadow:inset 0 1px 2px #233b3508}.form-panel textarea{resize:vertical;min-height:135px}.optional{font-weight:400;color:#65736e}.form-footer{display:flex;align-items:center;justify-content:space-between;gap:20px;padding-top:6px}.form-footer>span{max-width:245px;font-size:11px;line-height:1.7;color:#65736e}.form-footer button{white-space:nowrap}.submit-error{padding:13px 15px;border:1px solid #d6afa1;border-radius:4px;background:#fff6ef;font-size:13px;line-height:1.7;color:#824530;margin-bottom:14px}.submit-error a{text-decoration:underline;color:#824530}.success-state{padding:36px 12px;text-align:center;color:#165b45}.success-state :global(svg){margin:0 auto}.success-state h3{font:27px Georgia,serif;margin:18px 0 12px;color:#233b35}.success-state p{max-width:420px;margin:0 auto 22px;color:#65736e;font-size:14px;line-height:1.8}.empty-state{padding:30px;text-align:center}.empty-state h3{font:24px Georgia,serif}.empty-state p{font-size:13px;line-height:1.8;color:#65736e}
+  @media(max-width:1020px){.help-layout{grid-template-columns:minmax(0,1fr) 255px;gap:20px}.category-select{margin-left:0}.message-section{grid-template-columns:270px minmax(0,1fr);gap:28px}.field-grid{grid-template-columns:1fr}.form-heading{display:block}.form-heading>span{display:block;margin-top:7px}}
+  @media(max-width:700px){.contacts-page{padding:30px 0 48px}.help-layout{grid-template-columns:1fr}.contact-sidebar{grid-template-columns:1fr}.contact-options{display:flex;gap:16px;flex-wrap:wrap}.contact-options a{flex:1 1 150px}.contact-options a+a{border-top:0}.contact-options a>:global(svg:last-child){display:none}.message-section{grid-template-columns:1fr;gap:22px;margin-top:35px;padding-top:28px}.form-intro .office{margin-top:18px;padding-top:18px}.form-panel{padding:20px}.field-grid{grid-template-columns:1fr 1fr;gap:0 14px}.panel-caption>span{display:none}.search-content{padding:16px}.faq-item h3 button{padding:17px}.faq-answer{padding:0 17px 20px}.form-footer{align-items:flex-start}.form-footer>span{max-width:170px}}
+  @media(max-width:440px){.field-grid{grid-template-columns:1fr}.form-footer{flex-direction:column;gap:14px}.form-footer>span{max-width:none}.form-footer button{width:100%}.audience-filter button{padding:9px}.search-content{gap:12px}.category-select{width:100%;justify-content:space-between}.category-select select{max-width:none;flex:1}}
+</style>

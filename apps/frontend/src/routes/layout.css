@@ -1155,3 +1155,46 @@
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* Namia public portal. Kept separate from the authenticated workspaces. */
+:root {
+  --portal-green: #165b45;
+  --portal-ink: #233b35;
+  --portal-muted: #65736e;
+  --portal-canvas: #f3f6f2;
+  --portal-border: #d2dccf;
+  --portal-lime: #dfecb9;
+}
+.public-site { background:var(--portal-canvas); color:var(--portal-ink); font-family:Tahoma,Arial,sans-serif; line-height:1.6; }
+.public-site ::selection { background:#dfecb9; color:#233b35; }
+.public-site :focus-visible { outline:3px solid #517c23; outline-offset:4px; }
+.public-site main { min-width:0; }
+.public-site main:focus { outline:none; }
+.portal-container { width:100%; max-width:1200px; margin-inline:auto; padding-inline:32px; }
+.portal-page { padding:42px 0 64px; background:var(--portal-canvas); }
+.portal-heading { color:var(--portal-ink); font-family:Georgia,"Times New Roman",serif; font-weight:400; font-size:clamp(32px,4vw,48px); line-height:1.18; letter-spacing:-1px; margin:12px 0 18px; }
+.portal-kicker { display:block; color:var(--portal-green); font-size:11px; font-weight:700; letter-spacing:1.3px; text-transform:uppercase; }
+.portal-panel { background:white; border:1px solid var(--portal-border); border-radius:5px; box-shadow:0 2px 0 #e7ece3; }
+.portal-button,.portal-button-secondary { display:inline-flex; align-items:center; justify-content:center; gap:9px; min-height:44px; padding:10px 18px; border:1px solid #104c38; border-radius:4px; background:linear-gradient(#216b51,#165b45); box-shadow:inset 0 1px 0 #ffffff25,0 2px 0 #103d2d15; color:white; font-family:Tahoma,Arial,sans-serif; font-size:13px; line-height:1.5; font-weight:700; text-decoration:none; cursor:pointer; transition:background .15s; }
+.portal-button:hover { background:#104b37; }
+.portal-button-secondary { background:linear-gradient(#ffffff,#f0f4ea); border-color:#bdccba; color:var(--portal-green); }
+.portal-button-secondary:hover { background:#e8f0df; }
+.portal-button:disabled,.portal-button-secondary:disabled { opacity:.6; cursor:not-allowed; }
+.public-site .btn { min-height:38px; white-space:normal; font-family:Tahoma,Arial,sans-serif; border-radius:4px; }
+.public-site .btn-primary,.public-site .btn-success { background:linear-gradient(#216b51,#165b45); border-color:#104c38; color:white; text-shadow:none; }
+.public-site .btn-primary:hover,.public-site .btn-success:hover { background:#104b37!important; }
+.public-site input,.public-site select,.public-site textarea { accent-color:var(--portal-green); }
+.public-site input:not([type=checkbox]):not([type=radio]):not([type=range]),.public-site select { min-height:42px; }
+.public-site .heading-block { text-align:left; }
+.public-site .heading-block h2,.public-site .heading-block h3 { font-family:Georgia,serif; text-transform:none; letter-spacing:-.5px; font-weight:400; color:var(--portal-ink); }
+.skip-link { position:fixed; inset-block-start:8px; inset-inline-start:12px; z-index:100; transform:translateY(-150%); background:white; border:2px solid var(--portal-green); padding:10px 20px; color:var(--portal-green); }
+.skip-link:focus { transform:translateY(0); }
+@media(max-width:700px) {
+  .portal-container { padding-inline:20px; }
+  .portal-page { padding:28px 0 42px; }
+  .public-site input:not([type=checkbox]):not([type=radio]):not([type=range]),.public-site textarea,.public-site select { font-size:16px; }
+}
+@media(prefers-reduced-motion:reduce) {
+  html { scroll-behavior:auto; }
+  .public-site *, .public-site *::before,.public-site *::after { animation:none!important; transition:none!important; scroll-behavior:auto!important; }
+}

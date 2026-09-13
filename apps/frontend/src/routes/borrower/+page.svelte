@@ -1,577 +1,70 @@
 <script lang="ts">
-  import { onMount } from "svelte";
-  import {
-    CheckCircle2,
-    ArrowRight,
-    ShieldCheck,
-    TrendingUp,
-    Zap,
-    Sparkles,
-    Play,
-    X,
-    Calculator,
-    Coins,
-    Award,
-    FileText,
-    ChevronRight,
-    ChevronDown,
-    Info,
-    Lock,
-    Scale,
-    HelpCircle,
-    Layers,
-    Building2,
-    Percent,
-    Clock,
-    ArrowUpRight,
-    Check,
-    Briefcase,
-    BadgeCheck,
-    FileSpreadsheet,
-    UserCheck,
-    FileUp,
-    ClipboardCheck,
-    LayoutGrid,
-    HandCoins,
-  } from "lucide-svelte";
-  import LoanCalculator from "$lib/components/calculators/LoanCalculator.svelte";
-  import { cmsStore, fetchCmsContent } from "$lib/cms";
-
-  onMount(() => {
-    fetchCmsContent();
-  });
-
-  let showCalcModal = $state(false);
-  let selectedProduct = $state<{
-    title: string;
-    contract: string;
-    modalImage: string;
-    desc?: string;
-  } | null>(null);
-  let openFaqIndex = $state<number | null>(0);
-
-  // Dynamic borrower values from database & API
-  let coreValues = $derived($cmsStore.borrowerInfo?.coreValues || []);
-  let features = $derived($cmsStore.borrowerInfo?.features || []);
-  let steps = $derived($cmsStore.borrowerInfo?.steps || []);
+  import { onMount } from 'svelte';
+  import { ArrowRight, Calculator, ChevronRight } from 'lucide-svelte';
+  import { cmsStore, fetchCmsContent, type ProductData } from '$lib/cms';
+  onMount(() => { fetchCmsContent(); });
+  let selectedId = $state<number | null>(null);
+  let readyItems = $state<string[]>([]);
+  let products = $derived(($cmsStore.products || []).filter(p => !p.targetAudience || p.targetAudience === 'borrower' || p.targetAudience === 'both'));
+  let selected = $derived(products.find(p => p.id === selectedId) || products[0]);
   let requirements = $derived($cmsStore.borrowerInfo?.requirements || []);
-
-  let products = $derived(
-    $cmsStore.products?.length
-      ? $cmsStore.products
-          .filter(
-            (p) =>
-              p.targetAudience === "borrower" ||
-              !p.targetAudience ||
-              p.targetAudience === "both",
-          )
-          .map((p) => ({
-            id: String(p.id),
-            title: p.name,
-            contract: p.contractType,
-            tagline: p.description,
-            desc: p.description,
-            image: p.logo || "/images/products/namia_murabahah_goods.jpg",
-            modalImage: p.logo || "/images/products/namia_murabahah_goods.jpg",
-            plafon: `Rp ${(p.minAmount / 1_000_000).toLocaleString("id-ID")} Jt - Rp ${(p.maxAmount / 1_000_000).toLocaleString("id-ID")} Jt`,
-            tenor: `${p.minTenorMonths} - ${p.maxTenorMonths} Bulan`,
-            margin: `Mulai ${p.interestRateAnnual}% p.a.`,
-            color: "from-teal-600 to-emerald-700",
-          }))
-      : [],
-  );
-
-  let faqs = $derived(
-    $cmsStore.faqs?.length
-      ? $cmsStore.faqs
-          .filter((f) => !f.isInvestor)
-          .map((f) => ({ q: f.question || f.q, a: f.answer || f.a }))
-      : [],
-  );
+  let steps = $derived($cmsStore.borrowerInfo?.steps || []);
+  let keys = $derived(requirements.flatMap(g => g.items.map(item => `${g.category}:${item}`)));
+  let readyCount = $derived(readyItems.filter(key => keys.includes(key)).length);
+  const rupiah = (n: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(n);
+  function purpose(p: ProductData) {
+    if (p.categorySlug === 'supply-chain') return 'Menjaga stok & distribusi';
+    if (p.categorySlug === 'invoice-financing') return 'Menunggu pembayaran tagihan';
+    if (p.categorySlug === 'sewa-aset') return 'Menyewa tempat atau kendaraan';
+    if (p.contractType.toLowerCase().includes('musyarakah')) return 'Menambah modal usaha';
+    if (p.contractType.toLowerCase().includes('murabahah')) return 'Membeli barang & alat kerja';
+    return p.name;
+  }
+  function applyUrl(p: ProductData) {
+    return `/onboarding?${new URLSearchParams({ productId: String(p.id), amount: String(p.minAmount), tenor: String(p.minTenorMonths) })}`;
+  }
 </script>
 
 <svelte:head>
-  <title>Penerima Pembiayaan (Borrower) | Namia Syariah</title>
-  <meta
-    name="description"
-    content="Ajukan pembiayaan modal kerja syariah tanpa riba hingga Rp 2 Miliar dengan margin transparan, proses cepat, dan diawasi DSN-MUI di Namia Syariah. Smart Growth, Halal Impact."
-  />
+  <title>Pembiayaan Usaha | Namia Syariah</title>
+  <meta name="description" content="Pilih pembiayaan sesuai kebutuhan usaha, pelajari akad dan persyaratan, lalu mulai pengajuan online di Namia Syariah." />
 </svelte:head>
 
-<div class="borrower-page">
-  <!-- HERO SECTION: FULL-WIDTH TWITTER BOOTSTRAP 2.0 JUMBOTRON MASTHEAD -->
-  <section class="jumbotron-masthead">
-    <div class="container px-4">
-      <div class="max-w-4xl mx-auto space-y-4 text-center">
-        <!-- Trust Badge -->
-        <div class="inline-flex items-center gap-2">
-          <span class="badge badge-success px-3 py-1 font-bold text-xs">
-            <Sparkles class="w-3.5 h-3.5 inline mr-1" />
-            SOLUSI PERMODALAN USAHA PRODUKTIF TANPA RIBA &bull; BERIZIN OJK
-          </span>
-          <span class="badge badge-inverse hidden sm:inline-block text-xs py-1 px-3 font-bold">
-            MURABAHAH & IJARAH
-          </span>
-        </div>
+<div class="portal-page borrower-page"><div class="portal-container">
+  <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/">Beranda</a><ChevronRight size={14} /><span>Pembiayaan</span></nav>
+  <header class="intro">
+    <div><p class="portal-kicker">UNTUK PEMILIK USAHA</p><h1 class="portal-heading">Usaha punya rencana.<br /><em>Mari siapkan modalnya.</em></h1><p class="lead-copy">Beli stok, tambah alat, atau jaga arus kas. Mulai dari kebutuhan usaha Anda, lalu pelajari pembiayaan yang sesuai.</p><div class="actions"><a href="#pilihan" class="portal-button">Pilih kebutuhan usaha <ArrowRight size={17} /></a><a href="/calculators?tab=loan" class="text-link"><Calculator size={17} /> Hitung angsuran</a></div></div>
+    <aside class="account-note"><span class="folder-label">AKUN PEMBIAYAAN</span><h2>Sudah pernah mengajukan?</h2><p>Lanjutkan urusan pembiayaan dan lihat informasi akun Anda.</p><a href="/auth/cms/borrower" class="text-link">Masuk akun penerima <ArrowRight size={16} /></a></aside>
+  </header>
+  <nav class="section-nav" aria-label="Di halaman pembiayaan"><a href="#pilihan">Pilihan pembiayaan</a><a href="#persiapan">Cek persiapan</a><a href="#alur">Alur pengajuan</a></nav>
 
-        <h1>
-          Akselerasi Bisnis dengan <br />
-          <span class="text-emerald-700">Pembiayaan Syariah Terpercaya</span>
-        </h1>
-
-        <p class="lead max-w-2xl mx-auto">
-          Dapatkan akses modal kerja, pengadaan barang, dan sewa jasa produktif hingga
-          <strong class="text-slate-900 font-bold"> Rp 2 Miliar</strong> dengan margin keuntungan tetap transparan, skema cicilan fleksibel, dan diawasi langsung oleh Dewan Pengawas Syariah DSN-MUI.
-        </p>
-
-        <!-- CTA Buttons -->
-        <div class="pt-2 flex flex-wrap items-center justify-center gap-3">
-          <a href="/onboarding" class="btn btn-primary btn-large font-bold">
-            <span>Ajukan Pembiayaan Sekarang</span>
-            <ArrowRight class="w-4 h-4 inline ml-1" />
-          </a>
-          <button
-            type="button"
-            onclick={() => (showCalcModal = true)}
-            class="btn btn-default btn-large font-bold"
-          >
-            <Calculator class="w-4 h-4 inline mr-1 text-slate-700" />
-            <span>Simulasi Angsuran</span>
-          </button>
-        </div>
-
-        <!-- Floating Metrics Ribbon inside Hero -->
-        <div class="pt-4 max-w-3xl mx-auto">
-          <div class="well well-white mb-0 py-3 px-4 shadow-xs border border-slate-300">
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-center divide-x divide-slate-300">
-              <div class="px-2">
-                <div class="text-lg sm:text-xl font-bold text-emerald-700 font-mono">s/d Rp 2 Miliar</div>
-                <div class="text-[11px] text-slate-500 font-semibold uppercase tracking-wider">Plafon Pembiayaan</div>
-              </div>
-              <div class="px-2">
-                <div class="text-lg sm:text-xl font-bold text-slate-800">Mulai 0.8% / bln</div>
-                <div class="text-[11px] text-slate-500 font-semibold uppercase tracking-wider">Margin / Ujrah Flat</div>
-              </div>
-              <div class="px-2">
-                <div class="text-lg sm:text-xl font-bold text-emerald-700 font-mono">1 - 24 Bulan</div>
-                <div class="text-[11px] text-slate-500 font-semibold uppercase tracking-wider">Pilihan Tenor</div>
-              </div>
-              <div class="px-2">
-                <div class="text-lg sm:text-xl font-bold text-slate-800">100% Halal</div>
-                <div class="text-[11px] text-slate-500 font-semibold uppercase tracking-wider">Tanpa Riba</div>
-              </div>
-            </div>
-          </div>
+  <section id="pilihan" class="page-section">
+    <div class="section-heading"><div><p class="portal-kicker">PILIHAN PEMBIAYAAN</p><h2>Modalnya untuk apa?</h2></div><p>Pilih kebutuhan untuk melihat akad, nominal, dan jangka waktu.</p></div>
+    {#if selected}
+      <div class="workspace portal-panel">
+        <div class="purpose-menu" aria-label="Kebutuhan pembiayaan">{#each products as p}<button type="button" class:chosen={selected.id === p.id} aria-pressed={selected.id === p.id} aria-controls="product-details" onclick={() => selectedId = p.id}><span><strong>{purpose(p)}</strong><small>{p.contractType}</small></span><ChevronRight size={16} /></button>{/each}</div>
+        <div id="product-details" class="product-detail" aria-live="polite">
+          <span class="document-label">Akad {selected.contractType}</span><h3>{selected.name}</h3><p>{selected.description}</p>
+          <dl class="terms"><div><dt>Nominal pembiayaan</dt><dd>{rupiah(selected.minAmount)} – {rupiah(selected.maxAmount)}</dd></div><div><dt>Jangka waktu</dt><dd>{selected.minTenorMonths}–{selected.maxTenorMonths} bulan</dd></div><div><dt>Indikasi margin / imbal hasil</dt><dd>{selected.interestRateAnnual}% per tahun</dd></div>{#if selected.adminFee !== undefined}<div><dt>Biaya administrasi</dt><dd>{rupiah(selected.adminFee)}</dd></div>{/if}</dl>
+          <details class="product-more"><summary>Fitur & informasi akad</summary><ul>{#each selected.features || [] as feature}<li>{feature}</li>{/each}</ul>{#if selected.logo}<img src={selected.logo} alt={selected.name} loading="lazy" />{/if}</details>
+          <div class="actions"><a href={applyUrl(selected)} class="portal-button">Ajukan pembiayaan ini <ArrowRight size={17} /></a><a href="#persiapan" class="text-link">Cek syarat dulu</a></div><p class="terms-note">Nominal, tenor, dan biaya akhir mengikuti hasil penilaian serta akad yang Anda setujui.</p>
         </div>
       </div>
-    </div>
+    {:else}<div class="portal-panel empty"><h3>Diskusikan kebutuhan usaha Anda.</h3><p>Informasi produk belum tersedia. Tim Namia dapat membantu mengenali pilihan pembiayaan.</p><a href="/contacts" class="text-link">Hubungi tim Namia <ArrowRight size={16} /></a></div>{/if}
   </section>
 
-  <!-- BREADCRUMB SUB-BAR -->
-  <div class="bg-slate-100 border-b border-slate-200 py-2">
-    <div class="container px-4">
-      <ul class="breadcrumb mb-0">
-        <li><a href="/">Beranda</a> <span class="divider">/</span></li>
-        <li class="active">Penerima Pembiayaan &bull; Fasilitas Modal Usaha Syariah</li>
-      </ul>
-    </div>
-  </div>
-
-  <!-- SECTION 1: KEUNGGULAN UTAMA PEMBIAYAAN NAMIA -->
-  <section id="keunggulan" class="py-12 bg-white border-b border-[#E5E5E5]">
-    <div class="container space-y-8">
-      <div class="heading-block text-center max-w-2xl mx-auto">
-        <span class="label label-info text-xs uppercase tracking-wider mb-1">Mengapa Memilih Kami</span>
-        <h2 class="text-2xl font-bold text-slate-900 uppercase">Keunggulan Pembiayaan di Namia Syariah</h2>
-        <p class="text-xs sm:text-sm text-slate-600">
-          Dirancang khusus untuk mendukung pertumbuhan UMKM nasional dengan proses transparan, adil, dan bernilai ibadah berlandaskan An-Namaa'.
-        </p>
-      </div>
-
-      <!-- 5 Features Grid in Early Bootstrap Panels -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-        {#each features as f}
-          <div class="panel panel-default text-center p-4 space-y-3 flex flex-col justify-between mb-0 shadow-xs">
-            <div class="space-y-2">
-              <span class="badge badge-success text-[10px] uppercase">
-                {f.badge}
-              </span>
-              <div class="h-12 flex items-center justify-center">
-                <img
-                  src={f.icon}
-                  alt={f.title}
-                  class="max-h-10 w-auto object-contain"
-                />
-              </div>
-              <h4 class="text-xs font-bold text-slate-900 uppercase leading-snug">
-                {f.title}
-              </h4>
-            </div>
-            <p class="text-[11px] text-slate-600 leading-relaxed pt-2 border-t border-slate-100 mb-0">
-              {f.desc}
-            </p>
-          </div>
-        {/each}
-      </div>
-
-      <!-- 5 Core Principles Bar in Dark Inset Well -->
-      <div class="well well-dark p-6">
-        <div class="text-center max-w-lg mx-auto mb-4 space-y-1">
-          <h3 class="text-base font-bold text-white uppercase tracking-wider mb-0">
-            5 Prinsip Fundamental Pembiayaan Namia Syariah
-          </h3>
-          <p class="text-xs text-slate-300 mb-0">
-            Komitmen kami dalam mengedepankan amanah dan kemitraan maslahat
-          </p>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-          {#each coreValues as v}
-            <div class="well well-small bg-slate-800 text-center p-3 mb-0 border border-slate-700">
-              <div class="w-7 h-7 rounded-full bg-emerald-900 text-emerald-300 mx-auto flex items-center justify-center mb-1.5">
-                <CheckCircle2 class="w-4 h-4" />
-              </div>
-              <div class="font-bold text-xs text-white uppercase">
-                {v.title}
-              </div>
-              <div class="text-[10.5px] text-slate-300 mt-1 leading-snug">
-                {v.desc}
-              </div>
-            </div>
-          {/each}
-        </div>
-      </div>
-    </div>
+  <section id="persiapan" class="page-section preparation">
+    <div><p class="portal-kicker">SEBELUM MENGAJUKAN</p><h2>Sudah sampai mana persiapan Anda?</h2><p class="muted">Tandai yang sudah siap. Daftar ini membantu menyiapkan pengajuan, bukan menentukan kelayakan.</p>{#if keys.length}<div class="readiness" aria-live="polite"><strong>{readyCount}<span> / {keys.length}</span></strong><span>poin sudah siap</span><progress value={readyCount} max={keys.length} aria-label="Persiapan pengajuan"></progress></div>{/if}<a href="/contacts" class="text-link">Bantuan menyiapkan dokumen <ArrowRight size={16} /></a></div>
+    <div class="requirements portal-panel">{#each requirements as group}<fieldset><legend>{group.category}</legend>{#each group.items as item}<label><input type="checkbox" bind:group={readyItems} value={`${group.category}:${item}`} /><span>{item}</span></label>{/each}</fieldset>{:else}<p>Konfirmasikan persyaratan pengajuan dengan tim Namia.</p>{/each}</div>
   </section>
 
-  <!-- SECTION 2: 4 PRODUK PEMBIAYAAN & AKAD SYARIAH -->
-  <section id="produk" class="py-12 bg-slate-50 border-b border-[#E5E5E5]">
-    <div class="container space-y-8">
-      <div class="heading-block text-center max-w-2xl mx-auto">
-        <span class="label label-success text-xs uppercase tracking-wider mb-1">Solusi Modal Usaha</span>
-        <h2 class="text-2xl font-bold text-slate-900 uppercase">Produk & Skema Akad Pembiayaan</h2>
-        <p class="text-xs sm:text-sm text-slate-600">
-          Pilih skema pembiayaan yang tepat sesuai peruntukan modal usaha Anda dengan akad resmi Dewan Pengawas Syariah.
-        </p>
-      </div>
+  <section id="alur" class="page-section"><div class="section-heading"><div><p class="portal-kicker">SETELAH ANDA MENGAJUKAN</p><h2>Ada langkah yang jelas.</h2></div><p>Kenali prosesnya sebelum memulai.</p></div><ol class="process">{#each steps as step, i}<li><span class="step-number">{String(i + 1).padStart(2, '0')}</span><div><h3>{step.title}</h3><p>{step.desc}</p></div></li>{/each}</ol></section>
+  <div class="next-step portal-panel"><div><h2>Mulai dari rencana usaha Anda.</h2><p>Isi pengajuan untuk memulai penilaian kebutuhan pembiayaan.</p></div><a href={selected ? applyUrl(selected) : '/onboarding'} class="portal-button">Mulai pengajuan <ArrowRight size={17} /></a></div>
+  <div class="support"><span>Masih ada yang ingin dipahami?</span><a href="/contacts?topic=borrower">Pertanyaan & bantuan pembiayaan <ArrowRight size={15} /></a></div>
+</div></div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-        {#each products as p}
-          <div class="panel panel-default shadow-xs flex flex-col justify-between mb-0">
-            <div>
-              <div class="relative h-40 overflow-hidden bg-slate-100 border-b border-slate-200">
-                <img
-                  src={p.image}
-                  alt={p.title}
-                  class="w-full h-full object-cover"
-                />
-                <div class="absolute inset-0 bg-black/40"></div>
-                <span class="absolute top-2 left-2 badge badge-success text-[10px] uppercase">
-                  Akad {p.contract}
-                </span>
-                <div class="absolute bottom-2 left-3 right-3 text-left">
-                  <h3 class="text-base font-bold text-white uppercase leading-tight">
-                    {p.title}
-                  </h3>
-                  <div class="text-[11px] text-emerald-300 font-semibold">
-                    {p.tagline}
-                  </div>
-                </div>
-              </div>
-
-              <div class="panel-body space-y-3">
-                <p class="text-xs text-slate-600 leading-relaxed min-h-[44px] mb-0">
-                  {p.desc}
-                </p>
-
-                <!-- Spec Table Early Bootstrap Style -->
-                <table class="table table-bordered table-striped table-condensed mb-0 text-xs">
-                  <tbody>
-                    <tr>
-                      <td class="text-slate-500 font-semibold w-24">Plafon:</td>
-                      <td class="font-bold text-slate-800">{p.plafon}</td>
-                    </tr>
-                    <tr>
-                      <td class="text-slate-500 font-semibold">Tenor:</td>
-                      <td class="font-bold text-emerald-700">{p.tenor}</td>
-                    </tr>
-                    <tr>
-                      <td class="text-slate-500 font-semibold">Skema:</td>
-                      <td class="font-semibold text-slate-700">{p.margin}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            <div class="panel-footer bg-slate-50 p-3 space-y-2">
-              <button
-                type="button"
-                onclick={() => (selectedProduct = p)}
-                class="btn btn-default btn-small w-100 flex items-center justify-center gap-1"
-              >
-                <FileText class="w-3.5 h-3.5 inline text-emerald-600" />
-                <span>Lihat Skema Akad</span>
-              </button>
-
-              <a
-                href="/onboarding?product={p.contract.toLowerCase()}"
-                class="btn btn-primary btn-small w-100 flex items-center justify-center gap-1"
-              >
-                <span>Ajukan Produk Ini</span>
-                <ArrowRight class="w-3.5 h-3.5 inline" />
-              </a>
-            </div>
-          </div>
-        {/each}
-      </div>
-    </div>
-  </section>
-
-  <!-- SECTION 3: 6 LANGKAH ALUR MENGAJUKAN PEMBIAYAAN -->
-  <section id="alur" class="py-12 bg-slate-900 text-white border-b border-slate-800">
-    <div class="container space-y-8">
-      <div class="heading-block text-center max-w-2xl mx-auto">
-        <span class="badge badge-success text-xs uppercase tracking-wider mb-1">Alur Pengajuan Praktis</span>
-        <h2 class="text-2xl font-bold text-white uppercase">6 Langkah Mengajukan Pembiayaan</h2>
-        <p class="text-xs sm:text-sm text-slate-300">
-          Proses permohonan modal kerja yang ringkas, transparan, dan terstandar dari pendaftaran hingga pencairan.
-        </p>
-      </div>
-
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {#each steps as st}
-          <div class="well well-dark p-5 mb-0 flex flex-col justify-between border border-slate-700">
-            <div class="space-y-3">
-              <div class="flex items-center justify-between">
-                <span class="text-2xl font-extrabold text-emerald-400 font-mono">{st.num}</span>
-                <span class="badge badge-success text-[10px]">TAHAP {st.num}</span>
-              </div>
-              <h4 class="text-sm font-bold text-white uppercase leading-snug">
-                {st.title}
-              </h4>
-            </div>
-            <p class="text-xs text-slate-300 leading-relaxed pt-3 border-t border-slate-700 mt-2 mb-0">
-              {st.desc}
-            </p>
-          </div>
-        {/each}
-      </div>
-
-      <div class="text-center pt-2">
-        <a href="/onboarding" class="btn btn-primary btn-large font-bold">
-          <span>Daftar & Ajukan Sekarang</span>
-          <ArrowRight class="w-4 h-4 inline ml-1" />
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- SECTION 4: KALKULATOR SIMULASI ANGSURAN PEMBIAYAAN -->
-  <section id="kalkulator" class="py-12 bg-white border-b border-[#E5E5E5]">
-    <div class="container max-w-4xl space-y-6">
-      <div class="heading-block text-center max-w-2xl mx-auto">
-        <span class="label label-info text-xs uppercase tracking-wider mb-1">Simulasi Pembiayaan</span>
-        <h2 class="text-2xl font-bold text-slate-900 uppercase">Hitung Estimasi Angsuran Usaha Anda</h2>
-        <p class="text-xs sm:text-sm text-slate-600">
-          Gunakan kalkulator simulasi di bawah untuk mengestimasi besaran angsuran bulanan yang sesuai dengan kapasitas arus kas bisnis Anda.
-        </p>
-      </div>
-
-      <div class="panel panel-default shadow-sm mb-0">
-        <div class="panel-heading bg-slate-50 font-bold text-slate-900 text-xs uppercase">
-          <Calculator class="w-4 h-4 inline mr-1 text-emerald-600" />
-          Simulasi Kalkulator Pembiayaan Syariah
-        </div>
-        <div class="panel-body p-4 sm:p-6 space-y-4">
-          <LoanCalculator />
-
-          <div class="alert alert-info py-2 px-3 text-xs mb-0">
-            <strong>Catatan Transparansi:</strong> Simulasi di atas merupakan perkiraan cicilan flat berdasarkan rata-rata margin historis. Besaran margin riil, ujrah sewa, atau nisbah bagi hasil akan disesuaikan setelah penilaian risiko (credit scoring) terhadap profil usaha Anda.
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- SECTION 5: PERSYARATAN & FAQ PEMBIAYAAN -->
-  <section id="edukasi" class="py-12 bg-slate-50 border-b border-[#E5E5E5]">
-    <div class="container max-w-4xl space-y-8">
-      <!-- Syarat & Dokumen Section -->
-      <div class="space-y-4">
-        <div class="heading-block text-center max-w-2xl mx-auto">
-          <span class="label label-success text-xs uppercase tracking-wider mb-1">Kualifikasi Penerima Pembiayaan</span>
-          <h2 class="text-2xl font-bold text-slate-900 uppercase">Syarat & Dokumen Pengajuan</h2>
-          <p class="text-xs sm:text-sm text-slate-600">
-            Pastikan usaha Anda memenuhi kualifikasi dasar di bawah ini sebelum mengajukan permohonan modal.
-          </p>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {#each requirements as req}
-            <div class="panel panel-default mb-0 shadow-xs">
-              <div class="panel-heading bg-white font-bold text-xs uppercase flex items-center gap-2">
-                <Briefcase class="w-4 h-4 text-emerald-600" />
-                <span>{req.category}</span>
-              </div>
-              <div class="panel-body p-4">
-                <ul class="space-y-2 mb-0">
-                  {#each req.items as item}
-                    <li class="flex items-start gap-2 text-xs text-slate-700">
-                      <Check class="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>{item}</span>
-                    </li>
-                  {/each}
-                </ul>
-              </div>
-            </div>
-          {/each}
-        </div>
-      </div>
-
-      <!-- FAQ Accordion List -->
-      <div class="space-y-4 pt-4">
-        <div class="heading-block text-center max-w-2xl mx-auto">
-          <span class="label label-inverse text-xs uppercase tracking-wider mb-1">Pusat Informasi</span>
-          <h2 class="text-2xl font-bold text-slate-900 uppercase">Pertanyaan Umum Seputar Pembiayaan</h2>
-        </div>
-
-        <div class="space-y-2">
-          {#each faqs as item, idx}
-            <div class="panel panel-default mb-0 shadow-2xs">
-              <button
-                type="button"
-                onclick={() => (openFaqIndex = openFaqIndex === idx ? null : idx)}
-                class="w-100 text-left p-3 flex items-center justify-between font-bold text-xs sm:text-sm text-slate-800 hover:text-emerald-700 bg-white"
-              >
-                <span class="flex items-center gap-2">
-                  <HelpCircle class="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>{item.q}</span>
-                </span>
-                <ChevronDown
-                  class="w-4 h-4 text-slate-400 transition-transform duration-200 shrink-0 {openFaqIndex === idx ? 'rotate-180 text-emerald-600' : ''}"
-                />
-              </button>
-
-              {#if openFaqIndex === idx}
-                <div class="p-3 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-slate-200 bg-slate-50">
-                  {item.a}
-                </div>
-              {/if}
-            </div>
-          {/each}
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- SOLID RETRO CTA BANNER -->
-  <section class="py-8 text-white text-center" style="background: linear-gradient(180deg, #059669 0%, #047857 100%); border-top: 1px solid #065f46; border-bottom: 1px solid #065f46;">
-    <div class="container flex flex-col sm:flex-row items-center justify-between gap-4">
-      <div class="text-left space-y-1">
-        <h3 class="text-xl font-bold uppercase tracking-wider text-white mb-0">
-          Siap Mengembangkan Bisnis Anda?
-        </h3>
-        <p class="text-xs text-emerald-100 mb-0">
-          Ajukan pembiayaan modal kerja syariah sekarang dan dapatkan solusi modal tanpa riba.
-        </p>
-      </div>
-      <div class="flex items-center gap-2 shrink-0">
-        <a href="/onboarding" class="btn btn-default btn-large font-bold">
-          <span>Mulai Pengajuan Modal</span>
-          <ArrowRight class="w-4 h-4 inline ml-1 text-emerald-700" />
-        </a>
-      </div>
-    </div>
-  </section>
-</div>
-
-<!-- CALCULATOR MODAL -->
-{#if showCalcModal}
-  <div class="modal-backdrop fade in" style="position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 1040;"></div>
-  <div class="modal" style="display: block; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1050; max-width: 600px; width: 92%; background: #ffffff; border: 1px solid #999; border-radius: 6px; box-shadow: 0 5px 15px rgba(0,0,0,0.5);">
-    <div class="modal-header d-flex justify-content-between align-items-center py-2 px-3 border-b bg-slate-50">
-      <div>
-        <span class="badge badge-success text-[10px] uppercase">Simulasi Mandiri</span>
-        <h4 class="modal-title font-bold text-slate-900 text-base mb-0">
-          Kalkulator Pembiayaan Namia Syariah
-        </h4>
-      </div>
-      <button
-        type="button"
-        class="close text-slate-400 hover:text-slate-700"
-        onclick={() => (showCalcModal = false)}
-        aria-label="Tutup"
-      >
-        &times;
-      </button>
-    </div>
-
-    <div class="modal-body p-4">
-      <LoanCalculator />
-    </div>
-
-    <div class="modal-footer py-2 px-3 border-t bg-slate-50 flex justify-end gap-2">
-      <button
-        type="button"
-        class="btn btn-default btn-small"
-        onclick={() => (showCalcModal = false)}
-      >
-        Tutup
-      </button>
-      <a href="/onboarding" class="btn btn-primary btn-small">
-        <span>Lanjut Pengajuan</span>
-      </a>
-    </div>
-  </div>
-{/if}
-
-<!-- PRODUCT SCHEME INFOGRAPHIC MODAL -->
-{#if selectedProduct}
-  <div class="modal-backdrop fade in" style="position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 1040;"></div>
-  <div class="modal" style="display: block; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1050; max-width: 600px; width: 92%; background: #ffffff; border: 1px solid #999; border-radius: 6px; box-shadow: 0 5px 15px rgba(0,0,0,0.5);">
-    <div class="modal-header d-flex justify-content-between align-items-center py-2 px-3 border-b bg-slate-50">
-      <div>
-        <span class="badge badge-success text-[10px] uppercase">Skema Akad Syariah</span>
-        <h4 class="modal-title font-bold text-slate-900 text-base mb-0">
-          {selectedProduct.title} (Akad {selectedProduct.contract})
-        </h4>
-      </div>
-      <button
-        type="button"
-        class="close text-slate-400 hover:text-slate-700"
-        onclick={() => (selectedProduct = null)}
-        aria-label="Tutup"
-      >
-        &times;
-      </button>
-    </div>
-
-    <div class="modal-body p-4 text-center">
-      <div class="well well-small p-2 bg-slate-100 border border-slate-300">
-        <img
-          src={selectedProduct.modalImage}
-          alt="{selectedProduct.title} Skema"
-          class="max-w-full max-h-[300px] object-contain mx-auto"
-        />
-      </div>
-      <p class="text-xs text-slate-500 mt-2 mb-0">Diawasi oleh Dewan Pengawas Syariah DSN-MUI</p>
-    </div>
-
-    <div class="modal-footer py-2 px-3 border-t bg-slate-50 flex justify-end gap-2">
-      <button
-        type="button"
-        class="btn btn-default btn-small"
-        onclick={() => (selectedProduct = null)}
-      >
-        Tutup
-      </button>
-      <a
-        href="/onboarding?product={selectedProduct.contract.toLowerCase()}"
-        class="btn btn-primary btn-small"
-      >
-        <span>Ajukan Pembiayaan</span>
-      </a>
-    </div>
-  </div>
-{/if}
+<style>
+  .borrower-page{color:#233b35;padding-bottom:48px}.breadcrumbs{display:flex;align-items:center;gap:9px;padding-top:25px;font-size:13px;color:#65736e}.breadcrumbs a{color:#165b45}.intro{display:grid;grid-template-columns:minmax(0,1fr) 285px;gap:60px;align-items:center;padding:42px 0}.intro h1{font-size:clamp(36px,4.2vw,55px);line-height:1.13;letter-spacing:-1.5px;margin:10px 0 20px}.intro h1 em{color:#165b45;font-style:normal}.lead-copy{max-width:630px;line-height:1.75;color:#65736e;margin-bottom:23px}.actions{display:flex;flex-wrap:wrap;gap:20px;align-items:center}.text-link{display:inline-flex;align-items:center;gap:7px;color:#165b45;font-size:14px;font-weight:700;line-height:1.6}.text-link:hover{text-decoration:underline}.account-note{border:1px solid #c8d5bc;border-top:3px solid #abc493;padding:25px;background:#e9efdf;border-radius:4px}.folder-label{font-size:11px;letter-spacing:1px;color:#65736e}.account-note h2{font:700 17px Tahoma,Arial,sans-serif;margin:18px 0 10px}.account-note p{font-size:14px;color:#65736e;line-height:1.7;margin-bottom:18px}.section-nav{display:flex;border-bottom:1px solid #bdcbbf}.section-nav a{padding:12px 22px;color:#42604f;font-size:14px;font-weight:700;border:1px solid #bdcbbf;border-bottom:0;border-radius:5px 5px 0 0;background:linear-gradient(#fff,#eaf0e7);margin-right:5px}.section-nav a:hover{background:#dfecb9}.page-section{padding:40px 0;scroll-margin-top:110px}.section-heading{display:flex;align-items:end;justify-content:space-between;gap:25px;margin-bottom:24px}h2{font:400 31px/1.25 Georgia,'Times New Roman',serif;letter-spacing:-.6px;margin:8px 0 0}.section-heading>p{max-width:350px;color:#65736e;font-size:14px;line-height:1.7;margin:0}.workspace{display:grid;grid-template-columns:290px minmax(0,1fr);overflow:hidden}.purpose-menu{padding:12px;background:#eef3eb;border-right:1px solid #cbd6cb}.purpose-menu button{width:100%;background:transparent;border:1px solid transparent;border-bottom-color:#d5ded2;border-radius:4px;padding:18px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;text-align:left;color:#233b35;cursor:pointer}.purpose-menu button.chosen{background:#fff;border-color:#aebfad;box-shadow:0 2px 3px #233b3508;color:#165b45}.purpose-menu button:hover{background:#fff}.purpose-menu strong{font-size:15px;line-height:1.5;display:block}.purpose-menu small{font-size:12px;color:#65736e;margin-top:4px;display:block}.purpose-menu :global(svg){flex-shrink:0}.product-detail{background:#fff;padding:28px 32px}.document-label{color:#165b45;background:#eaf0df;border:1px solid #d3debc;padding:4px 8px;font-size:12px;font-weight:700;border-radius:3px;display:inline-block}.product-detail h3{font:400 24px/1.35 Georgia,'Times New Roman',serif;margin:22px 0 12px}.product-detail>p{font-size:15px;color:#65736e;line-height:1.7}.terms{display:grid;grid-template-columns:1fr 1fr;gap:20px 24px;padding:23px 0;margin:20px 0 0;border-top:1px solid #e0e6dc}.terms dt{font-size:12px;color:#65736e;margin-bottom:5px}.terms dd{font-size:15px;font-weight:700;margin:0;line-height:1.5;font-variant-numeric:tabular-nums}.product-more{margin:0 0 24px;border-top:1px solid #e0e6dc;border-bottom:1px solid #e0e6dc}.product-more summary{padding:13px 0;font-size:14px;color:#165b45;font-weight:700;cursor:pointer}.product-more ul{padding-left:18px;margin:0 0 18px}.product-more li{font-size:14px;margin:9px 0;line-height:1.6}.product-more img{width:100%;max-height:270px;object-fit:contain;background:#f3f6f2;margin-bottom:18px;border-radius:4px}.product-detail>.terms-note{font-size:12px;line-height:1.6;margin:16px 0 0}.preparation{display:grid;grid-template-columns:320px minmax(0,1fr);gap:48px;border-top:1px solid #d5ded2;border-bottom:1px solid #d5ded2}.muted{color:#65736e;line-height:1.7;font-size:15px;margin:16px 0}.readiness{padding:13px 0 22px}.readiness strong{display:block;font-size:32px;line-height:1.2;font-variant-numeric:tabular-nums;color:#165b45}.readiness strong span{font-size:20px;color:#65736e;font-weight:400}.readiness>span{display:block;font-size:13px;color:#65736e;margin:6px 0 13px}.readiness progress{display:block;width:100%;height:7px;border:0;border-radius:8px;overflow:hidden;background:#dbe4d5;accent-color:#165b45}.readiness progress::-webkit-progress-bar{background:#dbe4d5}.readiness progress::-webkit-progress-value{background:#165b45}.requirements{padding:24px;background:#fff}.requirements fieldset{border:0;padding:0;margin:0 0 23px;min-width:0}.requirements fieldset:last-child{margin-bottom:0}.requirements legend{padding:0 0 8px;font-size:16px;font-weight:700;width:100%}.requirements label{display:flex;align-items:start;gap:12px;padding:10px 0;border-bottom:1px solid #edf0e9;font-size:14px;color:#52675b;line-height:1.6;cursor:pointer}.requirements label:has(input:checked){color:#165b45}.requirements input{flex-shrink:0;width:17px;height:17px;margin:3px 0 0;accent-color:#165b45}.process{list-style:none;display:grid;grid-template-columns:repeat(3,1fr);gap:28px;margin:0;padding:0}.process li{display:flex;align-items:start;gap:13px;padding-top:17px;border-top:1px solid #ccd8c5}.step-number{font:13px Tahoma,Arial,sans-serif;background:#e8efdc;color:#165b45;min-width:29px;height:29px;display:grid;place-items:center;border-radius:3px}.process h3{font-size:15px;font-weight:700;margin:4px 0 9px}.process p{color:#65736e;line-height:1.7;font-size:13px;margin:0}.next-step{display:flex;align-items:center;justify-content:space-between;gap:25px;padding:28px 32px;background:#eaf0df}.next-step h2{font-size:25px;margin:0 0 7px}.next-step p{font-size:14px;color:#65736e;margin:0}.next-step>a{flex-shrink:0}.support{display:flex;justify-content:center;flex-wrap:wrap;gap:8px 16px;padding:26px 0 0;font-size:13px;color:#65736e}.support a{color:#165b45;display:inline-flex;gap:6px;align-items:center;text-decoration:underline}.empty{background:#fff;padding:28px}.empty p{margin:10px 0 20px}a:focus-visible,button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid #8ca962;outline-offset:4px}
+  @media(max-width:900px){.intro{grid-template-columns:1fr;gap:26px}.account-note{max-width:100%;padding:18px 22px}.account-note h2{margin:8px 0}.account-note p{margin-bottom:8px}.workspace{grid-template-columns:250px minmax(0,1fr)}.product-detail{padding:25px}.preparation{grid-template-columns:240px minmax(0,1fr);gap:25px}.process{grid-template-columns:1fr 1fr}}
+  @media(max-width:640px){.breadcrumbs{padding-top:18px}.intro{padding:30px 0}.intro h1{letter-spacing:-1px}.lead-copy{font-size:15px}.section-nav a{flex:1;padding:12px 8px;font-size:11px;margin-right:3px;text-align:center}.section-heading{display:block}.section-heading>p{margin-top:10px}.page-section{padding:30px 0}h2{font-size:27px}.workspace{grid-template-columns:1fr}.purpose-menu{display:flex;overflow-x:auto;gap:7px;padding:10px;border-right:0;border-bottom:1px solid #cbd6cb}.purpose-menu button{min-width:195px;width:195px;padding:12px;border-color:#d5ded2}.purpose-menu strong{font-size:13px}.purpose-menu small{font-size:11px}.product-detail{padding:22px 18px}.product-detail h3{font-size:23px}.terms{grid-template-columns:1fr;gap:15px}.preparation{grid-template-columns:1fr}.readiness{max-width:300px}.requirements{padding:20px 18px}.process{grid-template-columns:1fr;gap:20px}.next-step{padding:24px 20px;align-items:start;flex-direction:column}.next-step p{line-height:1.6}}
+</style>

@@ -1,23 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { page } from "$app/state";
-  import {
-    Filter,
-    Search,
-    SlidersHorizontal,
-    Scale,
-    ArrowUpDown,
-    CheckCircle2,
-    Sparkles,
-    Building2,
-    ShieldCheck,
-    ChevronRight,
-    LayoutGrid,
-    Table as TableIcon,
-    Clock,
-    Star,
-    Check
-  } from "lucide-svelte";
+  import { Search, LayoutGrid, Table as TableIcon, Scale, ArrowRight } from "lucide-svelte";
   import ProductCard, {
     type Product,
   } from "$lib/components/ProductCard.svelte";
@@ -55,14 +39,18 @@
 
   // Comparison State
   let comparedProducts = $state<Product[]>([]);
+  let compareMessage = $state("");
+  let isLoading = $state(true);
+  let loadingError = $state(false);
 
   function toggleCompare(prod: Product) {
+    compareMessage = "";
     const exists = comparedProducts.some((p) => p.id === prod.id);
     if (exists) {
       comparedProducts = comparedProducts.filter((p) => p.id !== prod.id);
     } else {
       if (comparedProducts.length >= 3) {
-        alert("Maksimal perbandingan 3 produk secara bersamaan.");
+        compareMessage = "Anda sudah memilih 3 produk. Hapus satu untuk membandingkan pilihan lainnya.";
         return;
       }
       comparedProducts = [...comparedProducts, prod];
@@ -80,7 +68,22 @@
   // Master product dataset loaded dynamically from API
   let allProducts = $state<Product[]>([]);
 
+  function applicationUrl(p: any): string {
+    if (p.targetAudience === "investor" || p.categorySlug === "reksa-dana-syariah") return "/auth/cms/lender";
+    if (p.applyUrl && !p.applyUrl.startsWith("/onboarding") && !p.applyUrl.startsWith("/borrower")) return p.applyUrl;
+    return `/onboarding?productId=${p.id}&name=${encodeURIComponent(p.name)}&category=${encodeURIComponent(p.categorySlug || "p2p-lending")}`;
+  }
+
+  function resetFilters() {
+    selectedCategory = "all";
+    selectedContract = "Semua Akad";
+    searchQuery = "";
+    maxAmountFilter = 2000000000;
+  }
+
   async function loadAggregatorData() {
+    isLoading = true;
+    loadingError = false;
     try {
       const headers = { "x-api-key": NAMIA_API_KEY };
       const [catRes, prodRes] = await Promise.all([
@@ -112,18 +115,21 @@
             islamicContract: p.contractType || "Murabahah",
             minAmount: p.minAmount,
             maxAmount: p.maxAmount,
-            interestRateOrMargin: `${p.interestRateAnnual}% p.a (Bagi Hasil/Margin)`,
+            interestRateOrMargin: `${p.interestRateAnnual}% per tahun`,
             tenorMinMonths: p.minTenorMonths,
             tenorMaxMonths: p.maxTenorMonths,
             approvalSpeed: p.minTenorMonths <= 1 ? "Instant Digital" : "1-3 Hari Kerja",
-            rating: p.rating || 4.9,
-            reviewCount: 120 + p.id * 18,
+            rating: p.rating || 0,
+            reviewCount: 0,
             features: p.features || [],
-            ojkRegulated: p.shariaAccredited !== false,
-            dpsSupervised: p.shariaAccredited !== false,
-            applyUrl: p.applyUrl || `/onboarding?productId=${p.id}&name=${encodeURIComponent(p.name)}`,
+            ojkRegulated: p.ojkRegulated === true,
+            dpsSupervised: p.shariaAccredited === true,
+            applyUrl: applicationUrl(p),
+            description: p.description,
+            targetAudience: p.targetAudience || (p.categorySlug === "reksa-dana-syariah" ? "investor" : "borrower"),
             isFeatured: p.isFeatured || false
           }));
+          isLoading = false;
           return;
         }
       }
@@ -140,23 +146,27 @@
         islamicContract: p.contractType || "Murabahah",
         minAmount: p.minAmount,
         maxAmount: p.maxAmount,
-        interestRateOrMargin: `${p.interestRateAnnual}% p.a (Bagi Hasil/Margin)`,
+        interestRateOrMargin: `${p.interestRateAnnual}% per tahun`,
         tenorMinMonths: p.minTenorMonths,
         tenorMaxMonths: p.maxTenorMonths,
         approvalSpeed: "1-3 Hari Kerja",
-        rating: p.rating || 4.9,
-        reviewCount: 150,
+        rating: p.rating || 0,
+        reviewCount: 0,
         features: p.features || [],
-        ojkRegulated: p.shariaAccredited !== false,
-        dpsSupervised: p.shariaAccredited !== false,
-        applyUrl: p.applyUrl || `/onboarding?productId=${p.id}&name=${encodeURIComponent(p.name)}`,
+        ojkRegulated: p.ojkRegulated === true,
+        dpsSupervised: p.shariaAccredited === true,
+        applyUrl: applicationUrl(p),
+            description: p.description,
+            targetAudience: p.targetAudience || (p.categorySlug === "reksa-dana-syariah" ? "investor" : "borrower"),
         isFeatured: false
       }));
     }
+    isLoading = false;
+    loadingError = allProducts.length === 0;
   }
 
   onMount(async () => {
-    fetchCmsContent();
+    await fetchCmsContent();
     await loadAggregatorData();
 
     const cat = page.url.searchParams.get("category");
@@ -168,8 +178,8 @@
       searchQuery = q;
     }
     const maxAmt = page.url.searchParams.get("maxAmount");
-    if (maxAmt) {
-      maxAmountFilter = Math.max(1000000, Number(maxAmt));
+    if (maxAmt && Number.isFinite(Number(maxAmt))) {
+      maxAmountFilter = Math.min(2000000000, Math.max(1000000, Number(maxAmt)));
     }
   });
 
@@ -219,268 +229,46 @@
 </script>
 
 <svelte:head>
-  <title>Katalog Fintech Aggregator Syariah — Namia Syariah</title>
-  <meta
-    name="description"
-    content="Katalog komparasi produk fintech syariah terlengkap: P2P lending, pembiayaan UMKM, sukuk, asuransi takaful, dan paylater halal tanpa riba di Indonesia."
-  />
+  <title>Katalog produk — Namia Syariah</title>
+  <meta name="description" content="Temukan dan bandingkan pilihan pembiayaan serta pendanaan syariah berdasarkan akad, jumlah dana, dan jangka waktu." />
 </svelte:head>
 
-<div class="aggregator-page space-y-0 font-sans">
-  <!-- PAGE HEADER WITH AUTHENTIC EARLY BOOTSTRAP 2.0 SUBHEAD JUMBOTRON -->
-  <section class="jumbotron-subhead">
-    <div class="container px-4">
-      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div class="space-y-1.5">
-          <div class="flex items-center gap-2">
-            <span class="badge badge-success text-[10px] uppercase font-bold">
-              Katalog Finansial Terverifikasi
-            </span>
-            <span class="badge badge-inverse text-[10px] uppercase font-bold">
-              100% Sah DPS DSN-MUI
-            </span>
-          </div>
-          <h1>Fintech Aggregator Syariah</h1>
-          <p>
-            Bandingkan margin, tenor, dan plafon produk mitra syariah secara transparan tanpa riba
-          </p>
-        </div>
-
-        <!-- Early Bootstrap Breadcrumb -->
-        <ul class="breadcrumb mb-0 text-slate-800 self-start md:self-auto">
-          <li><a href="/">Beranda</a> <span class="divider">/</span></li>
-          <li class="active">Aggregator</li>
-        </ul>
-      </div>
+<div class="portal-page catalogue-page">
+  <div class="portal-container">
+    <header class="catalogue-heading">
+      <div><p class="portal-kicker">Katalog produk</p><h1 class="portal-heading">Pilihan yang cocok,<br />keputusan yang tenang.</h1><p>Cari kebutuhan Anda. Bandingkan ketentuannya. Lanjutkan saat sudah yakin.</p></div>
+      <a class="calculator-link" href="/calculators">Hitung kemampuan Anda dulu <ArrowRight size={15} /></a>
+    </header>
+    <div class="catalogue-layout">
+      <aside class="filters portal-panel" aria-label="Filter produk">
+        <div class="filter-heading"><h2>Sesuaikan pilihan</h2><button type="button" onclick={resetFilters}>Reset</button></div>
+        <label for="product-search">Cari produk atau penyedia</label>
+        <div class="search-input"><Search size={16} /><input id="product-search" type="search" bind:value={searchQuery} placeholder="Nama, mitra, kebutuhan..." /></div>
+        <fieldset><legend>Kategori</legend><div class="category-options">{#each categories as category}<button type="button" class:active={selectedCategory === category.slug} aria-pressed={selectedCategory === category.slug} onclick={() => selectedCategory = category.slug}>{category.name}<span>{allProducts.filter(p => category.slug === 'all' || p.categorySlug === category.slug).length}</span></button>{/each}</div></fieldset>
+        <label for="contract-filter">Akad</label><select id="contract-filter" bind:value={selectedContract}>{#each contracts as contract}<option value={contract}>{contract}</option>{/each}</select>
+        <label for="amount-filter">Dana yang disiapkan / dibutuhkan</label><select id="amount-filter" bind:value={maxAmountFilter}><option value={2000000000}>Semua nominal</option><option value={5000000}>Hingga Rp 5 juta</option><option value={25000000}>Hingga Rp 25 juta</option><option value={100000000}>Hingga Rp 100 juta</option><option value={500000000}>Hingga Rp 500 juta</option>{#if ![2000000000,5000000,25000000,100000000,500000000].includes(maxAmountFilter)}<option value={maxAmountFilter}>Hingga {formatRupiah(maxAmountFilter)}</option>{/if}</select>
+        <p class="filter-note">Menampilkan produk dengan dana minimum yang sesuai pilihan Anda.</p>
+      </aside>
+      <section class="catalogue-results" aria-label="Hasil pencarian produk">
+        <div class="results-toolbar"><p aria-live="polite"><strong>{filteredProducts.length}</strong> pilihan tersedia</p><div class="view-controls"><label class="sr-only" for="product-sort">Urutkan produk</label><select id="product-sort" bind:value={sortBy}><option value="rating">Rating tertinggi</option><option value="amount_asc">Dana minimum terendah</option><option value="amount_desc">Dana maksimum tertinggi</option></select><button type="button" class:active={viewMode === 'grid'} aria-label="Tampilan kartu" aria-pressed={viewMode === 'grid'} onclick={() => viewMode = 'grid'}><LayoutGrid size={16} /></button><button type="button" class:active={viewMode === 'table'} aria-label="Tampilan tabel" aria-pressed={viewMode === 'table'} onclick={() => viewMode = 'table'}><TableIcon size={16} /></button></div></div>
+        {#if compareMessage}<p class="compare-notice" role="status">{compareMessage}</p>{/if}
+        {#if isLoading}<div class="empty-state portal-panel" role="status"><h2>Menyiapkan pilihan produk...</h2><p>Katalog Anda akan segera tampil.</p></div>
+        {:else if loadingError}<div class="empty-state portal-panel" role="alert"><h2>Katalog belum dapat dimuat.</h2><p>Coba muat kembali untuk melihat pilihan produk.</p><button class="portal-button" type="button" onclick={loadAggregatorData}>Muat kembali</button></div>
+        {:else if filteredProducts.length === 0}<div class="empty-state portal-panel"><Search size={27} /><h2>Belum ada pilihan yang cocok.</h2><p>Coba kata kunci lebih singkat atau longgarkan filter Anda.</p><button class="portal-button-secondary" type="button" onclick={resetFilters}>Tampilkan semua produk</button></div>
+        {:else if viewMode === 'grid'}<div class="product-grid">{#each filteredProducts as product (product.id)}<ProductCard {product} isCompared={comparedProducts.some(p => p.id === product.id)} onToggleCompare={toggleCompare} />{/each}</div>
+        {:else}<div class="table-scroll portal-panel"><table><thead><tr><th scope="col">Produk</th><th scope="col">Rentang dana</th><th scope="col">Margin / bagi hasil</th><th scope="col">Jangka waktu</th><th scope="col">Pilihan Anda</th></tr></thead><tbody>{#each filteredProducts as product (product.id)}<tr><td><small>{product.institution}</small><strong>{product.name}</strong><span>{product.islamicContract}</span><details><summary>Rincian produk</summary><p>{product.description}</p><ul>{#each product.features as feature}<li>{feature}</li>{/each}</ul></details></td><td>{formatRupiah(product.minAmount)} – {formatRupiah(product.maxAmount)}</td><td>{product.interestRateOrMargin}</td><td>{product.tenorMinMonths}–{product.tenorMaxMonths} bulan</td><td><div class="table-actions"><button type="button" class:active={comparedProducts.some(p => p.id === product.id)} aria-pressed={comparedProducts.some(p => p.id === product.id)} aria-label="Bandingkan {product.name}" onclick={() => toggleCompare(product)}><Scale size={15} /></button><a class="portal-button" href={product.applyUrl}>Lanjutkan</a></div></td></tr>{/each}</tbody></table></div>{/if}
+        <p class="catalogue-footnote">Informasi produk dapat berubah. Periksa rincian biaya dan ketentuan pada penyedia pilihan Anda.</p>
+      </section>
     </div>
-  </section>
-
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-    <!-- Search & Filter Controls Panel in Early Bootstrap Style -->
-    <div class="panel shadow-xs !mb-0">
-      <div class="panel-heading flex items-center justify-between !py-2.5 !px-4">
-        <div class="flex items-center gap-2">
-          <Filter class="w-4 h-4 text-emerald-700" />
-          <span class="text-xs font-bold text-slate-800 uppercase">Filter & Pencarian Pintar</span>
-        </div>
-        <span class="badge badge-inverse">{filteredProducts.length} Produk Ditemukan</span>
-      </div>
-
-      <div class="panel-body !p-4 bg-slate-50/50 space-y-4">
-        <!-- Search Input & Quick Controls -->
-        <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
-          <div class="md:col-span-6 relative">
-            <input
-              type="text"
-              bind:value={searchQuery}
-              placeholder="Cari nama produk, mitra penyedia, atau kriteria..."
-              class="w-full text-xs py-2 pl-8 pr-3 bg-white border border-slate-300 rounded-[4px] text-slate-800 placeholder-slate-400 focus:outline-none focus:border-emerald-600 shadow-2xs"
-            />
-            <Search class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
-          </div>
-
-          <!-- Akad Filter Dropdown -->
-          <div class="md:col-span-3">
-            <select
-              bind:value={selectedContract}
-              class="w-full text-xs p-2 bg-white border border-slate-300 rounded-[4px] text-slate-800 focus:outline-none focus:border-emerald-600 shadow-2xs"
-            >
-              {#each contracts as c}
-                <option value={c}>{c}</option>
-              {/each}
-            </select>
-          </div>
-
-          <!-- Sort Order Dropdown -->
-          <div class="md:col-span-3">
-            <select
-              bind:value={sortBy}
-              class="w-full text-xs p-2 bg-white border border-slate-300 rounded-[4px] text-slate-800 focus:outline-none focus:border-emerald-600 shadow-2xs"
-            >
-              <option value="rating">Urutkan: Rating Tertinggi</option>
-              <option value="amount_asc">Plafon: Terendah ke Tertinggi</option>
-              <option value="amount_desc">Plafon: Tertinggi ke Terendah</option>
-            </select>
-          </div>
-        </div>
-
-        <!-- Category Pills (Early Bootstrap .nav-pills Style) -->
-        <div class="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-slate-200">
-          <div class="nav-pills flex flex-wrap !bg-transparent !p-0 !border-0 gap-1.5">
-            {#each categories as cat}
-              <button
-                type="button"
-                onclick={() => (selectedCategory = cat.slug)}
-                class="btn btn-mini {selectedCategory === cat.slug ? 'btn-success' : 'btn-default'}"
-              >
-                {cat.name}
-              </button>
-            {/each}
-          </div>
-
-          <!-- View Mode Toggle (Grid vs Table) in Early Bootstrap .btn-group -->
-          <div class="btn-group shrink-0">
-            <button
-              type="button"
-              onclick={() => (viewMode = "grid")}
-              class="btn btn-mini {viewMode === 'grid' ? 'btn-inverse' : 'btn-default'} flex items-center gap-1"
-              title="Tampilan Grid Kartu"
-            >
-              <LayoutGrid class="w-3 h-3" />
-              <span>Grid</span>
-            </button>
-            <button
-              type="button"
-              onclick={() => (viewMode = "table")}
-              class="btn btn-mini {viewMode === 'table' ? 'btn-inverse' : 'btn-default'} flex items-center gap-1"
-              title="Tampilan Tabel Komparasi"
-            >
-              <TableIcon class="w-3 h-3" />
-              <span>Tabel</span>
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Active Filter Badges Bar -->
-    <div class="flex flex-wrap items-center justify-between text-xs text-slate-600 bg-white p-3 rounded-[4px] border border-slate-300 shadow-2xs">
-      <div class="flex flex-wrap items-center gap-2">
-        <span class="font-bold text-slate-700">Filter Aktif:</span>
-        <span class="badge badge-success">
-          Kategori: {categories.find((c) => c.slug === selectedCategory)?.name || "Semua"}
-        </span>
-        {#if selectedContract !== "Semua Akad"}
-          <span class="badge badge-info">Akad: {selectedContract}</span>
-        {/if}
-        {#if searchQuery.trim()}
-          <span class="badge badge-warning">Kata kunci: "{searchQuery}"</span>
-        {/if}
-      </div>
-
-      <div class="flex items-center gap-2">
-        <button
-          type="button"
-          onclick={() => {
-            selectedCategory = "all";
-            selectedContract = "Semua Akad";
-            searchQuery = "";
-            maxAmountFilter = 2000000000;
-          }}
-          class="text-xs text-slate-500 hover:text-emerald-800 underline cursor-pointer"
-        >
-          Reset Filter
-        </button>
-      </div>
-    </div>
-
-    <!-- PRODUCT DISPLAY AREA -->
-    {#if filteredProducts.length === 0}
-      <div class="well well-large text-center py-12 space-y-3 bg-white">
-        <SlidersHorizontal class="w-10 h-10 text-slate-400 mx-auto" />
-        <h3 class="text-base font-bold text-slate-800">Tidak ada produk yang cocok dengan filter</h3>
-        <p class="text-xs text-slate-500 max-w-md mx-auto">
-          Coba atur ulang kata kunci pencarian atau pilih kategori lain untuk melihat pilihan produk finansial syariah lainnya.
-        </p>
-        <button
-          type="button"
-          onclick={() => {
-            selectedCategory = "all";
-            selectedContract = "Semua Akad";
-            searchQuery = "";
-          }}
-          class="btn btn-success btn-small font-bold mt-2"
-        >
-          Tampilkan Semua Produk
-        </button>
-      </div>
-    {:else if viewMode === "grid"}
-      <!-- GRID VIEW -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {#each filteredProducts as product (product.id)}
-          <ProductCard
-            {product}
-            isCompared={comparedProducts.some((p) => p.id === product.id)}
-            onToggleCompare={toggleCompare}
-          />
-        {/each}
-      </div>
-    {:else}
-      <!-- EARLY BOOTSTRAP TABLE VIEW (.table-striped .table-bordered) -->
-      <div class="panel shadow-xs !mb-0 overflow-hidden">
-        <div class="overflow-x-auto">
-          <table class="table table-bordered table-striped table-hover !mb-0 text-xs">
-            <thead>
-              <tr>
-                <th class="w-1/4">Nama Produk & Institusi</th>
-                <th>Akad Syariah</th>
-                <th>Plafon Pembiayaan</th>
-                <th>Margin / Bagi Hasil</th>
-                <th>Tenor</th>
-                <th>Rating</th>
-                <th class="text-center w-36">Aksi</th>
-              </tr>
-            </thead>
-            <tbody>
-              {#each filteredProducts as p (p.id)}
-                <tr>
-                  <td>
-                    <div class="font-bold text-slate-900 text-sm">{p.name}</div>
-                    <div class="text-[11px] text-slate-500 uppercase">{p.institution}</div>
-                    {#if p.ojkRegulated}
-                      <span class="label label-inverse text-[9px] mt-1 inline-block">OJK Regulated</span>
-                    {/if}
-                  </td>
-                  <td>
-                    <span class="label label-success">Akad {p.islamicContract}</span>
-                  </td>
-                  <td class="font-mono font-bold text-slate-900">
-                    {formatRupiah(p.minAmount)} - {formatRupiah(p.maxAmount)}
-                  </td>
-                  <td class="font-mono font-bold text-emerald-800">
-                    {p.interestRateOrMargin}
-                  </td>
-                  <td class="font-semibold text-slate-800">
-                    {p.tenorMinMonths} - {p.tenorMaxMonths} Bln
-                  </td>
-                  <td>
-                    <div class="flex items-center gap-1 font-bold text-slate-900">
-                      <Star class="w-3.5 h-3.5 text-amber-500 fill-amber-400" />
-                      <span>{p.rating}</span>
-                      <span class="text-[10px] text-slate-500">({p.reviewCount})</span>
-                    </div>
-                  </td>
-                  <td class="text-center">
-                    <div class="flex items-center justify-center gap-1.5">
-                      <button
-                        type="button"
-                        onclick={() => toggleCompare(p)}
-                        class="btn btn-mini {comparedProducts.some((c) => c.id === p.id) ? 'btn-success' : 'btn-default'}"
-                        title="Bandingkan"
-                      >
-                        <Scale class="w-3 h-3" />
-                      </button>
-                      <a
-                        href="/onboarding?productId={p.id}&name={encodeURIComponent(p.name)}"
-                        class="btn btn-mini btn-success font-bold"
-                      >
-                        Ajukan
-                      </a>
-                    </div>
-                  </td>
-                </tr>
-              {/each}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    {/if}
   </div>
 </div>
+<CompareDrawer {comparedProducts} onRemoveProduct={removeCompared} onClearAll={clearAllCompared} />
 
-<!-- Floating Compare Drawer Component -->
-<CompareDrawer
-  {comparedProducts}
-  onRemoveProduct={removeCompared}
-  onClearAll={clearAllCompared}
-/>
+<style>
+  .catalogue-page{padding-bottom:120px}.catalogue-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:25px;padding:40px 0 32px}.catalogue-heading>div>p:last-child{font-size:14px;color:#65736e;max-width:500px;line-height:1.7;margin-top:14px}.calculator-link{display:flex;align-items:center;gap:7px;color:#165b45;text-decoration:underline;text-underline-offset:4px;font-size:12px;margin-bottom:6px}
+  .catalogue-layout{display:grid;grid-template-columns:245px minmax(0,1fr);gap:26px;align-items:start}.filters{padding:20px;background:white}.filter-heading{display:flex;justify-content:space-between;align-items:center;margin-bottom:21px}.filter-heading h2{font:700 14px Tahoma,Arial,sans-serif;margin:0}.filter-heading button{border:0;background:none;font-size:11px;text-decoration:underline;color:#65736e;cursor:pointer}.filters>label,.filters legend{display:block;font-size:11px;font-weight:700;color:#233b35;margin-bottom:8px}.search-input{position:relative;margin-bottom:24px}.search-input :global(svg){position:absolute;left:10px;top:11px;color:#65736e}.search-input input{padding-left:32px!important}.filters input,.filters select{width:100%;padding:10px;border:1px solid #bfcebd;border-radius:4px;background:#fff;font-size:12px;color:#233b35;min-width:0}.filters>select{margin-bottom:22px}.filters fieldset{padding:0;border:0;margin:0 0 23px}.category-options{display:grid;gap:3px}.category-options button{display:flex;justify-content:space-between;text-align:left;gap:5px;padding:9px 10px;border:1px solid transparent;border-radius:4px;background:transparent;color:#65736e;font-size:12px;cursor:pointer}.category-options button.active{background:#eaf1dc;border-color:#d4e0bf;color:#165b45;font-weight:700}.category-options span{font-size:11px}.filter-note{font-size:11px;line-height:1.7;color:#65736e;margin-top:-11px}
+  .results-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:17px;min-height:35px}.results-toolbar p{font-size:12px;color:#65736e;margin:0}.results-toolbar strong{color:#233b35}.view-controls{display:flex;align-items:center;gap:5px}.view-controls select{border:0;background:transparent;font-size:11px;color:#65736e;max-width:190px}.view-controls button,.table-actions button{padding:8px;border:1px solid #cdd8ce;border-radius:4px;background:linear-gradient(#fff,#f0f3ed);color:#65736e;cursor:pointer}.view-controls button.active,.table-actions button.active{background:#dfecb9;border-color:#a1bb73;color:#165b45}.product-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:19px}.empty-state{padding:55px 25px;background:white;text-align:center}.empty-state :global(svg){color:#65736e;margin:0 auto 17px}.empty-state h2{font:24px Georgia,serif}.empty-state p{font-size:13px;color:#65736e;line-height:1.7;margin:12px 0 22px}.catalogue-footnote{font-size:11px;color:#65736e;line-height:1.7;margin-top:20px}.compare-notice{padding:12px;background:#dfecb9;border:1px solid #b8ca98;border-radius:4px;font-size:12px;margin-bottom:15px}
+  .table-scroll{overflow-x:auto;background:white}table{border-collapse:collapse;width:100%;font-size:12px}th,td{text-align:left;padding:16px;border-bottom:1px solid #e1e7de;vertical-align:top;min-width:130px}th{background:#edf2e7;font-size:11px;font-weight:700}td:first-child{min-width:220px}td small,td strong,td>span{display:block}td small{color:#65736e;font-size:10px;margin-bottom:5px}td strong{font-size:14px;margin-bottom:6px}td>span{font-size:11px;color:#165b45}.table-actions{display:flex;align-items:center;gap:6px}.table-actions a{font-size:12px;padding:8px}details{font-size:11px;line-height:1.65;margin-top:10px}summary{color:#165b45;text-decoration:underline;cursor:pointer}details ul{padding-left:14px}.table-actions .portal-button{white-space:nowrap}button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid #a1bb73;outline-offset:3px}
+  @media(min-width:1400px){.catalogue-layout{grid-template-columns:245px minmax(0,1fr)}}@media(max-width:900px){.catalogue-layout{grid-template-columns:210px minmax(0,1fr);gap:18px}.filters{padding:15px}.product-grid{grid-template-columns:1fr}.catalogue-heading{align-items:flex-start;flex-direction:column;gap:12px}}
+  @media(max-width:650px){.catalogue-heading{padding-top:26px}.catalogue-layout{grid-template-columns:1fr}.filters{padding:17px}.filters fieldset{margin-bottom:17px}.category-options{display:flex;flex-wrap:wrap;gap:5px}.category-options button{border-color:#d6dfcf;padding:7px;font-size:11px}.category-options span{display:none}.search-input{margin-bottom:17px}.filters>select{margin-bottom:17px}.results-toolbar{flex-wrap:wrap}.product-grid{grid-template-columns:1fr}.view-controls select{max-width:170px}}
+</style>

@@ -122,3 +122,22 @@ bun run build
 
 4. **Kepatuhan Syariah & Regulasi**:
    - Seluruh konten dan alur merujuk pada regulasi OJK dan Fatwa DSN-MUI (No. 117/DSN-MUI/II/2018).
+
+## Pembagian halaman publik
+
+Desain publik menggunakan panel dan tab bergaya portal awal 2000-an, dengan Svelte 5, navigasi responsif, fokus keyboard, dan dukungan reduced motion. Warna serta komponen dasar publik berada di `apps/frontend/src/routes/layout.css` pada bagian `Namia public portal`.
+
+| Halaman | Fungsi utama |
+| --- | --- |
+| `/` | Memilih jalur pembiayaan atau pendanaan |
+| `/borrower` | Memilih kebutuhan usaha dan menyiapkan pengajuan |
+| `/investor` | Memahami pilihan, akad, dan risiko pendanaan |
+| `/aggregator` | Mencari, memfilter, melihat detail, dan membandingkan produk |
+| `/calculators` | Simulasi pembiayaan, pendanaan, dan kemampuan bayar |
+| `/onboarding` | Formulir pengajuan pembiayaan |
+| `/about` | Profil dan tata kelola perusahaan |
+| `/team` | Pengawas, manajemen, dan biografi tim |
+| `/blog` | Artikel, berita, dan liputan media |
+| `/contacts` | Bantuan, pertanyaan umum, dan formulir kontak |
+
+Salam audio tersedia melalui tombol beranda tanpa pemutaran otomatis. Halaman akun pendana, akun pembiayaan, dan CMS tetap memakai portal terpisah.

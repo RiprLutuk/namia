@@ -1,209 +1,50 @@
 <script lang="ts">
-  import { Scale, X, ArrowRight, Check } from "lucide-svelte";
+  import { Scale, X } from "lucide-svelte";
   import type { Product } from "./ProductCard.svelte";
 
-  let {
-    comparedProducts = [],
-    onRemoveProduct,
-    onClearAll,
-  }: {
+  let { comparedProducts = [], onRemoveProduct, onClearAll }: {
     comparedProducts: Product[];
     onRemoveProduct: (id: string) => void;
     onClearAll: () => void;
   } = $props();
-
-  let isModalOpen = $state(false);
-
-  function formatRupiah(num: number): string {
-    return new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: "IDR",
-      maximumFractionDigits: 0,
-    }).format(num);
-  }
+  let comparisonDialog: HTMLDialogElement;
+  const money = (value: number) => new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(value);
 </script>
 
 {#if comparedProducts.length > 0}
-  <!-- Floating Bottom Dock in Early Bootstrap 2 Style -->
-  <div class="fixed bottom-6 inset-x-0 z-40 px-4 sm:px-6 pointer-events-none font-sans">
-    <div class="max-w-4xl mx-auto bg-gradient-to-b from-[#243342] to-[#18222c] text-white border border-[#0f172a] shadow-2xl rounded-[5px] p-3 sm:p-4 flex flex-col sm:flex-row items-center justify-between gap-3 pointer-events-auto">
-      <div class="flex items-center gap-3 overflow-x-auto w-full sm:w-auto">
-        <div class="flex items-center gap-1.5 text-xs font-bold text-emerald-400 uppercase tracking-wider shrink-0">
-          <Scale class="w-4 h-4" />
-          <span>Komparasi ({comparedProducts.length}/3):</span>
-        </div>
-
-        <div class="flex items-center gap-2">
-          {#each comparedProducts as p}
-            <div class="flex items-center gap-1.5 bg-[#0f172a] border border-slate-700 rounded-[3px] px-2.5 py-1 text-xs text-slate-200 shrink-0">
-              <span class="max-w-[130px] truncate font-semibold">{p.name}</span>
-              <button
-                type="button"
-                onclick={() => onRemoveProduct(p.id)}
-                class="text-slate-400 hover:text-white cursor-pointer ml-1"
-                title="Hapus"
-              >
-                <X class="w-3.5 h-3.5" />
-              </button>
-            </div>
-          {/each}
-        </div>
-      </div>
-
-      <div class="flex items-center gap-2.5 shrink-0 w-full sm:w-auto justify-end">
-        <button
-          type="button"
-          onclick={onClearAll}
-          class="btn btn-mini btn-inverse text-xs"
-        >
-          Reset
-        </button>
-
-        <button
-          type="button"
-          disabled={comparedProducts.length < 2}
-          onclick={() => (isModalOpen = true)}
-          class="btn btn-small btn-success flex items-center gap-1.5 text-xs font-bold"
-        >
-          <span>Bandingkan Sekarang</span>
-          <ArrowRight class="w-3.5 h-3.5" />
-        </button>
-      </div>
+  <aside class="compare-dock" aria-label="Produk untuk dibandingkan">
+    <div class="dock-title"><Scale size={17} /><strong>Bandingkan {comparedProducts.length}/3</strong></div>
+    <div class="selected-products">
+      {#each comparedProducts as product}
+        <span class="selected-product">{product.name}<button type="button" onclick={() => onRemoveProduct(product.id)} aria-label="Hapus {product.name} dari perbandingan"><X size={14} /></button></span>
+      {/each}
     </div>
-  </div>
+    <div class="dock-actions"><button class="clear" type="button" onclick={onClearAll}>Kosongkan</button><button class="portal-button" type="button" disabled={comparedProducts.length < 2} onclick={() => comparisonDialog.showModal()}>Lihat perbandingan</button></div>
+  </aside>
 {/if}
 
-<!-- Side-by-Side Comparison Modal in Early Bootstrap 2 Style -->
-{#if isModalOpen}
-  <div class="fixed inset-0 z-50 overflow-y-auto bg-black/60 flex items-center justify-center p-4 font-sans backdrop-blur-xs">
-    <div class="panel max-w-5xl w-full max-h-[90vh] overflow-y-auto shadow-2xl !mb-0 border-slate-400">
-      <!-- Modal Header (Early Bootstrap Style) -->
-      <div class="panel-heading panel-emerald flex items-center justify-between !py-3 !px-5 sticky top-0 z-10">
-        <div class="flex items-center gap-2">
-          <Scale class="w-4 h-4 text-white" />
-          <h2 class="text-sm font-bold text-white uppercase tracking-wider">
-            Matriks Perbandingan Produk Syariah
-          </h2>
-        </div>
-        <button
-          type="button"
-          onclick={() => (isModalOpen = false)}
-          class="text-white hover:text-emerald-200 cursor-pointer font-bold text-lg"
-          aria-label="Tutup"
-        >
-          &times;
-        </button>
-      </div>
-
-      <!-- Comparison Table -->
-      <div class="p-5 bg-white">
-        <div class="overflow-x-auto">
-          <table class="table table-bordered table-striped !mb-0 text-xs">
-            <thead>
-              <tr>
-                <th class="w-1/4">Kriteria Evaluasi</th>
-                {#each comparedProducts as p}
-                  <th class="w-1/3">
-                    <span class="text-[10px] text-slate-500 font-semibold block uppercase tracking-wider">{p.institution}</span>
-                    <span class="text-sm font-bold text-slate-900">{p.name}</span>
-                  </th>
-                {/each}
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td class="font-bold text-slate-700">Akad Syariah</td>
-                {#each comparedProducts as p}
-                  <td>
-                    <span class="label label-success">Akad {p.islamicContract}</span>
-                  </td>
-                {/each}
-              </tr>
-              <tr>
-                <td class="font-bold text-slate-700">Plafon Pembiayaan</td>
-                {#each comparedProducts as p}
-                  <td class="font-mono font-bold text-slate-900">
-                    {formatRupiah(p.minAmount)} s/d {formatRupiah(p.maxAmount)}
-                  </td>
-                {/each}
-              </tr>
-              <tr>
-                <td class="font-bold text-slate-700">Margin / Bagi Hasil</td>
-                {#each comparedProducts as p}
-                  <td class="font-mono font-bold text-emerald-700">
-                    {p.interestRateOrMargin}
-                  </td>
-                {/each}
-              </tr>
-              <tr>
-                <td class="font-bold text-slate-700">Jangka Waktu Tenor</td>
-                {#each comparedProducts as p}
-                  <td class="font-semibold text-slate-800">
-                    {p.tenorMinMonths} - {p.tenorMaxMonths} Bulan
-                  </td>
-                {/each}
-              </tr>
-              <tr>
-                <td class="font-bold text-slate-700">Kecepatan Verifikasi</td>
-                {#each comparedProducts as p}
-                  <td class="text-slate-800 font-medium">
-                    {p.approvalSpeed}
-                  </td>
-                {/each}
-              </tr>
-              <tr>
-                <td class="font-bold text-slate-700">Regulasi & Legalitas</td>
-                {#each comparedProducts as p}
-                  <td>
-                    <span class="label label-inverse">
-                      {p.ojkRegulated ? "Berizin OJK" : "Koperasi Kemenkop"} & DPS
-                    </span>
-                  </td>
-                {/each}
-              </tr>
-              <tr>
-                <td class="font-bold text-slate-700">Fitur & Manfaat</td>
-                {#each comparedProducts as p}
-                  <td>
-                    <ul class="space-y-1">
-                      {#each p.features as f}
-                        <li class="flex items-start gap-1">
-                          <Check class="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
-                          <span>{f}</span>
-                        </li>
-                      {/each}
-                    </ul>
-                  </td>
-                {/each}
-              </tr>
-              <tr>
-                <td class="font-bold text-slate-700">Aksi Pengajuan</td>
-                {#each comparedProducts as p}
-                  <td>
-                    <a
-                      href="/onboarding?productId={p.id}&name={encodeURIComponent(p.name)}"
-                      class="btn btn-small btn-success w-full font-bold uppercase"
-                    >
-                      Ajukan Sekarang
-                    </a>
-                  </td>
-                {/each}
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Modal Footer -->
-      <div class="panel-footer flex items-center justify-end gap-2 bg-slate-50">
-        <button
-          type="button"
-          onclick={() => (isModalOpen = false)}
-          class="btn btn-small"
-        >
-          Tutup
-        </button>
-      </div>
-    </div>
+<dialog bind:this={comparisonDialog} class="comparison-dialog">
+  <header><div><p>Keputusan yang lebih jelas</p><h2>Bandingkan pilihan Anda</h2></div><button type="button" onclick={() => comparisonDialog.close()} aria-label="Tutup perbandingan"><X size={21} /></button></header>
+  <div class="comparison-scroll">
+    <table>
+      <thead><tr><th scope="col">Yang perlu Anda tahu</th>{#each comparedProducts as product}<th scope="col"><span>{product.institution}</span>{product.name}</th>{/each}</tr></thead>
+      <tbody>
+        <tr><th scope="row">Akad</th>{#each comparedProducts as product}<td>{product.islamicContract}</td>{/each}</tr>
+        <tr><th scope="row">Rentang dana</th>{#each comparedProducts as product}<td><strong>{money(product.minAmount)} – {money(product.maxAmount)}</strong></td>{/each}</tr>
+        <tr><th scope="row">Margin / bagi hasil</th>{#each comparedProducts as product}<td>{product.interestRateOrMargin}</td>{/each}</tr>
+        <tr><th scope="row">Jangka waktu</th>{#each comparedProducts as product}<td>{product.tenorMinMonths}–{product.tenorMaxMonths} bulan</td>{/each}</tr>
+        <tr><th scope="row">Fitur produk</th>{#each comparedProducts as product}<td><ul>{#each product.features as feature}<li>{feature}</li>{/each}</ul></td>{/each}</tr>
+        <tr><th scope="row">Langkah berikutnya</th>{#each comparedProducts as product}<td><a class="portal-button" href={product.applyUrl}>{product.targetAudience === "investor" ? "Mulai mendanai" : "Lanjutkan pengajuan"}</a></td>{/each}</tr>
+      </tbody>
+    </table>
   </div>
-{/if}
+  <footer>Ketentuan akhir mengikuti produk dan penyedia yang Anda pilih.</footer>
+</dialog>
+
+<style>
+  .compare-dock{position:fixed;z-index:45;bottom:20px;left:50%;transform:translateX(-50%);width:calc(100% - 32px);max-width:1100px;border:1px solid #aebfac;border-radius:6px;box-shadow:0 5px 25px #233b3529;display:flex;align-items:center;gap:15px;padding:15px 18px;background:#fff;color:#233b35}
+  .dock-title{display:flex;align-items:center;gap:8px;white-space:nowrap;font-size:12px;color:#165b45}.selected-products{display:flex;flex:1;gap:7px;overflow:auto;min-width:0}.selected-product{display:flex;align-items:center;gap:6px;border:1px solid #d6dfcf;background:#f3f6ee;border-radius:3px;padding:6px 8px;font-size:11px;white-space:nowrap}.selected-product button,header button{border:0;background:transparent;color:#65736e;cursor:pointer;padding:3px}.dock-actions{display:flex;align-items:center;gap:12px;flex-shrink:0}.dock-actions .portal-button{font-size:12px}.clear{background:transparent;border:0;text-decoration:underline;font-size:11px;color:#65736e;cursor:pointer}.portal-button:disabled{opacity:.5;cursor:not-allowed}
+  .comparison-dialog{width:min(1080px,calc(100% - 32px));max-height:85vh;margin:auto;padding:0;border:1px solid #aebfac;border-radius:7px;box-shadow:0 12px 70px #102f3544;color:#233b35;background:#fff}.comparison-dialog::backdrop{background:#18352a88}.comparison-dialog header{display:flex;justify-content:space-between;align-items:center;padding:24px;border-bottom:1px solid #d9e1d5;background:#f3f6ee}.comparison-dialog header p{margin:0 0 5px;font-size:11px;color:#65736e}.comparison-dialog h2{font:25px Georgia,serif;margin:0}.comparison-scroll{overflow:auto}table{border-collapse:collapse;width:100%;font-size:13px;text-align:left}th,td{padding:17px 20px;border-right:1px solid #e1e7de;border-bottom:1px solid #e1e7de;min-width:210px;vertical-align:top}thead th{background:#fafbf8;font-size:16px}thead span{display:block;font-size:11px;color:#65736e;font-weight:400;margin-bottom:6px}tbody th{font-size:12px;font-weight:400;background:#fafbf8;min-width:160px}td strong{color:#165b45}td ul{margin:0;padding-left:15px;line-height:1.7}td .portal-button{font-size:12px}footer{font-size:12px;color:#65736e;padding:20px}button:focus-visible,a:focus-visible{outline:3px solid #a1bb73;outline-offset:3px}
+  @media(max-width:850px){.compare-dock{flex-wrap:wrap;gap:10px;padding:12px}.selected-products{flex-basis:60%}.dock-actions{margin-left:auto}.comparison-dialog header{padding:18px}.comparison-dialog h2{font-size:21px}}
+  @media print{.compare-dock{display:none}}
+</style>

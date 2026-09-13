@@ -60,29 +60,6 @@
   }
 
   onMount(() => {
-    // Clear old blocking session flag so user can see the modal
-    sessionStorage.removeItem("namia_salam_shown");
-
-    // Show modal on homepage mount
-    showModal = true;
-
-    // Small delay to ensure audio element is ready and bound
-    const startTimer = setTimeout(() => {
-      playAudio();
-    }, 400);
-
-    // Fallback interaction listener: if browser blocked initial autoplay,
-    // start playing on the very first click/tap anywhere on the screen
-    const handleGesture = () => {
-      if (showModal && (!isPlaying || autoplayBlocked)) {
-        playAudio();
-      }
-      window.removeEventListener("pointerdown", handleGesture);
-      window.removeEventListener("keydown", handleGesture);
-    };
-    window.addEventListener("pointerdown", handleGesture, { once: true });
-    window.addEventListener("keydown", handleGesture, { once: true });
-
     // Global event listener to allow re-opening from anywhere
     const handleCustomOpen = () => {
       showModal = true;
@@ -91,10 +68,7 @@
     window.addEventListener("open-salam-modal", handleCustomOpen);
 
     return () => {
-      clearTimeout(startTimer);
       if (autoCloseTimer) clearTimeout(autoCloseTimer);
-      window.removeEventListener("pointerdown", handleGesture);
-      window.removeEventListener("keydown", handleGesture);
       window.removeEventListener("open-salam-modal", handleCustomOpen);
       stopAudio();
     };
@@ -104,7 +78,7 @@
 <audio
   bind:this={audioEl}
   src="/res/sound/salam.mp3"
-  preload="auto"
+  preload="none"
   onended={handleAudioEnded}
   onplay={() => (isPlaying = true)}
   onpause={() => (isPlaying = false)}

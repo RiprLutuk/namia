@@ -1,169 +1,25 @@
 <script lang="ts">
-  import {
-    Calculator,
-    TrendingUp,
-    Award,
-    HelpCircle,
-    CheckCircle2,
-    BookOpen,
-    ShieldCheck,
-    Activity,
-    ArrowRight
-  } from "lucide-svelte";
+  import { page } from "$app/state";
   import LoanCalculator from "$lib/components/calculators/LoanCalculator.svelte";
   import InvestmentCalculator from "$lib/components/calculators/InvestmentCalculator.svelte";
   import CreditScoreEstimator from "$lib/components/calculators/CreditScoreEstimator.svelte";
-
-  let activeTab = $state<"loan" | "invest" | "score">("loan");
+  let activeTab = $derived(page.url.searchParams.get("tab") === "invest" ? "invest" : page.url.searchParams.get("tab") === "score" ? "score" : "loan");
+  const tabs = [{id:"loan",label:"Cicilan pembiayaan"},{id:"invest",label:"Bagi hasil pendanaan"},{id:"score",label:"Kemampuan finansial"}];
 </script>
-
-<svelte:head>
-  <title>Kalkulator Finansial Syariah — Namia Syariah</title>
-  <meta
-    name="description"
-    content="Simulasi cicilan pembiayaan Murabahah, proyeksi bagi hasil Mudharabah, dan estimasi skor kelayakan kredit syariah online di Namia Syariah."
-  />
-</svelte:head>
-
-<div class="calculators-page space-y-0 font-sans">
-  <!-- PAGE HEADER WITH AUTHENTIC EARLY BOOTSTRAP 2.0 SUBHEAD JUMBOTRON -->
-  <section class="jumbotron-subhead">
-    <div class="container px-4">
-      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div class="space-y-1.5">
-          <div class="flex items-center gap-2">
-            <span class="badge badge-success text-[10px] uppercase font-bold">
-              Simulasi Mandiri Cerdas
-            </span>
-            <span class="badge badge-inverse text-[10px] uppercase font-bold">
-              Fatwa DSN-MUI
-            </span>
-          </div>
-          <h1>Kalkulator Finansial Syariah</h1>
-          <p>
-            Simulasi pembiayaan, imbal hasil investasi, dan uji kelayakan tanpa bunga riba
-          </p>
-        </div>
-
-        <!-- Early Bootstrap Breadcrumb -->
-        <ul class="breadcrumb mb-0 text-slate-800 self-start md:self-auto">
-          <li><a href="/">Beranda</a> <span class="divider">/</span></li>
-          <li class="active">Kalkulator</li>
-        </ul>
-      </div>
-    </div>
+<svelte:head><title>Kalkulator — Namia Syariah</title><meta name="description" content="Hitung cicilan, proyeksi bagi hasil, dan kemampuan keuangan sebelum menentukan langkah berikutnya." /></svelte:head>
+<div class="portal-page calculators-page"><div class="portal-container">
+  <header><p class="portal-kicker">Ruang simulasi</p><h1 class="portal-heading">Hitung dulu. Lebih nyaman melangkah.</h1><p>Ubah angkanya, lihat hasilnya, dan tentukan pilihan yang sesuai kemampuan Anda.</p></header>
+  <nav class="calculator-tabs" aria-label="Jenis kalkulator">{#each tabs as tab}<a class:active={activeTab === tab.id} aria-current={activeTab === tab.id ? 'page' : undefined} href="/calculators?tab={tab.id}">{tab.label}</a>{/each}</nav>
+  <section class="calculator-workspace" aria-label={tabs.find(tab => tab.id === activeTab)?.label}>
+    <div hidden={activeTab !== 'loan'}><LoanCalculator /></div>
+    <div hidden={activeTab !== 'invest'}><InvestmentCalculator /></div>
+    <div hidden={activeTab !== 'score'}><CreditScoreEstimator /></div>
   </section>
-
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
-    <!-- Authentic Early Bootstrap 2 .nav-tabs Style Selector -->
-    <div class="overflow-x-auto no-scrollbar pb-1 mb-6 flex justify-start sm:justify-center">
-      <div class="nav-tabs !mb-0 flex-nowrap shrink-0 border-b border-slate-300">
-        <button
-          type="button"
-          onclick={() => (activeTab = "loan")}
-          class="nav-link {activeTab === 'loan' ? 'active' : ''} text-xs sm:text-sm !py-2.5 !px-3 sm:!px-5"
-        >
-          <Calculator class="w-4 h-4 {activeTab === 'loan' ? 'text-emerald-700' : 'text-slate-400'}" />
-          <span><span class="hidden sm:inline">Simulasi </span>Pembiayaan (Murabahah)</span>
-        </button>
-
-        <button
-          type="button"
-          onclick={() => (activeTab = "invest")}
-          class="nav-link {activeTab === 'invest' ? 'active' : ''} text-xs sm:text-sm !py-2.5 !px-3 sm:!px-5"
-        >
-          <TrendingUp class="w-4 h-4 {activeTab === 'invest' ? 'text-emerald-700' : 'text-slate-400'}" />
-          <span><span class="hidden sm:inline">Proyeksi </span>Investasi (Mudharabah)</span>
-        </button>
-
-        <button
-          type="button"
-          onclick={() => (activeTab = "score")}
-          class="nav-link {activeTab === 'score' ? 'active' : ''} text-xs sm:text-sm !py-2.5 !px-3 sm:!px-5"
-        >
-          <Activity class="w-4 h-4 {activeTab === 'score' ? 'text-emerald-700' : 'text-slate-400'}" />
-          <span><span class="hidden sm:inline">Uji </span>Kelayakan (DSR)</span>
-        </button>
-      </div>
-    </div>
-
-    <!-- Active Calculator Component Pane -->
-    <div>
-      {#if activeTab === "loan"}
-        <LoanCalculator />
-      {:else if activeTab === "invest"}
-        <InvestmentCalculator />
-      {:else}
-        <CreditScoreEstimator />
-      {/if}
-    </div>
-
-    <!-- Educational Comparison Table: Konvensional vs Syariah -->
-    <div class="panel shadow-xs !mb-0">
-      <div class="panel-heading panel-emerald flex items-center justify-between !py-2.5 !px-4">
-        <span class="text-xs font-bold uppercase tracking-wider text-white">
-          Komparasi Fiqih: Sistem Pinjaman Konvensional vs Pembiayaan Syariah
-        </span>
-        <span class="label label-inverse text-[10px]">Edukasi Muamalah</span>
-      </div>
-
-      <div class="p-0 overflow-x-auto">
-        <table class="table table-bordered table-striped !mb-0 text-xs">
-          <thead>
-            <tr>
-              <th class="w-1/4">Aspek Perbandingan</th>
-              <th class="w-3/8 text-rose-800 bg-rose-50/50">Pinjaman Konvensional</th>
-              <th class="w-3/8 text-emerald-800 bg-emerald-50/50">Pembiayaan Namia Syariah</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="font-bold text-slate-700">Skema Keuntungan</td>
-              <td class="text-slate-600">Bunga majemuk berbunga (compounding), floating fluktuatif</td>
-              <td class="text-emerald-900 font-semibold">Margin jual beli (Murabahah) flat mengikat sejak awal ijab qabul</td>
-            </tr>
-            <tr>
-              <td class="font-bold text-slate-700">Denda Keterlambatan</td>
-              <td class="text-slate-600">Masuk sebagai laba lembaga pemberi pinjaman (riba jahiliyah)</td>
-              <td class="text-emerald-900 font-semibold">Kompensasi (Ta'zir) 100% disalurkan ke dana sosial fakir miskin (Qardhul Hasan)</td>
-            </tr>
-            <tr>
-              <td class="font-bold text-slate-700">Objek Transaksi (Underlying)</td>
-              <td class="text-slate-600">Murni pinjaman uang tunai membiakkan uang (riba nasiah)</td>
-              <td class="text-emerald-900 font-semibold">Wajib ada underlying asset riil halal yang jelas (barang dagang, mesin, invoice)</td>
-            </tr>
-            <tr>
-              <td class="font-bold text-slate-700">Pengawasan</td>
-              <td class="text-slate-600">Hanya pengawasan OJK aspek legalitas</td>
-              <td class="text-emerald-900 font-semibold">Diawasi OJK dan Dewan Pengawas Syariah (DPS) sertifikasi DSN-MUI</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- Fatwa DSN-MUI Reference in Early Bootstrap Well -->
-    <div class="well well-dark flex flex-col md:flex-row items-start md:items-center justify-between gap-6 !p-6">
-      <div class="space-y-1.5 max-w-2xl">
-        <div class="flex items-center gap-2 text-emerald-400 text-xs font-bold uppercase">
-          <ShieldCheck class="w-4 h-4" />
-          <span>Rujukan Fatwa Resmi DSN-MUI</span>
-        </div>
-        <h4 class="text-base font-bold text-white uppercase">
-          Fatwa DSN-MUI No. 117/DSN-MUI/II/2018
-        </h4>
-        <p class="text-xs text-slate-300 leading-relaxed">
-          Mengatur tentang Layanan Pembiayaan Berbasis Teknologi Informasi Berdasarkan Prinsip Syariah, memastikan seluruh mekanisme akad fintech berada dalam koridor hukum muamalah yang sah.
-        </p>
-      </div>
-
-      <a
-        href="/about#dps"
-        class="btn btn-success btn-small shrink-0 font-bold uppercase flex items-center gap-1.5"
-      >
-        <span>Lihat Dewan Pengawas</span>
-        <ArrowRight class="w-3.5 h-3.5" />
-      </a>
-    </div>
-  </div>
-</div>
+  <div class="simulation-help"><p>Hasil ini adalah simulasi dari angka yang Anda masukkan. Ketentuan akhir mengikuti penilaian dan kesepakatan dengan penyedia.</p><a href="/aggregator">Lihat pilihan produk →</a></div>
+</div></div>
+<style>
+  .calculators-page{padding-bottom:65px}header{padding:40px 0 28px}header>p:last-child{font-size:14px;line-height:1.8;color:#65736e;margin-top:14px;max-width:640px}.calculator-tabs{display:flex;gap:5px;border-bottom:1px solid #bfcebd;padding-bottom:0}.calculator-tabs a{border:1px solid #cdd8ce;border-bottom:0;border-radius:5px 5px 0 0;padding:14px 22px;background:linear-gradient(#f7f9f3,#e8eee1);color:#65736e;font-size:13px;text-decoration:none;white-space:nowrap}.calculator-tabs a.active{background:#fff;color:#165b45;font-weight:700;box-shadow:0 2px white;position:relative}.calculator-workspace{padding:27px;background:white;border:1px solid #cdd8ce;border-top:0;border-radius:0 0 6px 6px;box-shadow:0 2px 0 #e4eae1}.simulation-help{display:flex;justify-content:space-between;align-items:flex-start;gap:25px;padding-top:20px;font-size:12px;color:#65736e;line-height:1.8}.simulation-help p{max-width:690px;margin:0}.simulation-help a{color:#165b45;white-space:nowrap;text-decoration:underline;text-underline-offset:3px}
+  .calculator-workspace :global(.calculator-grid){display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:35px;color:#233b35}.calculator-workspace :global(.calculator-inputs){display:grid;gap:24px}.calculator-workspace :global(.calculator-inputs h2){font:23px Georgia,serif;margin:0 0 2px}.calculator-workspace :global(.control-header){display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}.calculator-workspace :global(label),.calculator-workspace :global(legend){font-size:12px;font-weight:700}.calculator-workspace :global(.control-header output){font-size:14px;font-weight:700;color:#165b45}.calculator-workspace :global(input[type=range]){width:100%;height:6px;accent-color:#165b45;cursor:pointer}.calculator-workspace :global(.range-labels){display:flex;justify-content:space-between;margin-top:7px;color:#65736e;font-size:10px}.calculator-workspace :global(.option-group){display:flex;gap:6px;flex-wrap:wrap}.calculator-workspace :global(.option-group button){flex:1;border:1px solid #c5d1bf;border-radius:4px;padding:9px;background:linear-gradient(#fff,#edf1e8);font-size:12px;color:#65736e;cursor:pointer}.calculator-workspace :global(.option-group button.selected){background:#dfecb9;border-color:#a1b988;color:#165b45;font-weight:700}.calculator-workspace :global(select){width:100%;padding:11px;border:1px solid #bfcebd;border-radius:4px;margin-top:8px;background:#fff;font-size:12px;color:#233b35}.calculator-workspace :global(.calculator-result){background:#eef3e4;border:1px solid #d0ddbf;border-radius:5px;display:flex;flex-direction:column;padding:26px;min-width:0}.calculator-workspace :global(.result-label){font-size:12px;color:#65736e;margin:0 0 12px}.calculator-workspace :global(.result-number){font-size:clamp(25px,3vw,39px);font-weight:600;letter-spacing:-1.3px;color:#165b45;line-height:1.2;overflow-wrap:anywhere}.calculator-workspace :global(.result-unit){font-size:12px;color:#65736e;margin:7px 0 25px}.calculator-workspace :global(.result-lines){margin:0;border-top:1px solid #d0ddbf}.calculator-workspace :global(.result-lines div){display:flex;justify-content:space-between;gap:14px;padding:13px 0;border-bottom:1px solid #d0ddbf;font-size:12px}.calculator-workspace :global(.result-lines dt){color:#65736e}.calculator-workspace :global(.result-lines dd){text-align:right;font-weight:700;margin:0}.calculator-workspace :global(.result-note){font-size:11px;color:#65736e;line-height:1.8;margin:20px 0}.calculator-workspace :global(.result-actions){display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:auto;padding-top:17px}.calculator-workspace :global(.result-actions a),.calculator-workspace :global(.result-actions button){font-size:12px}.calculator-workspace :global(.result-actions a){flex:1;text-align:center}.calculator-workspace :global(.small-grid){display:grid;grid-template-columns:1fr 1fr;gap:14px}.calculator-workspace :global(fieldset){padding:0;margin:0;border:0}.calculator-workspace :global(fieldset legend){margin-bottom:12px}.calculator-workspace :global(.score-meter){height:7px;border-radius:3px;background:#d8e1cc;margin:5px 0 22px;overflow:hidden}.calculator-workspace :global(.score-meter span){display:block;height:100%;background:#165b45}.calculator-workspace :global(:focus-visible){outline:3px solid #a1bb73;outline-offset:3px}
+  @media(max-width:800px){.calculator-workspace :global(.calculator-grid){grid-template-columns:1fr;gap:27px}.calculator-tabs a{padding:12px;font-size:11px}.calculator-workspace{padding:22px}.simulation-help{flex-direction:column;gap:8px}}@media(max-width:480px){header{padding-top:26px}.calculator-tabs{gap:3px}.calculator-tabs a{white-space:normal;text-align:center;flex:1;padding:11px 7px;font-size:11px;line-height:1.5}.calculator-workspace{padding:18px}.calculator-workspace :global(.calculator-result){padding:21px}.calculator-workspace :global(.small-grid){grid-template-columns:1fr}.calculator-workspace :global(.control-header){gap:8px}.calculator-workspace :global(label){font-size:11px}.calculator-workspace :global(.control-header output){font-size:12px}}
+  @media print{.calculator-tabs,.simulation-help,.calculator-workspace :global(.result-actions){display:none}.calculator-workspace{border:0;padding:0}.calculator-workspace :global(.calculator-grid){grid-template-columns:1fr 1fr}}
+</style>

@@ -1,143 +1,58 @@
-# Namia Syariah — Smart Growth, Halal Impact (Modern Sharia Fintech Crowdfunding & Aggregator)
+# Namia Syariah
 
-Platform crowdfunding syariah dan fintech aggregator berkinerja tinggi yang menghubungkan pelaku usaha UMKM dengan komunitas pendana dan produk-produk keuangan halal di Indonesia tanpa riba, gharar, dan maisir.
+Monorepo Bun dengan backend Elysia, PostgreSQL, serta frontend SvelteKit/Svelte 5. Fitur aktif: katalog produk, kalkulator, CMS admin, akun borrower/lender, pengajuan pembiayaan, pemeriksaan KYC manual, dan formulir kontak. Pembayaran, top-up, saldo pendanaan, dan statistik transaksi belum terintegrasi; UI tidak membuat saldo atau status transaksi simulasi.
 
-Proyek ini telah direfaktor secara penuh dari arsitektur monolitik PHP lawas menjadi **Modern High-Performance Monorepo** berbasis **Bun Workspaces**, **ElysiaJS**, dan **SvelteKit 2 (Svelte 5 Runes)** sesuai spesifikasi `structure_and_prd.md`.
+## Menjalankan lokal
 
----
+Prasyarat: Bun 1.3+, Node 22+, PostgreSQL. Salin `.env.example` ke `.env` hanya bila belum ada; sesuaikan DATABASE_URL dengan database lokal khusus aplikasi. Backend tidak lagi fallback ke JSON jika database gagal.
 
-## 🚀 Tech Stack
-
-| Komponen | Teknologi | Keterangan |
-| --- | --- | --- |
-| **Monorepo Engine** | Bun Workspaces v1.3+ | Kecepatan instalasi & eksekusi instan |
-| **Backend Framework** | ElysiaJS v1.2+ | Framework TypeScript tercepat (<15ms p95 latency) |
-| **Data & ORM** | PostgreSQL + Drizzle ORM | Schema-first, type-safe query & migrasi |
-| **Frontend Framework** | SvelteKit 2 + Svelte 5 Runes | `$state`, `$derived`, performa hidrasi tinggi |
-| **Styling & UI** | Tailwind CSS v4 + Lucide Icons | Palet warna emerald syariah & tema responsif |
-| **Type-Safe RPC Client** | Eden Treaty (`@elysiajs/eden`) | Sinkronisasi tipe end-to-end tanpa codegen |
-| **API Documentation** | Elysia Swagger / OpenAPI 3.0 | Dokumentasi interaktif di `/swagger` |
-
----
-
-## 📁 Struktur Monorepo
-
-```text
-.
-├── apps/
-│   ├── backend/                     # ElysiaJS Backend API Service
-│   │   ├── src/
-│   │   │   ├── controllers/         # Aggregator, Calculator, Lead, Content
-│   │   │   ├── db/                  # Drizzle ORM schemas, DB client, Mock data & Seed
-│   │   │   ├── schemas/             # TypeBox & Drizzle data models
-│   │   │   └── index.ts             # Elysia app entry point (port 3000)
-│   │   ├── test/                    # Bun Test integration suite (14 passing tests)
-│   │   └── drizzle.config.ts        # Drizzle ORM configuration
-│   │
-│   └── frontend/                    # SvelteKit 2 Frontend Application
-│       ├── src/
-│       │   ├── lib/
-│       │   │   ├── components/      # Navbar, Footer, ProductCard, CompareDrawer
-│       │   │   │   └── calculators/ # LoanCalculator, InvestmentCalculator, CreditScore
-│       │   │   └── api.ts           # Eden Treaty Client
-│       │   └── routes/              # SvelteKit Pages & Routes
-│       │       ├── +page.svelte     # Landing page interaktif & showcase
-│       │       ├── aggregator/      # Multi-kategori catalog & filter
-│       │       ├── calculators/     # Kalkulator finansial lengkap
-│       │       ├── onboarding/      # Wizard pengajuan pembiayaan & E-KYC
-│       │       ├── about/           # Profil perusahaan, Direksi & DPS DSN-MUI
-│       │       ├── borrower/        # Panduan peminjam/penerima dana UMKM
-│       │       ├── investor/        # Panduan pendana/investor sukuk
-│       │       ├── blog/            # Pusat edukasi & literasi muamalah
-│       │       ├── contacts/        # Kontak kantor Menara MTH & formulir
-│       │       ├── auth/            # Portal terisolasi Borrower & Lender (anti-crawler)
-│       │       └── backoffice/      # Portal Admin & Master CMS Console (anti-crawler)
-│       └── static/                  # Static assets & gambar produk
-├── structure_and_prd.md             # Dokumen spesifikasi arsitektur & PRD
-└── package.json                     # Root orchestrator
-```
-
----
-
-## ⚡ Cara Menjalankan Aplikasi
-
-### 1. Menjalankan Server Development (Backend & Frontend Sekaligus)
-
-Dari root direktori proyek, jalankan:
-
-```bash
+```sh
+bun install --frozen-lockfile
+bun run db:migrate
+bun run admin:create
 bun run dev
 ```
 
-- **Backend API**: `http://localhost:3000`
-- **Swagger Documentation**: `http://localhost:3000/swagger`
-- **Frontend SvelteKit**: `http://localhost:5173`
+`admin:create` memerlukan `ADMIN_EMAIL` dan `ADMIN_PASSWORD` melalui environment lokal/secret manager, dengan password 12–128 karakter. Tidak ada akun admin atau password bawaan. Hindari menulis password literal dalam shell history. Kredensial tersebut hanya dipakai CLI, tidak disimpan di kode atau dikirim ke browser. CLI gagal jika email sudah ada; tidak mengubah akun lain diam-diam.
 
-### 2. Menjalankan Backend Secara Terpisah
+Frontend: http://localhost:5173. Backend hanya mendengarkan loopback port 3000 secara default. Browser memanggil `/api`; SvelteKit meneruskan permintaan ke BACKEND_URL. APP_ORIGIN harus sama persis dengan origin frontend, termasuk port.
 
-```bash
-cd apps/backend
-bun run dev
-```
+- `/auth/cms/borrower`: daftar/masuk dan daftar pengajuan milik sendiri.
+- `/onboarding`: formulir pengajuan, memerlukan akun borrower.
+- `/auth/cms/lender`: akun pendana dan simulasi; transaksi belum tersedia.
+- `/backoffice/auth`: login admin dan pemeriksaan pengajuan nyata.
+- `/cms`: pengelolaan konten, memerlukan sesi admin.
 
-### 3. Menjalankan Frontend Secara Terpisah
+## Arsitektur dan batas tanggung jawab
 
-```bash
-cd apps/frontend
-bun run dev
-```
+| Lapisan        | Lokasi                                    | Tanggung jawab                                            |
+| -------------- | ----------------------------------------- | --------------------------------------------------------- |
+| App factory    | `apps/backend/src/app.ts`                 | Komposisi dependency, kebijakan request, penanganan error |
+| Controller     | `apps/backend/src/controllers`            | Kontrak HTTP dan validasi input                           |
+| Service        | `apps/backend/src/services`               | Password hashing, sesi, autentikasi                       |
+| Domain         | `apps/backend/src/domain`                 | Aturan kepemilikan, transisi KYC, keamanan konten         |
+| Repository     | `apps/backend/src/repositories`           | Query parametrik, transaksi, penguncian, persistence      |
+| Komponen akun  | `AccountAccess.svelte`, `LeadList.svelte` | Login bersama, daftar/detail pengajuan dan review         |
+| Klien frontend | `apps/frontend/src/lib/api.ts`            | Permintaan same-origin dan penanganan respons gagal       |
 
-### 4. Menjalankan Unit & Integration Test Suite
+`createApp` tidak membuka port atau mengakses file data saat diimpor. `index.ts` hanya mengurus startup/shutdown. Data akun, sesi, pengajuan, pesan kontak, rate limit, dan audit review berada di tabel terpisah. Konten editorial disimpan sebagai satu dokumen JSONB dengan transaksi dan `SELECT FOR UPDATE`; ini menjaga kompatibilitas bentuk CMS sekaligus menghindari perubahan yang saling menimpa. Counter konten disimpan bersama dokumen, sedangkan ID pengajuan berasal dari sequence PostgreSQL.
 
-```bash
-bun run test
-```
+Semua mutasi CMS diperiksa sebagai admin di server. Lead diperiksa berdasarkan owner ID, bukan email yang dikirim pengguna. Password menggunakan Argon2id; token sesi acak disimpan sebagai hash dan dikirim lewat cookie HttpOnly/SameSite. Produksi memakai cookie Secure. Origin harus cocok pada semua mutasi JSON. Header Origin/User-Agent/API key tidak pernah membuktikan identitas pengguna.
 
-*Hasil pengujian: 14 test lulus dengan respon latensi 0.36ms - 1.12ms (jauh di bawah target <15ms).*
+## Pengujian
 
-### 5. Memeriksa Tipe & Build Production
-
-```bash
+```sh
 bun run check
+bun run test
 bun run build
+bun run test:e2e
+bun audit
 ```
 
----
+Tes API dan E2E membuat cluster PostgreSQL sementara, memilih port kosong, dan membersihkannya setelah selesai. Keduanya tidak memakai DATABASE_URL aplikasi. Sediakan `initdb`/`pg_ctl` melalui PATH atau `PG_BIN=/path/to/postgresql/bin`; akun OS yang menjalankan tes tidak boleh root. Pengujian browser memerlukan Chromium: jalankan `bunx playwright install chromium` dari `apps/frontend` sekali. `test:e2e` membangun frontend lalu menguji server hasil build dengan Chromium headless.
 
-## 🔍 Fitur Utama yang Disediakan
+Tes mencakup otorisasi, kepemilikan, cookie, expiry/logout, CSRF, XSS, validasi KYC, restart/ID, write concurrency, rollback, kegagalan database, rate limit antar-instance, dan alur pengguna/admin di browser. Tes tidak mengukur p95 produksi.
 
-1. **Multi-Category Fintech Aggregator**:
-   - P2P Lending Syariah, Asuransi Takaful, Paylater Syariah, Sukuk / Reksa Dana Syariah, Pembiayaan UMKM.
-   - Filter dinamis berdasarkan akad syariah (Murabahah, Mudharabah, Musyarakah, Wakalah, Ta'awun).
-   - Fitur **Floating Compare Drawer** untuk membandingkan 2 hingga 3 produk finansial secara berdampingan.
+## Migrasi dan deployment
 
-2. **Modular Financial Calculator Suite**:
-   - **Kalkulator Pembiayaan Murabahah**: Simulasi cicilan flat tanpa bunga berbunga dengan pilihan akad jual beli.
-   - **Kalkulator Investasi Mudharabah**: Proyeksi bagi hasil riil dan compound return modal usaha.
-   - **Estimator Skor Kelayakan Finansial**: Perhitungan Debt Service Ratio (DSR), analisis kapasitas angsuran, dan rekomendasi plafon.
-
-3. **Onboarding & E-KYC Wizard**:
-   - Multi-step application form (Identitas diri, Kebutuhan dana, Profil finansial, Ijab Qabul digital).
-   - Validasi instan di browser dan API endpoint penerimaan prospek dengan nomor referensi unik.
-
-4. **Kepatuhan Syariah & Regulasi**:
-   - Seluruh konten dan alur merujuk pada regulasi OJK dan Fatwa DSN-MUI (No. 117/DSN-MUI/II/2018).
-
-## Pembagian halaman publik
-
-Desain publik menggunakan panel dan tab bergaya portal awal 2000-an, dengan Svelte 5, navigasi responsif, fokus keyboard, dan dukungan reduced motion. Warna serta komponen dasar publik berada di `apps/frontend/src/routes/layout.css` pada bagian `Namia public portal`.
-
-| Halaman | Fungsi utama |
-| --- | --- |
-| `/` | Memilih jalur pembiayaan atau pendanaan |
-| `/borrower` | Memilih kebutuhan usaha dan menyiapkan pengajuan |
-| `/investor` | Memahami pilihan, akad, dan risiko pendanaan |
-| `/aggregator` | Mencari, memfilter, melihat detail, dan membandingkan produk |
-| `/calculators` | Simulasi pembiayaan, pendanaan, dan kemampuan bayar |
-| `/onboarding` | Formulir pengajuan pembiayaan |
-| `/about` | Profil dan tata kelola perusahaan |
-| `/team` | Pengawas, manajemen, dan biografi tim |
-| `/blog` | Artikel, berita, dan liputan media |
-| `/contacts` | Bantuan, pertanyaan umum, dan formulir kontak |
-
-Salam audio tersedia melalui tombol beranda tanpa pemutaran otomatis. Halaman akun pendana, akun pembiayaan, dan CMS tetap memakai portal terpisah.
+Lihat [panduan operasi dan migrasi](docs/OPERATIONS.md) dan [hasil perbaikan audit](docs/SECURITY-REMEDIATION.md). Migrasi aktif berada di `apps/backend/migrations`; folder `apps/backend/drizzle` adalah artefak migrasi lama dan tidak dijalankan oleh script aktif.

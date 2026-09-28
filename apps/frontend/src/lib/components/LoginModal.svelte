@@ -1,13 +1,6 @@
 <script lang="ts">
-  import {
-    X,
-    Lock,
-    Mail,
-    ArrowRight,
-    ShieldCheck,
-    UserCheck,
-    Briefcase,
-  } from "lucide-svelte";
+  import { X, Lock, Mail, ArrowRight, ShieldCheck, UserCheck, Briefcase } from "lucide-svelte";
+  import { login } from "$lib/auth";
   import { goto } from "$app/navigation";
 
   let { isOpen = $bindable(false) } = $props();
@@ -18,19 +11,27 @@
   let isLoading = $state(false);
   let loginMessage = $state("");
 
-  function handleSubmit(e: Event) {
+  async function handleSubmit(e: Event) {
     e.preventDefault();
+    if (isLoading) return;
     isLoading = true;
-    setTimeout(() => {
+    loginMessage = "";
+    try {
+      const user = await login(email, password);
+      password = "";
+      isOpen = false;
+      await goto(
+        user.role === "admin"
+          ? "/backoffice/auth"
+          : user.role === "lender"
+            ? "/auth/cms/lender"
+            : "/auth/cms/borrower",
+      );
+    } catch (error) {
+      loginMessage = error instanceof Error ? error.message : "Login gagal.";
+    } finally {
       isLoading = false;
-      const targetPortal = activeRole === "investor" ? "/auth/cms/lender" : "/auth/cms/borrower";
-      loginMessage = `Login ${activeRole === "investor" ? "Investor" : "Peminjam Dana"} berhasil. Mengarahkan ke portal dashboard...`;
-      setTimeout(() => {
-        isOpen = false;
-        loginMessage = "";
-        goto(targetPortal);
-      }, 700);
-    }, 600);
+    }
   }
 
   $effect(() => {
@@ -61,9 +62,7 @@
       class="bg-white rounded-[3px] max-w-md w-full shadow-lg overflow-hidden border border-slate-300 relative font-sans"
     >
       <!-- Modal Header -->
-      <div
-        class="bg-[#0f172a] p-6 text-white relative border-b border-slate-700"
-      >
+      <div class="bg-[#0f172a] p-6 text-white relative border-b border-slate-700">
         <button
           type="button"
           onclick={() => (isOpen = false)}
@@ -78,19 +77,14 @@
           <ShieldCheck class="w-3.5 h-3.5" />
           <span>Portal Akses Mitra Namia Syariah</span>
         </div>
-        <h3 class="text-xl font-bold text-white uppercase">
-          Masuk ke Akun Anda
-        </h3>
+        <h3 class="text-xl font-bold text-white uppercase">Masuk ke Akun Anda</h3>
         <p class="text-xs text-slate-300 mt-1">
-          Pilih peran akun Anda untuk mengelola portofolio atau permohonan
-          pembiayaan.
+          Pilih peran akun Anda untuk mengelola portofolio atau permohonan pembiayaan.
         </p>
       </div>
 
       <!-- Role Selector Tabs -->
-      <div
-        class="grid grid-cols-2 p-2.5 bg-slate-100 border-b border-slate-300 gap-1.5"
-      >
+      <div class="grid grid-cols-2 p-2.5 bg-slate-100 border-b border-slate-300 gap-1.5">
         <button
           type="button"
           onclick={() => (activeRole = "investor")}
@@ -126,13 +120,9 @@
         {/if}
 
         <div class="space-y-1">
-          <label for="login-email" class="text-xs font-bold text-slate-700"
-            >Alamat Email</label
-          >
+          <label for="login-email" class="text-xs font-bold text-slate-700">Alamat Email</label>
           <div class="relative">
-            <Mail
-              class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"
-            />
+            <Mail class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               id="login-email"
               type="email"
@@ -146,19 +136,12 @@
 
         <div class="space-y-1">
           <div class="flex items-center justify-between">
-            <label for="login-password" class="text-xs font-bold text-slate-700"
-              >Password</label
-            >
-            <a
-              href="#forgot"
-              class="text-[11px] text-emerald-700 hover:underline"
-              >Lupa Password?</a
+            <label for="login-password" class="text-xs font-bold text-slate-700">Password</label>
+            <a href="#forgot" class="text-[11px] text-emerald-700 hover:underline">Lupa Password?</a
             >
           </div>
           <div class="relative">
-            <Lock
-              class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"
-            />
+            <Lock class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               id="login-password"
               type="password"
@@ -183,9 +166,7 @@
           {/if}
         </button>
 
-        <div
-          class="pt-3 border-t border-slate-200 text-center text-xs text-slate-500 space-y-2"
-        >
+        <div class="pt-3 border-t border-slate-200 text-center text-xs text-slate-500 space-y-2">
           <div>
             Belum memiliki akun?
             <a

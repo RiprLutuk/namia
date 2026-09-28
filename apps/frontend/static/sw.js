@@ -1,5 +1,5 @@
 // Namia Syariah PWA Service Worker
-const CACHE_NAME = "namia-pwa-v1";
+const CACHE_NAME = "namia-pwa-v2";
 const PRECACHE_ASSETS = ["/", "/manifest.webmanifest", "/favicon.svg"];
 
 self.addEventListener("install", (event) => {
@@ -39,6 +39,11 @@ self.addEventListener("fetch", (event) => {
   // For API or live dev reload websockets, bypass SW cache
   if (
     url.pathname.startsWith("/api") ||
+    url.pathname.startsWith("/auth") ||
+    url.pathname.startsWith("/backoffice") ||
+    url.pathname.startsWith("/cms") ||
+    url.pathname.startsWith("/onboarding") ||
+    url.pathname.endsWith("/__data.json") ||
     url.pathname.includes("/@vite") ||
     url.pathname.includes("/@fs")
   ) {

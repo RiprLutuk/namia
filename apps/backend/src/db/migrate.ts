@@ -1,27 +1,23 @@
-import { migrate } from "drizzle-orm/postgres-js/migrator";
-import { client, db } from "../config/db";
-import * as path from "path";
+import { connectDatabase, type Database } from "../config/db";
+import seed from "./content-seed.json";
+import { ContentState } from "./content-state";
 
-export async function runMigration() {
-  console.log("🚀 Starting PostgreSQL schema migration via Drizzle...");
-  if (!db || !client) {
-    console.error("❌ Cannot migrate: Database connection is not configured.");
-    process.exit(1);
-  }
-
-  try {
-    const migrationsFolder = path.resolve(__dirname, "../../drizzle");
-    console.log(`📁 Applying SQL migrations from: ${migrationsFolder}`);
-    await migrate(db, { migrationsFolder });
-    console.log("✅ Database schema migration completed successfully!");
-  } catch (error) {
-    console.error("❌ Migration failed:", error);
-    process.exit(1);
-  } finally {
-    await client.end();
-  }
+export async function migrateDatabase(sql: Database) {
+  const migration = await Bun.file(
+    new URL("../../migrations/001_secure_storage.sql", import.meta.url),
+  ).text();
+  await sql.begin(async (tx) => {
+    await tx`SELECT pg_advisory_xact_lock(78132591)`;
+    await tx.unsafe(migration);
+    await tx`INSERT INTO app_content (id, data) VALUES (1, ${tx.json(JSON.parse(JSON.stringify(new ContentState(seed))))}) ON CONFLICT DO NOTHING`;
+  });
 }
-
 if (import.meta.main) {
-  runMigration();
+  const sql = connectDatabase(process.env.DATABASE_URL || "");
+  try {
+    await migrateDatabase(sql);
+    console.log("Database migration complete.");
+  } finally {
+    await sql.end();
+  }
 }

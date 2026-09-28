@@ -1,125 +1,45 @@
-import * as dotenv from "dotenv";
+import { isIP } from "node:net";
+import { createHash } from "node:crypto";
+import type { Database } from "../config/db";
+import { HttpError } from "../domain/errors";
 
-dotenv.config();
-
-/**
- * Namia Syariah API Security & Rate Limiting Middleware
- * Protects against public scraping, volumetric flooding, and unhandled 500 crashes.
- */
-
-if (!process.env.NAMIA_API_KEY) {
-  throw new Error("NAMIA_API_KEY must be provided in .env");
-}
-
-export const NAMIA_API_KEY = process.env.NAMIA_API_KEY;
-
-// Rate limit store: IP -> { count, resetTime }
-interface RateLimitRecord {
-  count: number;
-  resetTime: number;
-}
-
-const rateLimitMap = new Map<string, RateLimitRecord>();
-
-// Clean up expired records every 60 seconds
-setInterval(() => {
-  const now = Date.now();
-  for (const [ip, record] of rateLimitMap.entries()) {
-    if (now > record.resetTime) {
-      rateLimitMap.delete(ip);
-    }
+export function clientIp(peer: string | undefined, headers: Headers, trustedProxies: string[]) {
+  if (peer && trustedProxies.includes(peer)) {
+    // Proxy must overwrite this header; never trust a client-supplied forwarding chain.
+    const forwarded = headers.get("x-real-ip");
+    if (forwarded && isIP(forwarded)) return forwarded;
   }
-}, 60000);
-
-/**
- * Check rate limit for a client IP.
- * Defaults to 120 requests per minute per IP.
- */
-export function checkRateLimit(
-  ip: string,
-  limit: number = 120,
-  windowMs: number = 60000
-): { allowed: boolean; current: number; limit: number; remaining: number; resetTime: number } {
-  const now = Date.now();
-  const record = rateLimitMap.get(ip);
-
-  if (!record || now > record.resetTime) {
-    const newRecord: RateLimitRecord = { count: 1, resetTime: now + windowMs };
-    rateLimitMap.set(ip, newRecord);
+  return peer || "unknown-peer";
+}
+export const isMutation = (method: string) => !["GET", "HEAD", "OPTIONS"].includes(method);
+export function checkRequestOrigin(request: Request, origin: string) {
+  if (!isMutation(request.method)) return;
+  if (
+    request.headers.get("origin") !== origin ||
+    request.headers.get("sec-fetch-site") === "cross-site"
+  ) {
+    throw new HttpError(403, "Origin permintaan tidak diizinkan.");
+  }
+  if (request.headers.get("content-type")?.split(";")[0].trim() !== "application/json")
+    throw new HttpError(415, "Gunakan application/json.");
+}
+export class RateLimiter {
+  constructor(private readonly sql: Database) {}
+  async consume(key: string, limit: number, windowSeconds = 60) {
+    const hash = createHash("sha256").update(key).digest("hex");
+    const [row] = await this.sql`INSERT INTO app_rate_limits (key,count,reset_at)
+      VALUES (${hash},1,now() + ${windowSeconds} * interval '1 second')
+      ON CONFLICT (key) DO UPDATE SET
+        count = CASE WHEN app_rate_limits.reset_at <= now() THEN 1 ELSE app_rate_limits.count + 1 END,
+        reset_at = CASE WHEN app_rate_limits.reset_at <= now() THEN EXCLUDED.reset_at ELSE app_rate_limits.reset_at END
+      RETURNING count, reset_at`;
     return {
-      allowed: true,
-      current: 1,
-      limit,
-      remaining: limit - 1,
-      resetTime: newRecord.resetTime
+      allowed: row!.count <= limit,
+      remaining: Math.max(0, limit - row!.count),
+      resetAt: new Date(row!.reset_at),
     };
   }
-
-  record.count += 1;
-  const remaining = Math.max(0, limit - record.count);
-  const allowed = record.count <= limit;
-
-  return {
-    allowed,
-    current: record.count,
-    limit,
-    remaining,
-    resetTime: record.resetTime
-  };
-}
-
-/**
- * Extract client IP from request headers or socket.
- */
-export function getClientIp(headers: Headers): string {
-  const forwarded = headers.get("x-forwarded-for");
-  if (forwarded) {
-    return forwarded.split(",")[0].trim();
+  async cleanup() {
+    await this.sql`DELETE FROM app_rate_limits WHERE reset_at < now() - interval '1 hour'`;
   }
-  return (
-    headers.get("cf-connecting-ip") ||
-    headers.get("x-real-ip") ||
-    "127.0.0.1"
-  );
-}
-
-/**
- * Check if request has valid authorization credentials.
- */
-export function validateApiAccess(headers: Headers): boolean {
-  const apiKey = headers.get("x-api-key");
-  const authHeader = headers.get("authorization");
-  const origin = headers.get("origin") || headers.get("referer") || "";
-
-  // 1. Check API Key header
-  if (apiKey && apiKey === NAMIA_API_KEY) {
-    return true;
-  }
-
-  // 2. Check Bearer token
-  if (authHeader && authHeader.startsWith("Bearer ")) {
-    const token = authHeader.substring(7).trim();
-    if (token === NAMIA_API_KEY) {
-      return true;
-    }
-  }
-
-  // 3. Allow internal / local development / test callers
-  if (
-    origin.includes("localhost") ||
-    origin.includes("127.0.0.1") ||
-    origin.includes("namia.id") ||
-    origin.includes("namiasyariah.com")
-  ) {
-    return true;
-  }
-
-  // 4. In test environment, allow if User-Agent or header indicates internal test
-  const userAgent = headers.get("user-agent") || "";
-  if (userAgent.includes("Bun") || userAgent.includes("undici") || !origin) {
-    // If no origin and no apiKey, still permit if api-key matches or if explicitly local loopback
-    return true;
-  }
-
-  return false;
 }

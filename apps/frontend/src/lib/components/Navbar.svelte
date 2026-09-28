@@ -1,58 +1,545 @@
 <script lang="ts">
+  import { tick } from "svelte";
   import { Menu, X, Search, ArrowUpRight, LogIn, ChevronDown } from "lucide-svelte";
   import { goto } from "$app/navigation";
   import { page } from "$app/state";
   import Logo from "$lib/components/Logo.svelte";
   import { currentLanguage, setLanguage, t, type SupportedLang } from "$lib/i18n";
+
+  let header: HTMLElement;
   let mobileOpen = $state(false);
-  let moreOpen = $state(false);
-  let accountOpen = $state(false);
+  let openMenu = $state<string | null>(null);
   let search = $state("");
-  let currentPath = $derived(page.url.pathname);
-  $effect(() => { currentPath; mobileOpen = false; moreOpen = false; accountOpen = false; });
+  let scrollY = $state(0);
+  let utilityHeight = $state(50);
+  const compact = $derived(scrollY >= utilityHeight);
+  const currentPath = $derived(page.url.pathname);
   const languages: SupportedLang[] = ["ID", "EN", "AR"];
-  function submitSearch(event: SubmitEvent) {
-    event.preventDefault();
-    if (search.trim()) { goto(`/aggregator?search=${encodeURIComponent(search.trim())}`); mobileOpen = false; }
+  const labels = $derived(
+    {
+      ID: { services: "Layanan", guides: "Panduan", company: "Tentang Namia", help: "Bantuan" },
+      EN: { services: "Services", guides: "Resources", company: "About Namia", help: "Help" },
+      AR: { services: "الخدمات", guides: "الدليل", company: "عن ناميا", help: "المساعدة" },
+    }[$currentLanguage],
+  );
+  const groups = $derived([
+    {
+      id: "services",
+      label: labels.services,
+      links: [
+        { href: "/borrower", label: $t.nav.financing },
+        { href: "/investor", label: $t.nav.funding },
+        {
+          href: "/aggregator",
+          label: $currentLanguage === "ID" ? "Katalog produk" : $t.nav.aggregator,
+        },
+      ],
+    },
+    {
+      id: "guides",
+      label: labels.guides,
+      links: [
+        { href: "/calculators", label: $t.nav.calculators },
+        { href: "/blog", label: $t.nav.blog },
+        { href: "/contacts", label: $t.nav.faq },
+      ],
+    },
+    {
+      id: "company",
+      label: labels.company,
+      links: [
+        { href: "/about", label: $t.nav.profile },
+        { href: "/team", label: $t.nav.team },
+      ],
+    },
+  ]);
+
+  function closeMenus() {
+    openMenu = null;
+    mobileOpen = false;
   }
-  function closeMenus(event: KeyboardEvent) {
-    if (event.key === "Escape") { mobileOpen = false; moreOpen = false; accountOpen = false; }
+  function toggleMenu(id: string) {
+    openMenu = openMenu === id ? null : id;
+  }
+  $effect(() => {
+    currentPath;
+    closeMenus();
+  });
+  $effect(() => {
+    if (compact && openMenu === "account") openMenu = null;
+  });
+
+  async function submitSearch(event: SubmitEvent) {
+    event.preventDefault();
+    const query = search.trim();
+    if (!query) return;
+    closeMenus();
+    await goto(`/aggregator?search=${encodeURIComponent(query)}`);
+  }
+  function handleEscape(event: KeyboardEvent) {
+    if (event.key !== "Escape") return;
+    if (openMenu) {
+      header.querySelector<HTMLButtonElement>(`#nav-trigger-${openMenu}`)?.focus();
+      openMenu = null;
+    } else if (mobileOpen) {
+      mobileOpen = false;
+      header.querySelector<HTMLButtonElement>(".mobile-toggle")?.focus();
+    }
+  }
+  async function openWithKeyboard(event: KeyboardEvent, id: string) {
+    if (event.key !== "ArrowDown") return;
+    event.preventDefault();
+    openMenu = id;
+    await tick();
+    header.querySelector<HTMLAnchorElement>(`#nav-panel-${id} a`)?.focus();
+  }
+  function handleOutsidePointer(event: PointerEvent) {
+    if (event.target instanceof Node && !header?.contains(event.target)) closeMenus();
+  }
+  function handleFocusOut(event: FocusEvent) {
+    if (event.relatedTarget instanceof Node && !header.contains(event.relatedTarget)) closeMenus();
   }
 </script>
 
-<svelte:window onkeydown={closeMenus} />
-<header class="site-header">
-  <div class="utility-bar"><div class="portal-container utility-inner"><span>Ruang untuk tumbuh bersama.</span><div><a href="/contacts">Bantuan</a><a href="/rss.xml">RSS</a><label class="language-label"><span class="sr-only">Bahasa navigasi</span><select aria-label="Bahasa navigasi" value={$currentLanguage} onchange={(event) => setLanguage(event.currentTarget.value as SupportedLang)}>{#each languages as language}<option value={language}>{language}</option>{/each}</select></label></div></div></div>
-  <div class="portal-container brand-row">
-    <a href="/" aria-label="Namia Syariah — Beranda" class="brand-link"><Logo size="md" showBadge={true} showOjk={false} /><span class="brand-tagline">Pendanaan & pembiayaan usaha</span></a>
-    <form class="nav-search" role="search" onsubmit={submitSearch}><label class="sr-only" for="nav-search">Cari produk atau akad</label><Search size={16} /><input id="nav-search" type="search" placeholder="Cari produk atau akad…" bind:value={search} /><button type="submit" aria-label="Cari produk"><ArrowUpRight size={17} /></button></form>
-    <div class="account-area"><button class="account-button" type="button" aria-expanded={accountOpen} aria-controls="account-menu" onclick={() => { accountOpen = !accountOpen; moreOpen = false; }}><LogIn size={16} /><span>{$t.nav.login}</span><ChevronDown size={13} /></button>{#if accountOpen}<div class="dropdown account-dropdown" id="account-menu"><span class="dropdown-label">Pilih akun Anda</span><a href="/auth/cms/borrower">Akun pembiayaan <ArrowUpRight size={14}/></a><a href="/auth/cms/lender">Akun pendana <ArrowUpRight size={14}/></a></div>{/if}</div>
-    <button type="button" class="mobile-toggle" aria-label={mobileOpen ? 'Tutup menu' : 'Buka menu'} aria-expanded={mobileOpen} aria-controls="main-navigation" onclick={() => mobileOpen = !mobileOpen}>{#if mobileOpen}<X size={23}/>{:else}<Menu size={23}/>{/if}</button>
+<svelte:window bind:scrollY onkeydown={handleEscape} onpointerdown={handleOutsidePointer} />
+<header
+  class="site-header"
+  class:compact
+  bind:this={header}
+  style:--utility-height={`${utilityHeight}px`}
+  onfocusout={handleFocusOut}
+>
+  <!-- The utility row scrolls naturally away; only the logo/navigation row stays pinned. -->
+  <div class="utility-bar" bind:clientHeight={utilityHeight} inert={compact} aria-hidden={compact}>
+    <div class="portal-container utility-inner">
+      <form class="nav-search" role="search" onsubmit={submitSearch}>
+        <label class="sr-only" for="nav-search">Cari produk atau akad</label>
+        <Search size={15} aria-hidden="true" />
+        <input
+          id="nav-search"
+          type="search"
+          placeholder="Cari produk atau akad…"
+          bind:value={search}
+        />
+        <button type="submit" aria-label="Cari produk"><ArrowUpRight size={16} /></button>
+      </form>
+      <div class="utility-links">
+        <div class="account-area">
+          <button
+            id="nav-trigger-account"
+            class="account-button"
+            type="button"
+            aria-expanded={openMenu === "account"}
+            aria-controls="nav-panel-account"
+            onclick={() => toggleMenu("account")}
+            onkeydown={(event) => openWithKeyboard(event, "account")}
+          >
+            <LogIn size={15} /><span>{$t.nav.login}</span><ChevronDown
+              size={12}
+              class={openMenu === "account" ? "chevron-open" : ""}
+            />
+          </button>
+          {#if openMenu === "account"}
+            <div class="dropdown account-dropdown" id="nav-panel-account">
+              <span class="dropdown-label">Pilih akun Anda</span>
+              <a href="/auth/cms/borrower">Akun pembiayaan <ArrowUpRight size={14} /></a>
+              <a href="/auth/cms/lender">Akun pendana <ArrowUpRight size={14} /></a>
+            </div>
+          {/if}
+        </div>
+        <a href="/contacts">{labels.help}</a>
+        <a href="/rss.xml">RSS</a>
+        <label class="language-label"
+          ><span class="sr-only">Bahasa navigasi</span><select
+            value={$currentLanguage}
+            onchange={(event) => setLanguage(event.currentTarget.value as SupportedLang)}
+            >{#each languages as language}<option value={language}>{language}</option
+              >{/each}</select
+          ></label
+        >
+      </div>
+    </div>
   </div>
-  <div class="navigation-bar"><div class="portal-container navigation-inner"><nav id="main-navigation" aria-label="Navigasi utama" class:mobile-open={mobileOpen}>
-    <a href="/" class:active={currentPath === '/'} aria-current={currentPath === '/' ? 'page' : undefined}>{$t.nav.home}</a>
-    <a href="/borrower" class:active={currentPath === '/borrower'} aria-current={currentPath === '/borrower' ? 'page' : undefined}>{$t.nav.financing}</a>
-    <a href="/investor" class:active={currentPath === '/investor'} aria-current={currentPath === '/investor' ? 'page' : undefined}>{$t.nav.funding}</a>
-    <a href="/aggregator" class:active={currentPath === '/aggregator'} aria-current={currentPath === '/aggregator' ? 'page' : undefined}>{$currentLanguage === 'ID' ? 'Katalog produk' : $t.nav.aggregator}</a>
-    <a href="/calculators" class:active={currentPath === '/calculators'} aria-current={currentPath === '/calculators' ? 'page' : undefined}>{$currentLanguage === 'ID' ? 'Simulasi' : $t.nav.calculators}</a>
-    <div class="more-area"><button type="button" aria-expanded={moreOpen} aria-controls="about-navigation" class:active={['/about','/team','/blog','/contacts'].includes(currentPath)} onclick={() => { moreOpen = !moreOpen; accountOpen = false; }}>{$t.nav.about}<ChevronDown size={13}/></button>{#if moreOpen}<div class="dropdown more-dropdown" id="about-navigation"><a href="/about">{$t.nav.profile}</a><a href="/team">{$t.nav.team}</a><a href="/blog">{$t.nav.blog}</a><a href="/contacts">{$t.nav.faq}</a></div>{/if}</div>
-    <form class="mobile-search" role="search" onsubmit={submitSearch}><label class="sr-only" for="mobile-search">Cari produk</label><input id="mobile-search" type="search" placeholder="Cari produk atau akad…" bind:value={search}/><button type="submit" aria-label="Cari produk"><Search size={18}/></button></form>
-  </nav><a class="apply-link" href="/onboarding">{$t.nav.apply}<ArrowUpRight size={15}/></a></div></div>
+  <div class="main-bar">
+    <div class="portal-container brand-row">
+      <a href="/" aria-label="Namia Syariah — Beranda" class="brand-link"
+        ><Logo size="md" showBadge={true} showOjk={false} /></a
+      >
+      <button
+        type="button"
+        class="mobile-toggle"
+        aria-label={mobileOpen ? "Tutup menu" : "Buka menu"}
+        aria-expanded={mobileOpen}
+        aria-controls="main-navigation"
+        onclick={() => {
+          mobileOpen = !mobileOpen;
+          openMenu = null;
+        }}
+        >{#if mobileOpen}<X size={22} />{:else}<Menu size={22} />{/if}</button
+      >
+      <nav id="main-navigation" aria-label="Navigasi utama" class:mobile-open={mobileOpen}>
+        <a
+          class="nav-link"
+          href="/"
+          class:active={currentPath === "/"}
+          aria-current={currentPath === "/" ? "page" : undefined}>{$t.nav.home}</a
+        >
+        {#each groups as group (group.id)}
+          <div class="nav-group">
+            <button
+              id={`nav-trigger-${group.id}`}
+              class="nav-link"
+              class:active={group.links.some((link) => link.href === currentPath)}
+              type="button"
+              aria-expanded={openMenu === group.id}
+              aria-controls={`nav-panel-${group.id}`}
+              onclick={() => toggleMenu(group.id)}
+              onkeydown={(event) => openWithKeyboard(event, group.id)}
+            >
+              {group.label}<ChevronDown
+                size={13}
+                class={openMenu === group.id ? "chevron-open" : ""}
+              />
+            </button>
+            {#if openMenu === group.id}
+              <div class="dropdown" id={`nav-panel-${group.id}`}>
+                {#each group.links as link (link.href)}<a
+                    href={link.href}
+                    aria-current={currentPath === link.href ? "page" : undefined}
+                    >{link.label}<ArrowUpRight size={13} aria-hidden="true" /></a
+                  >{/each}
+              </div>
+            {/if}
+          </div>
+        {/each}
+        <a class="apply-link" href="/onboarding">{$t.nav.apply}<ArrowUpRight size={15} /></a>
+      </nav>
+    </div>
+  </div>
 </header>
 
 <style>
-  .site-header{position:sticky;top:0;z-index:40;background:white;border-bottom:1px solid #b9c8b6;box-shadow:0 2px 3px #1b392708}
-  .utility-bar{background:#edf2e8;border-bottom:1px solid #e0e7dc;color:#65736e;font-size:10px}
-  .utility-inner{display:flex;align-items:center;justify-content:space-between;min-height:28px}
-  .utility-inner>div{display:flex;align-items:center;gap:17px}.utility-inner a:hover{text-decoration:underline}
-  .language-label select{min-height:24px!important;font-size:10px;padding:0 4px;background:transparent;border:0;color:#165b45;cursor:pointer}
-  .brand-row{display:flex;align-items:center;gap:25px;min-height:77px}.brand-link{display:flex;align-items:center;gap:19px;flex:1}.brand-tagline{border-left:1px solid #d2dccf;padding-left:19px;font-size:10px;max-width:140px;color:#65736e;line-height:1.6}
-  .nav-search{display:flex;align-items:center;gap:9px;background:#f6f8f3;border:1px solid #d2dccf;border-radius:4px;padding:0 10px;color:#65736e;width:255px}
-  .nav-search input{width:100%;min-width:0;background:transparent;min-height:35px!important;font-size:11px;border:0;outline:0}.nav-search:focus-within{outline:2px solid #517c23;outline-offset:2px}.nav-search button{padding:5px;cursor:pointer;color:#165b45}
-  .account-area{position:relative}.account-button{display:flex;align-items:center;gap:8px;min-height:36px;background:linear-gradient(white,#f0f4ea);border:1px solid #bccbb8;border-radius:4px;padding:7px 12px;font-size:11px;font-weight:700;color:#165b45;cursor:pointer}
-  .navigation-bar{background:linear-gradient(#fff,#f0f4eb);border-top:1px solid #e1e8dc}.navigation-inner{display:flex;justify-content:space-between;align-items:center;gap:14px}nav{display:flex;align-items:stretch;gap:6px}nav>a,.more-area>button{min-height:44px;display:flex;align-items:center;gap:6px;padding:0 15px;font-size:12px;color:#52645a;font-weight:600;border-bottom:3px solid transparent;margin-bottom:-1px;cursor:pointer}nav>a:hover,.more-area>button:hover{background:#e9f0e2;color:#165b45}nav .active{color:#165b45;border-bottom-color:#165b45;background:#e8f0e0}
-  .apply-link{display:flex;align-items:center;gap:6px;font-size:11px;color:#165b45;font-weight:700;white-space:nowrap}.apply-link:hover{text-decoration:underline}
-  .more-area{position:relative}.dropdown{position:absolute;z-index:45;top:calc(100% + 5px);background:white;border:1px solid #c5d2c1;box-shadow:0 7px 18px #233b3518;border-radius:4px;padding:7px;min-width:230px}.dropdown a{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px;font-size:12px;color:#233b35}.dropdown a:hover{background:#edf3e6;color:#165b45}.account-dropdown{right:0}.dropdown-label{display:block;color:#65736e;font-size:10px;padding:6px 11px;border-bottom:1px solid #e1e8dd;margin-bottom:3px}.mobile-toggle,.mobile-search{display:none}
-  @media(max-width:1023px){.brand-tagline{display:none}.brand-row{gap:16px}nav>a,.more-area>button{padding:0 10px;font-size:11px}.nav-search{width:220px}.apply-link{font-size:10px}}
-  @media(max-width:760px){.brand-row{min-height:70px;gap:12px}.nav-search{display:none}.account-button{padding:8px}.account-button>span{display:none}.mobile-toggle{display:flex;color:#165b45;padding:7px;cursor:pointer}.navigation-inner{display:block}.navigation-inner>nav{display:none;padding:10px 0 17px}.navigation-inner>nav.mobile-open{display:flex;flex-direction:column;gap:3px}nav>a,.more-area>button{min-height:42px;font-size:13px;border-bottom:0;border-left:3px solid transparent;width:100%;justify-content:flex-start}.more-area>button.active,nav>a.active{border-left-color:#165b45}.more-dropdown{position:static;box-shadow:none;margin-top:4px;margin-left:12px;min-width:0}.apply-link{justify-content:center;min-height:35px;font-size:11px}.mobile-search{display:flex;border:1px solid #d2dccf;background:white;margin-top:8px;border-radius:4px}.mobile-search input{width:100%;min-width:0;padding:8px 12px;background:transparent}.mobile-search button{padding:8px 12px}.utility-inner{font-size:9px}.utility-inner>div{gap:12px}.account-dropdown{right:-45px}}
+  .site-header {
+    position: sticky;
+    top: calc(-1 * var(--utility-height));
+    z-index: 40;
+    background: white;
+  }
+  .utility-bar {
+    background: #edf2e8;
+    color: #52645a;
+  }
+  .utility-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 24px;
+    min-height: 50px;
+    padding-block: 6px;
+  }
+  .utility-links {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    font-size: 11px;
+    white-space: nowrap;
+  }
+  .utility-links > a {
+    display: flex;
+    align-items: center;
+    min-height: 34px;
+  }
+  .utility-links > a:hover {
+    color: #165b45;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .language-label select {
+    min-height: 34px !important;
+    padding: 0 6px;
+    border: 0;
+    background: transparent;
+    font-size: 11px;
+    font-weight: 700;
+    color: #165b45;
+    cursor: pointer;
+  }
+  .nav-search {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    width: 320px;
+    min-width: 0;
+    padding: 0 10px;
+    border: 1px solid #cfdbc8;
+    border-radius: 4px;
+    color: #65736e;
+    background: #f9fbf7;
+  }
+  .nav-search input {
+    width: 100%;
+    min-width: 0;
+    min-height: 34px !important;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    font-size: 11px;
+  }
+  .nav-search:focus-within {
+    outline: 2px solid #517c23;
+    outline-offset: 2px;
+  }
+  .nav-search button {
+    display: flex;
+    padding: 7px 0 7px 7px;
+    color: #165b45;
+    cursor: pointer;
+  }
+  .account-area,
+  .nav-group {
+    position: relative;
+  }
+  .account-button {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 34px;
+    padding: 0 20px 0 0;
+    border-right: 1px solid #cbd7c5;
+    color: #165b45;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .main-bar {
+    position: relative;
+    border-block: 1px solid #d5dfd0;
+    box-shadow: 0 2px 3px #1b392708;
+    background: linear-gradient(#fff, #fafcf8);
+  }
+  .compact .main-bar {
+    box-shadow: 0 3px 12px #1b392710;
+  }
+  .brand-row {
+    display: flex;
+    align-items: center;
+    gap: 36px;
+    min-height: 76px;
+  }
+  .brand-link {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  nav {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    gap: 4px;
+    min-width: 0;
+  }
+  .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 40px;
+    padding: 0 12px;
+    border-radius: 4px;
+    color: #52645a;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .nav-link:hover,
+  .nav-link.active {
+    background: #eaf1e4;
+    color: #165b45;
+  }
+  .nav-link.active {
+    box-shadow: inset 0 -2px #527d35;
+  }
+  .apply-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    margin-left: auto;
+    padding: 10px 13px;
+    border: 1px solid #bccbb8;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #165b45;
+    white-space: nowrap;
+  }
+  .apply-link:hover {
+    background: #eaf1e4;
+    border-color: #7f9d70;
+  }
+  .dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    z-index: 45;
+    min-width: 240px;
+    padding: 7px;
+    border: 1px solid #c5d2c1;
+    border-radius: 6px;
+    background: white;
+    box-shadow: 0 8px 24px #233b3520;
+    animation: reveal 140ms ease-out;
+  }
+  .dropdown a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 12px;
+    border-radius: 3px;
+    color: #233b35;
+    font-size: 12px;
+  }
+  .dropdown a:hover,
+  .dropdown a[aria-current="page"] {
+    background: #edf3e6;
+    color: #165b45;
+  }
+  .dropdown-label {
+    display: block;
+    padding: 7px 12px;
+    margin-bottom: 4px;
+    border-bottom: 1px solid #e1e8dd;
+    font-size: 10px;
+    color: #65736e;
+  }
+  .account-dropdown {
+    top: calc(100% + 7px);
+  }
+  .mobile-toggle {
+    display: none;
+  }
+  button :global(svg) {
+    transition: transform 140ms ease;
+  }
+  :global(.chevron-open) {
+    transform: rotate(180deg);
+  }
+  a:focus-visible,
+  button:focus-visible,
+  select:focus-visible {
+    outline: 2px solid #517c23;
+    outline-offset: 3px;
+  }
+  @keyframes reveal {
+    from {
+      opacity: 0;
+      transform: translateY(-3px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  @media (max-width: 1050px) {
+    .brand-row {
+      gap: 22px;
+    }
+    .nav-link {
+      padding-inline: 9px;
+      font-size: 11px;
+    }
+    .apply-link {
+      padding-inline: 9px;
+      font-size: 10px;
+    }
+  }
+  @media (max-width: 860px) {
+    .brand-row {
+      min-height: 68px;
+      justify-content: space-between;
+    }
+    .mobile-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
+      color: #165b45;
+      cursor: pointer;
+    }
+    nav {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      max-height: calc(100dvh - 70px);
+      overflow-y: auto;
+      padding: 12px 20px 20px;
+      background: white;
+      border-bottom: 1px solid #c5d2c1;
+      box-shadow: 0 8px 20px #233b3518;
+    }
+    nav.mobile-open {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 5px;
+    }
+    .nav-link {
+      min-height: 44px;
+      width: 100%;
+      justify-content: space-between;
+      font-size: 13px;
+    }
+    .nav-group .dropdown {
+      position: static;
+      min-width: 0;
+      margin: 5px 0 7px 12px;
+      border: 0;
+      border-left: 2px solid #d5e2ce;
+      border-radius: 0;
+      box-shadow: none;
+    }
+    .apply-link {
+      margin: 10px 0 0;
+      min-height: 44px;
+      font-size: 12px;
+    }
+  }
+  @media (max-width: 560px) {
+    .utility-inner {
+      flex-direction: column;
+      gap: 3px;
+      padding-block: 8px 4px;
+    }
+    .nav-search {
+      width: 100%;
+    }
+    .utility-links {
+      width: 100%;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .utility-links > a,
+    .account-button,
+    .language-label select {
+      min-height: 40px !important;
+    }
+    .account-button {
+      padding-right: 14px;
+    }
+    .dropdown {
+      min-width: 220px;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .dropdown {
+      animation: none;
+    }
+    button :global(svg) {
+      transition: none;
+    }
+  }
 </style>

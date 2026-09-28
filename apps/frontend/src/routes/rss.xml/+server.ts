@@ -1,14 +1,16 @@
-import type { RequestHandler } from './$types';
-import { defaultBlogPosts } from '$lib/cms';
-import { API_BASE_URL, NAMIA_API_KEY } from '$lib/api';
+import type { RequestHandler } from "./$types";
+import { defaultBlogPosts } from "$lib/cms";
+import { API_BASE_URL } from "$lib/api";
 
-export const GET: RequestHandler = async ({ url }) => {
+const cdata = (value: unknown) => String(value ?? "").replaceAll("]]>", "]]]]><![CDATA[>");
+
+export const GET: RequestHandler = async ({ url, fetch }) => {
   const origin = url.origin;
 
   let blogPosts = defaultBlogPosts;
   try {
     const res = await fetch(`${API_BASE_URL}/api/content/blogs`, {
-      headers: { 'x-api-key': NAMIA_API_KEY }
+      headers: {},
     });
     if (res.ok) {
       const json = await res.json();
@@ -40,25 +42,26 @@ ${blogPosts
   .map((post) => {
     const postDate = post.publishedAt ? new Date(post.publishedAt).toUTCString() : buildDate;
     const postUrl = `${origin}/blog?id=${post.id}`;
-    const desc = typeof post.excerpt === 'string' && post.excerpt ? post.excerpt : (post.summary || '');
+    const desc =
+      typeof post.excerpt === "string" && post.excerpt ? post.excerpt : post.summary || "";
     return `    <item>
-      <title><![CDATA[${post.title}]]></title>
+      <title><![CDATA[${cdata(post.title)}]]></title>
       <link>${postUrl}</link>
       <guid isPermaLink="true">${postUrl}</guid>
       <pubDate>${postDate}</pubDate>
-      <author><![CDATA[${post.author || 'Dewan Redaksi Namia Syariah'}]]></author>
-      <category><![CDATA[${post.category || 'Ekonomi Syariah'}]]></category>
-      <description><![CDATA[${desc}]]></description>
+      <author><![CDATA[${cdata(post.author || "Dewan Redaksi Namia Syariah")}]]></author>
+      <category><![CDATA[${cdata(post.category || "Ekonomi Syariah")}]]></category>
+      <description><![CDATA[${cdata(desc)}]]></description>
     </item>`;
   })
-  .join('\n')}
+  .join("\n")}
   </channel>
 </rss>`;
 
   return new Response(xml.trim(), {
     headers: {
-      'Content-Type': 'application/xml; charset=utf-8',
-      'Cache-Control': 'public, max-age=1800'
-    }
+      "Content-Type": "application/xml; charset=utf-8",
+      "Cache-Control": "public, max-age=1800",
+    },
   });
 };

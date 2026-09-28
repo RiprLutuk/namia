@@ -12,12 +12,18 @@
     "build": "bun --filter \"*\" build",
     "test": "bun --filter \"*\" test",
     "check": "bun --filter \"*\" check",
-    "db:generate": "bun --filter backend db:generate",
     "db:migrate": "bun --filter backend db:migrate",
-    "db:push": "bun --filter backend db:push",
-    "db:seed": "bun --filter backend db:seed"
+    "db:seed": "bun --filter backend db:seed",
+    "admin:create": "bun --filter backend admin:create",
+    "test:e2e": "bun run build && bun --filter frontend test:e2e"
   },
   "devDependencies": {
+    "prettier": "^3.9.9",
+    "prettier-plugin-svelte": "^4.1.1",
     "typescript": "^5.7.3"
+  },
+  "overrides": {
+    "cookie": "1.1.1",
+    "esbuild": "^0.28.0"
   }
 }

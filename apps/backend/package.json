@@ -6,25 +6,19 @@
   "scripts": {
     "dev": "bun --watch src/index.ts",
     "start": "bun src/index.ts",
-    "test": "bun test",
+    "test": "bun test/run.ts",
     "check": "tsc --noEmit",
-    "db:generate": "drizzle-kit generate",
     "db:migrate": "bun src/db/migrate.ts",
-    "db:push": "drizzle-kit push",
-    "db:seed": "bun src/db/seed.ts"
+    "db:seed": "bun src/db/seed.ts",
+    "admin:create": "bun src/scripts/create-admin.ts",
+    "db:import-legacy": "bun src/scripts/import-legacy-leads.ts"
   },
   "dependencies": {
-    "@elysiajs/cors": "^1.2.0",
-    "@elysiajs/swagger": "^1.2.0",
-    "@sinclair/typebox": "^0.34.14",
-    "dotenv": "^16.4.7",
-    "drizzle-orm": "^0.39.3",
     "elysia": "^1.2.14",
     "postgres": "^3.4.5"
   },
   "devDependencies": {
     "@types/bun": "latest",
-    "drizzle-kit": "^0.30.4",
     "typescript": "^5.7.3"
   }
 }

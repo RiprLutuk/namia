@@ -1,84 +1,87 @@
 import { Elysia, t } from "elysia";
-import { mockDb } from "../db/mockData";
-import { CreateLeadSchema, UpdateKycStepSchema } from "../schemas/lead";
-
-export const leadController = new Elysia({ prefix: "/api/leads" })
-  // 1. Create initial lead / registration
-  .post("/", ({ body }) => {
-    const newLead = mockDb.addLead({
-      fullName: body.fullName,
-      email: body.email,
-      phone: body.phone,
-      needCategory: body.needCategory || "p2p-lending",
-      targetAmount: body.targetAmount ? Number(body.targetAmount) : undefined,
-      targetTenorMonths: body.targetTenorMonths ? Number(body.targetTenorMonths) : undefined,
-      notes: body.notes
-    });
-
-    return {
-      success: true,
-      message: "Data prospek awal berhasil disimpan",
-      data: newLead
-    };
-  }, {
-    body: CreateLeadSchema,
-    detail: {
-      tags: ["Leads & KYC"],
-      summary: "Register new lead / prospect"
-    }
-  })
-
-  // 2. Update multi-step KYC simulator
-  .patch("/:id/kyc", ({ params, body, set }) => {
-    const leadId = Number(params.id);
-    const updated = mockDb.updateLeadKyc(leadId, {
-      step: Number(body.step),
-      nik: body.nik,
-      dateOfBirth: body.dateOfBirth,
-      address: body.address,
-      employmentType: body.employmentType,
-      monthlyIncome: body.monthlyIncome ? Number(body.monthlyIncome) : undefined
-    });
-
-    if (!updated) {
-      set.status = 404;
-      return { success: false, message: "Data lead tidak ditemukan" };
-    }
-
-    return {
-      success: true,
-      message: `KYC tahap ${body.step} berhasil diperbarui`,
-      data: updated
-    };
-  }, {
-    params: t.Object({
-      id: t.Numeric()
-    }),
-    body: UpdateKycStepSchema,
-    detail: {
-      tags: ["Leads & KYC"],
-      summary: "Progress KYC verification wizard step"
-    }
-  })
-
-  // 3. Get lead status
-  .get("/:id", ({ params, set }) => {
-    const leadId = Number(params.id);
-    const lead = mockDb.leads.find((l) => l.id === leadId);
-    if (!lead) {
-      set.status = 404;
-      return { success: false, message: "Data lead tidak ditemukan" };
-    }
-    return {
-      success: true,
-      data: lead
-    };
-  }, {
-    params: t.Object({
-      id: t.Numeric()
-    }),
-    detail: {
-      tags: ["Leads & KYC"],
-      summary: "Get KYC onboarding status"
-    }
-  });
+import type { LeadRepository } from "../repositories/leads";
+import { AuthService, requireUser } from "../services/auth";
+import { CreateLeadSchema, ContactSchema, SubmitKycSchema, ReviewKycSchema } from "../schemas/lead";
+import { submitKyc, reviewKyc } from "../domain/lead";
+const idParams = t.Object({ id: t.Numeric({ minimum: 1, maximum: 2147483647, multipleOf: 1 }) });
+export const createLeadController = (repository: LeadRepository, auth: AuthService) =>
+  new Elysia({ prefix: "/api" })
+    .get(
+      "/contacts",
+      async ({ request, query }) => {
+        requireUser(await auth.user(request), ["admin"]);
+        return { success: true, data: await repository.contacts(Number(query.page || 1)) };
+      },
+      {
+        query: t.Object({
+          page: t.Optional(t.Numeric({ minimum: 1, maximum: 100000, multipleOf: 1 })),
+        }),
+      },
+    )
+    .post(
+      "/contacts",
+      async ({ body, set }) => {
+        const reference = await repository.contact(body);
+        set.status = 201;
+        return { success: true, data: { reference } };
+      },
+      { body: ContactSchema },
+    )
+    .post(
+      "/leads",
+      async ({ body, request, set }) => {
+        const user = requireUser(await auth.user(request), ["borrower"]);
+        const data = await repository.create(body, user);
+        set.status = 201;
+        return { success: true, data };
+      },
+      { body: CreateLeadSchema },
+    )
+    .get(
+      "/leads",
+      async ({ request, query }) => {
+        const user = requireUser(await auth.user(request), ["admin", "borrower"]);
+        return { success: true, data: await repository.list(user, Number(query.page || 1)) };
+      },
+      {
+        query: t.Object({
+          page: t.Optional(t.Numeric({ minimum: 1, maximum: 100000, multipleOf: 1 })),
+        }),
+      },
+    )
+    .get(
+      "/leads/:id",
+      async ({ request, params }) => ({
+        success: true,
+        data: await repository.get(
+          Number(params.id),
+          requireUser(await auth.user(request), ["admin", "borrower"]),
+        ),
+      }),
+      { params: idParams },
+    )
+    .patch(
+      "/leads/:id/kyc",
+      async ({ request, params, body }) => {
+        const user = requireUser(await auth.user(request), ["borrower"]);
+        const data = await repository.update(Number(params.id), user, "kyc.submit", (lead) =>
+          submitKyc(lead, body),
+        );
+        return { success: true, data };
+      },
+      { params: idParams, body: SubmitKycSchema },
+    )
+    .post(
+      "/leads/:id/review",
+      async ({ request, params, body }) => {
+        const user = requireUser(await auth.user(request), ["admin"]);
+        const data = await repository.update(
+          Number(params.id),
+          user,
+          `kyc.${body.decision}`,
+          (lead) => reviewKyc(lead, user, body.decision, body.note),
+        );
+        return { success: true, data };
+      },
+      { params: idParams, body: ReviewKycSchema },
+    );

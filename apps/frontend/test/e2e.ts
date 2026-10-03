@@ -31,18 +31,7 @@ try {
     "admin",
   );
   // Simulate pre-existing legacy content. Rendering must remain inert even before editors resave it.
-  const [row] = await sql`SELECT data FROM app_content WHERE id = 1`;
-  row!.data.faqs = [
-    {
-      id: 1,
-      categoryId: 1,
-      categoryName: "Audit",
-      isInvestor: 0,
-      question: "Browser security test",
-      answer: '<img src=x onerror="window.__xss=1">Safe text',
-    },
-  ];
-  await sql`UPDATE app_content SET data = ${sql.json(row!.data)} WHERE id = 1`;
+  await sql`UPDATE faqs SET question = 'Browser security test', answer = '<img src=x onerror="window.__xss=1">Safe text' WHERE id = (SELECT min(id) FROM faqs)`;
   processes.push(
     Bun.spawn([process.execPath, "src/index.ts"], {
       cwd: new URL("../../backend/", import.meta.url).pathname,
@@ -113,9 +102,9 @@ try {
   for (const checkbox of await page.locator('input[type="checkbox"]').all()) await checkbox.check();
   await page.getByRole("button", { name: /Kirim pengajuan/i }).click();
   await page.getByRole("heading", { name: /Terima kasih/ }).waitFor();
-  const [lead] = await sql`SELECT data FROM app_leads`;
-  assert.equal(lead!.data.status, "submitted");
-  assert.equal(lead!.data.employmentType, "permanent_employee");
+  const [lead] = await sql`SELECT status, employment_type FROM leads`;
+  assert.equal(lead!.status, "submitted");
+  assert.equal(lead!.employment_type, "permanent_employee");
   await page.getByRole("button", { name: "Keluar", exact: true }).click();
   await page.waitForURL(origin + "/");
 
@@ -130,7 +119,64 @@ try {
   await page.getByRole("button", { name: "Tandai terverifikasi" }).click();
   await page.getByRole("cell", { name: "verified", exact: true }).waitFor();
 
+  await page.setViewportSize({ width: 1360, height: 960 });
+  await page.goto(`${origin}/cms`);
+  await page.getByRole("heading", { name: /Konten yang jelas/ }).waitFor();
+  if (process.env.CMS_SCREENSHOTS)
+    await page.screenshot({
+      path: process.env.CMS_SCREENSHOTS + "/cms-overview.png",
+      animations: "disabled",
+    });
+  await page
+    .getByRole("navigation", { name: "Navigasi CMS" })
+    .getByRole("button", { name: "Produk pembiayaan", exact: true })
+    .click();
+  await page.getByLabel("Cari produk pembiayaan").fill("no-matching-product-test");
+  await page.getByRole("heading", { name: "Tidak ada hasil yang cocok" }).waitFor();
+  await page.getByRole("button", { name: "Hapus pencarian" }).click();
+  if (process.env.CMS_SCREENSHOTS)
+    await page.screenshot({
+      path: process.env.CMS_SCREENSHOTS + "/cms-products.png",
+      animations: "disabled",
+    });
+  await page.getByRole("button", { name: "Tambah Produk", exact: true }).click();
+  await page.getByRole("dialog").waitFor();
+  assert.equal(
+    await page.evaluate(() => document.querySelector("dialog")?.contains(document.activeElement)),
+    true,
+  );
+  await page.keyboard.press("Escape");
+  assert.equal(await page.getByRole("dialog").count(), 0);
+  assert.equal(
+    await page
+      .getByRole("button", { name: "Tambah Produk", exact: true })
+      .evaluate((e) => e === document.activeElement),
+    true,
+  );
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.getByRole("button", { name: "Buka navigasi CMS" }).click();
+  await page
+    .getByRole("navigation", { name: "Navigasi CMS" })
+    .getByRole("button", { name: "FAQ", exact: true })
+    .click();
+  await page.getByRole("heading", { name: "FAQ", exact: true }).waitFor();
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+  if (process.env.CMS_SCREENSHOTS)
+    await page.screenshot({
+      path: process.env.CMS_SCREENSHOTS + "/cms-mobile.png",
+      animations: "disabled",
+    });
+  await page.getByRole("button", { name: "Tambah FAQ Baru", exact: true }).click();
+  if (process.env.CMS_SCREENSHOTS)
+    await page.screenshot({
+      path: process.env.CMS_SCREENSHOTS + "/cms-editor-mobile.png",
+      animations: "disabled",
+    });
+  await page.keyboard.press("Escape");
+  await page.setViewportSize({ width: 1360, height: 960 });
+
   await page.goto(`${origin}/cms?tab=branding`);
+  await page.getByLabel("Nama Brand Platform").fill("Namia Browser Test");
   await page.getByLabel("Tagline Resmi").fill("Browser verified CMS update");
   const saved = page.waitForResponse(
     (response) =>

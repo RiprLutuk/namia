@@ -6,7 +6,9 @@ export type { App } from "./app";
 
 if (import.meta.main) {
   const sql = connectDatabase(process.env.DATABASE_URL || "");
-  await sql`SELECT id FROM app_content WHERE id = 1`;
+  const [migration] = await sql`SELECT version FROM app_migrations WHERE version = 2`;
+  if (!migration)
+    throw new Error("Database migration required: run bun run db:migrate before starting the API.");
   const app = createApp(sql, runtimeConfig()).listen({
     hostname: process.env.HOST || "127.0.0.1",
     port: Number(process.env.PORT || 3000),

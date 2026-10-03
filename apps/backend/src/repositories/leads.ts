@@ -3,25 +3,22 @@ import type { Lead, LeadInput } from "../domain/lead";
 import type { User } from "../domain/auth";
 import { assertLeadOwner } from "../domain/lead";
 
-type LeadRow = {
-  id: number;
-  owner_id: string | null;
-  data: Omit<Lead, "id" | "ownerId" | "createdAt">;
-  created_at: Date;
-};
-const toLead = (row: LeadRow): Lead => ({
-  ...row.data,
-  id: row.id,
-  ownerId: row.owner_id,
-  createdAt: row.created_at.toISOString(),
-});
+import { decodeFields, encodeFields, leadFields } from "../db/domain-tables";
+type LeadRow = Record<string, unknown> & { id: number; owner_id: string | null; created_at: Date };
+const toLead = (row: LeadRow): Lead =>
+  ({
+    ...decodeFields(row, leadFields),
+    id: row.id,
+    ownerId: row.owner_id,
+    createdAt: row.created_at.toISOString(),
+  }) as Lead;
 export class LeadRepository {
   constructor(private readonly sql: Database) {}
   async create(input: LeadInput, user: User): Promise<Lead> {
     const data = { ...input, email: user.email, status: "pending", kycStep: 1 };
     const [row] = await this.sql<
       LeadRow[]
-    >`INSERT INTO app_leads (owner_id,data) VALUES (${user.id}, ${this.sql.json(data)}) RETURNING *`;
+    >`INSERT INTO leads ${this.sql({ owner_id: user.id, ...encodeFields(data, leadFields) } as never)} RETURNING *`;
     return toLead(row!);
   }
   async list(user: User, page: number) {
@@ -29,30 +26,41 @@ export class LeadRepository {
       user.role === "admin"
         ? await this.sql<
             LeadRow[]
-          >`SELECT * FROM app_leads ORDER BY id DESC LIMIT 50 OFFSET ${(page - 1) * 50}`
+          >`SELECT * FROM leads ORDER BY id DESC LIMIT 50 OFFSET ${(page - 1) * 50}`
         : await this.sql<
             LeadRow[]
-          >`SELECT * FROM app_leads WHERE owner_id = ${user.id} ORDER BY id DESC LIMIT 50 OFFSET ${(page - 1) * 50}`;
+          >`SELECT * FROM leads WHERE owner_id = ${user.id} ORDER BY id DESC LIMIT 50 OFFSET ${(page - 1) * 50}`;
     // Lists exclude identity and income data; details enforce the same ownership policy.
-    return rows.map((row) => {
-      const { nik, monthlyIncome, notes, ...summary } = toLead(row);
-      return summary;
-    });
+    return rows.map((row) => ({
+      id: row.id,
+      ownerId: row.owner_id,
+      createdAt: row.created_at.toISOString(),
+      ...decodeFields(row, [
+        "fullName",
+        "email",
+        "phone",
+        "needCategory",
+        "targetAmount",
+        "targetTenorMonths",
+        "status",
+        "kycStep",
+      ]),
+    }));
   }
   async get(id: number, user: User) {
-    const [row] = await this.sql<LeadRow[]>`SELECT * FROM app_leads WHERE id = ${id}`;
+    const [row] = await this.sql<LeadRow[]>`SELECT * FROM leads WHERE id = ${id}`;
     const lead = row ? toLead(row) : undefined;
     assertLeadOwner(lead, user);
     return lead;
   }
   async update(id: number, user: User, action: string, operation: (lead: Lead) => Lead) {
     const result = await this.sql.begin(async (tx) => {
-      const [row] = await tx<LeadRow[]>`SELECT * FROM app_leads WHERE id = ${id} FOR UPDATE`;
+      const [row] = await tx<LeadRow[]>`SELECT * FROM leads WHERE id = ${id} FOR UPDATE`;
       const lead = row ? toLead(row) : undefined;
       assertLeadOwner(lead, user);
       const updated = operation(lead);
       const { id: _, ownerId: __, createdAt: ___, ...data } = updated;
-      await tx`UPDATE app_leads SET data = ${tx.json(JSON.parse(JSON.stringify(data)))} WHERE id = ${id}`;
+      await tx`UPDATE leads SET ${tx(encodeFields(data, leadFields) as never)} WHERE id = ${id}`;
       await tx`INSERT INTO app_audit_events (actor_id,action,resource_id) VALUES (${user.id},${action},${String(id)})`;
       return { value: updated };
     });

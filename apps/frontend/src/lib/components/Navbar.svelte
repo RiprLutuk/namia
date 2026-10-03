@@ -178,12 +178,6 @@
         >{#if mobileOpen}<X size={22} />{:else}<Menu size={22} />{/if}</button
       >
       <nav id="main-navigation" aria-label="Navigasi utama" class:mobile-open={mobileOpen}>
-        <a
-          class="nav-link"
-          href="/"
-          class:active={currentPath === "/"}
-          aria-current={currentPath === "/" ? "page" : undefined}>{$t.nav.home}</a
-        >
         {#each groups as group (group.id)}
           <div class="nav-group">
             <button
@@ -344,7 +338,7 @@
     gap: 7px;
     min-height: 40px;
     padding: 0 12px;
-    border-radius: 4px;
+    border-radius: 0;
     color: #52645a;
     font-size: 12px;
     font-weight: 600;
@@ -353,7 +347,6 @@
   }
   .nav-link:hover,
   .nav-link.active {
-    background: #eaf1e4;
     color: #165b45;
   }
   .nav-link.active {
@@ -402,8 +395,11 @@
   }
   .dropdown a:hover,
   .dropdown a[aria-current="page"] {
-    background: #edf3e6;
     color: #165b45;
+  }
+  .dropdown a[aria-current="page"] {
+    border-radius: 0;
+    box-shadow: inset 0 -2px #527d35;
   }
   .dropdown-label {
     display: block;
